@@ -101,6 +101,23 @@ export default function InteractiveQuiz({ profile, onAwardXp }: InteractiveQuizP
     } else {
       // Completed last question
       setQuizFinished(true);
+      const finalScore = score;
+      const historyItem = {
+        topic: topic || "STEM General Practice",
+        score: finalScore,
+        total: questions.length,
+        date: new Date().toDateString(),
+        gradeLevel: gradeLevel
+      };
+      try {
+        const stored = localStorage.getItem(`plato_quiz_history_${profile.name}`);
+        const list = stored ? JSON.parse(stored) : [];
+        list.push(historyItem);
+        localStorage.setItem(`plato_quiz_history_${profile.name}`, JSON.stringify(list));
+      } catch (e) {
+        console.error(e);
+      }
+
       // If 100% score (3/3), award "Quiz Conqueror" badge + massive bonus XP
       if (score + (selectedOptIdx === currentQuestion.correctAnswerIndex ? 1 : 0) === questions.length) {
         onAwardXp(100, "badge-quiz");

@@ -22,3 +22,136 @@
 @utility rotate-y-180 {
   transform: rotateY(180deg);
 }
+
+/* ==========================================================================
+   DAY MODE & MORNING STUDY OPTIMIZATION THEME OVERRIDES
+   ========================================================================== */
+.day-mode {
+  color-scheme: light;
+  background-color: #f1f5f9 !important;
+}
+
+/* Day Mode Container Backgrounds - Light Slate for background wash */
+.day-mode.bg-slate-950,
+.day-mode .bg-slate-950,
+.day-mode .bg-slate-950\/80,
+.day-mode .bg-slate-950\/40,
+.day-mode .bg-slate-950\/60,
+.day-mode #app-full-expanded {
+  background-color: #f1f5f9 !important;
+  background-image: none !important;
+}
+
+/* Cards & Content Blocks - Pure white cards with delicate depth shadows */
+.day-mode .bg-slate-900,
+.day-mode .bg-slate-850,
+.day-mode .bg-slate-900\/40,
+.day-mode .bg-slate-900\/60,
+.day-mode .bg-slate-950\/20,
+.day-mode .bg-gradient-to-br,
+.day-mode .bg-gradient-to-tr {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Ensure selected tab and list indicators look warm and crisp in Light Mode */
+.day-mode .border-slate-800,
+.day-mode .border-slate-850,
+.day-mode .border-slate-700,
+.day-mode .border-slate-900,
+.day-mode .border-white\/\[0\.02\],
+.day-mode .border-white\/\[0\.03\],
+.day-mode .border-slate-850\/50 {
+  border-color: #cbd5e1 !important;
+}
+
+/* Day Mode High Contrast Slate Typography */
+.day-mode .text-slate-100,
+.day-mode .text-slate-200,
+.day-mode .text-slate-300,
+.day-mode .text-slate-305,
+.day-mode .text-slate-50,
+.day-mode .text-[#FFF],
+.day-mode h1,
+.day-mode h2,
+.day-mode h3,
+.day-mode h4,
+.day-mode h5 {
+  color: #0f172a !important; /* Rich charcoal for crystal-clear readability */
+}
+
+/* Muted / Secondary Slate Labels */
+.day-mode .text-slate-350,
+.day-mode .text-slate-400,
+.day-mode .text-slate-405,
+.day-mode .text-slate-450,
+.day-mode .text-slate-455 {
+  color: #334155 !important; /* Steel gray */
+}
+
+.day-mode .text-slate-500,
+.day-mode .text-slate-600 {
+  color: #64748b !important; /* Soft slate gray */
+}
+
+/* Maintain crisp white text inside colored action buttons and badges */
+.day-mode .bg-brand-blue .text-slate-100,
+.day-mode .bg-brand-blue-dark .text-slate-100,
+.day-mode .bg-brand-blue .text-white,
+.day-mode .bg-brand-red .text-white,
+.day-mode .bg-brand-red .text-slate-100,
+.day-mode .bg-emerald-500 .text-white,
+.day-mode .bg-emerald-600 .text-white,
+.day-mode button.bg-brand-red .text-slate-100,
+.day-mode button.bg-brand-blue .text-slate-100,
+.day-mode button.bg-brand-blue-dark .text-slate-100,
+.day-mode [class*="bg-brand-"] .text-white,
+.day-mode [class*="bg-brand-"] .text-slate-100,
+.day-mode [class*="bg-emerald-"] .text-white,
+.day-mode [class*="bg-slate-900"] .text-brand-yellow {
+  /* Retain high-contrast white text for solid badges */
+  color: inherit; 
+}
+
+/* Overrides for dynamic interactive Form fields and Input areas */
+.day-mode input,
+.day-mode select,
+.day-mode textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.day-mode input::placeholder,
+.day-mode textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Ensure study group item backgrounds and subtab options pop out cleanly */
+.day-mode .bg-slate-905,
+.day-mode .bg-slate-900\/40 {
+  background-color: #f8fafc !important;
+}
+
+/* Ambient glow & indicators tweaks */
+.day-mode .bg-brand-red\/10 {
+  background-color: rgba(225, 26, 34, 0.08) !important;
+}
+.day-mode .text-brand-red {
+  color: #e11a22 !important;
+}
+.day-mode .text-brand-blue {
+  color: #024089 !important;
+}
+.day-mode .text-brand-yellow {
+  color: #d97706 !important; /* Slightly darker amber for light-mode visibility */
+}
+.day-mode .text-emerald-400 {
+  color: #059669 !important; /* Darker emerald for daytime reading */
+}
+
+/* Interactive custom card transitions */
+.day-mode .hover\:bg-slate-900:hover {
+  background-color: #f1f5f9 !important;
+}

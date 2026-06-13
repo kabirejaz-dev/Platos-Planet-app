@@ -23,7 +23,7 @@ interface LibraryProps {
   triggerNotification?: (title: string, desc: string) => void;
 }
 
-interface LibDoc {
+export interface LibDoc {
   id: string;
   title: string;
   curriculum: "CBSE" | "IGCSE" | "General";
@@ -39,7 +39,7 @@ interface LibDoc {
   examinerTip: string;
 }
 
-const LIBRARY_DOCUMENTS: LibDoc[] = [
+export const LIBRARY_DOCUMENTS: LibDoc[] = [
   {
     id: "igcse-math-trig",
     title: "Cambridge IGCSE Extended Math: Trigonometry & Circle Theorems cheat-sheet",

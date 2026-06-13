@@ -15,6 +15,8 @@ import StudentPortal from "./components/StudentPortal";
 import Leaderboard from "./components/Leaderboard";
 import StudyGroups from "./components/StudyGroups";
 import Library from "./components/Library";
+import { LIBRARY_DOCUMENTS } from "./components/Library";
+import Schedule from "./components/Schedule";
 import { StudentProfile, Course, ChatMessage } from "./types";
 import { 
   Home, 
@@ -22,6 +24,8 @@ import {
   MessageSquare, 
   Award, 
   CalendarDays,
+  Calendar,
+  CalendarRange,
   Sparkles,
   MapPin,
   Flame,
@@ -30,7 +34,9 @@ import {
   Compass,
   GraduationCap,
   UserCheck,
-  Users
+  Users,
+  Sun,
+  Moon
 } from "lucide-react";
 
 export default function App() {
@@ -39,6 +45,30 @@ export default function App() {
   
   // Audio guidance system state
   const [soundEnabled, setSoundEnabled] = useState(false);
+
+  // Theme state: 'dark' (calibrated night comfort) or 'light' (Day Mode morning studying)
+  const [theme, setTheme] = useState<"dark" | "light">(() => {
+    try {
+      const stored = localStorage.getItem("plato_app_theme");
+      return (stored === "light" || stored === "dark") ? stored : "dark";
+    } catch {
+      return "dark";
+    }
+  });
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "dark" ? "light" : "dark";
+    setTheme(nextTheme);
+    try {
+      localStorage.setItem("plato_app_theme", nextTheme);
+    } catch {}
+    triggerLocalNotification(
+      nextTheme === "light" ? "☀️ Day Mode Activated" : "🌙 Night Mode Activated",
+      nextTheme === "light"
+        ? "Switching to high-contrast Day Mode for productive morning study sessions!"
+        : "Switching to cozy Dark Mode calibrated for night-time eye comfort!"
+    );
+  };
 
   // Lift chat history so it survives tab switching!
   const [chats, setChats] = useState<ChatMessage[]>([
@@ -95,9 +125,18 @@ export default function App() {
       
       if (currentHHMM === profile.preferredStudyTime && lastTriggeredHHMM !== currentHHMM) {
         lastTriggeredHHMM = currentHHMM;
+
+        const libCurriculum = profile.curriculum === "British" ? "IGCSE" : profile.curriculum === "CBSE" ? "CBSE" : "General";
+        const matches = LIBRARY_DOCUMENTS.filter(doc => doc.curriculum === libCurriculum || doc.curriculum === "General");
+        const dateIndex = now.getDate();
+        const doc = matches[dateIndex % (matches.length || 1)] || matches[0] || LIBRARY_DOCUMENTS[0];
+        const suggestion = doc 
+          ? `\n\n💡 Suggested Active Recall: "${doc.title}" (${doc.subject}) under standard difficulty [${doc.difficulty}]. Tap 'Focus Zone' to begin!` 
+          : "";
+
         triggerLocalNotification(
           "⏱️ Daily Study Hour Reminder!",
-          `Pristine discipline, ${profile.name}! It is exactly ${profile.preferredStudyTime}. Start a 25-min Pomodoro session to claim +35 XP and secure your ${profile.streak}-day streak! 🚀`
+          `Pristine discipline, ${profile.name}! It is exactly ${profile.preferredStudyTime}. Start a 25-min Pomodoro session to claim +35 XP and secure your ${profile.streak}-day streak! 🚀${suggestion}`
         );
       }
     };
@@ -183,43 +222,58 @@ export default function App() {
 
   return (
     <PhoneContainer>
-      {/* App brand strip */}
-      <div className="w-full bg-brand-blue-dark px-4 py-3 flex items-center justify-between border-b border-brand-blue/30 sticky top-0 z-40">
-        <div className="flex items-center gap-1.5">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-brand-red to-brand-yellow flex items-center justify-center font-black text-slate-100 text-xs shadow-md">
-            P
+      <div className={`w-full min-h-full flex flex-col relative transition-all duration-300 ${theme === "light" ? "day-mode bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100"}`}>
+        {/* App brand strip */}
+        <div className="w-full bg-brand-blue-dark px-4 py-3 flex items-center justify-between border-b border-brand-blue/30 sticky top-0 z-40">
+          <div className="flex items-center gap-1.5">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-brand-red to-brand-yellow flex items-center justify-center font-black text-slate-100 text-xs shadow-md">
+              P
+            </div>
+            <div>
+              <h1 className="text-xs font-black tracking-widest text-[#FFF] uppercase leading-none">
+                Plato's Planet
+              </h1>
+              <span className="text-[9px] text-brand-yellow font-extrabold uppercase tracking-wider font-mono">
+                Dubai Training
+              </span>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xs font-black tracking-widest text-[#FFF] uppercase leading-none">
-              Plato's Planet
-            </h1>
-            <span className="text-[9px] text-brand-yellow font-extrabold uppercase tracking-wider font-mono">
-              Dubai Training
-            </span>
+
+          {/* Global status pill */}
+          <div className="flex items-center gap-2">
+            {/* User-controlled Night/Day theme toggle */}
+            <button 
+              id="theme-toggle-btn"
+              onClick={toggleTheme}
+              className="p-1 px-1.5 rounded-lg bg-slate-900 border border-slate-850 text-slate-400 hover:text-slate-200 transition-colors flex items-center justify-center cursor-pointer"
+              title={theme === "light" ? "Switch to Nightcomfort Mode" : "Switch to Morning Day Mode"}
+            >
+              {theme === "light" ? (
+                <Sun className="w-3.5 h-3.5 text-brand-yellow animate-bounce" />
+              ) : (
+                <Moon className="w-3.5 h-3.5 text-indigo-400" />
+              )}
+            </button>
+
+            {/* Audio toggle controls */}
+            <button 
+              id="sound-toggle-btn"
+              onClick={() => {
+                setSoundEnabled(!soundEnabled);
+                triggerLocalNotification("📢 Audio Mode Changed", soundEnabled ? "Sounds disabled" : "Sound notifications active!");
+              }}
+              className="p-1 px-1.5 rounded-lg bg-slate-900 border border-slate-850 text-slate-400 hover:text-slate-300 transition-colors"
+              title="Toggle Notification Sounds"
+            >
+              {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-brand-yellow" /> : <VolumeX className="w-3.5 h-3.5" />}
+            </button>
+
+            <div className="flex items-center gap-1 text-[10px] bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
+              <Flame className="w-3 h-3 text-brand-red fill-current" />
+              <span className="text-slate-350 font-bold font-mono">{profile.streak} Days</span>
+            </div>
           </div>
         </div>
-
-        {/* Global status pill */}
-        <div className="flex items-center gap-2">
-          {/* Audio toggle controls */}
-          <button 
-            id="sound-toggle-btn"
-            onClick={() => {
-              setSoundEnabled(!soundEnabled);
-              triggerLocalNotification("📢 Audio Mode Changed", soundEnabled ? "Sounds disabled" : "Sound notifications active!");
-            }}
-            className="p-1 px-1.5 rounded-lg bg-slate-900 border border-slate-850 text-slate-400 hover:text-slate-300 transition-colors"
-            title="Toggle Notification Sounds"
-          >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5 text-brand-yellow" /> : <VolumeX className="w-3.5 h-3.5" />}
-          </button>
-
-          <div className="flex items-center gap-1 text-[10px] bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">
-            <Flame className="w-3 h-3 text-brand-red fill-current" />
-            <span className="text-slate-300 font-bold font-mono">{profile.streak} Days</span>
-          </div>
-        </div>
-      </div>
 
       {/* Floating high-fidelity push notifications (Dynamic in-app toaster) */}
       {notification && (
@@ -310,10 +364,18 @@ export default function App() {
             triggerNotification={triggerLocalNotification}
           />
         )}
+        {activeTab === "schedule" && (
+          <Schedule 
+            profile={profile}
+            onAwardXp={handleAwardXp}
+            triggerNotification={triggerLocalNotification}
+            onNavigateToTab={setActiveTab}
+          />
+        )}
       </div>
 
       {/* Low-profile Android Navigation Drawer Tab bar sticking at the bottom */}
-      <div className="w-full bg-brand-blue-dark border-t border-brand-blue/40 py-1 flex justify-around items-center absolute bottom-0 left-0 right-0 z-40 select-none px-1">
+      <div className="w-full bg-brand-blue-dark border-t border-brand-blue/40 py-1.5 flex items-center justify-start gap-1.5 overflow-x-auto scrollbar-none absolute bottom-0 left-0 right-0 z-40 select-none px-2.5">
         
         {/* Dashboard Tab */}
         <button
@@ -322,14 +384,31 @@ export default function App() {
             setActiveTab("dashboard");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "dashboard" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
           <Home className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Hub</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Hub</span>
+        </button>
+
+        {/* Schedule Tab */}
+        <button
+          id="nav-tab-schedule"
+          onClick={() => {
+            setActiveTab("schedule");
+            setSelectedCourseForEnroll(null);
+          }}
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+            activeTab === "schedule" 
+              ? "text-brand-yellow font-bold" 
+              : "text-slate-400 hover:text-slate-250"
+          }`}
+        >
+          <CalendarRange className="w-4 h-4 mb-0.5" />
+          <span className="text-[8.5px] tracking-tight font-sans">Schedule</span>
         </button>
 
         {/* Courses Catalog Tab */}
@@ -339,14 +418,14 @@ export default function App() {
             setActiveTab("courses");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "courses" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
           <Compass className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Programs</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Programs</span>
         </button>
 
         {/* Study Groups Tab */}
@@ -356,14 +435,14 @@ export default function App() {
             setActiveTab("groups");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "groups" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
           <Users className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Groups</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Groups</span>
         </button>
 
         {/* Demo Lab Tab */}
@@ -373,14 +452,14 @@ export default function App() {
             setActiveTab("demos");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "demos" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
           <GraduationCap className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Demos</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Demos</span>
         </button>
 
         {/* Student Portal Tab */}
@@ -390,14 +469,14 @@ export default function App() {
             setActiveTab("portal");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "portal" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
           <UserCheck className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Portal</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Portal</span>
         </button>
 
         {/* Mindy assistant Tab */}
@@ -407,9 +486,9 @@ export default function App() {
             setActiveTab("assistant");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "assistant" 
-              ? "text-brand-yellow scale-102 font-bold animate-pulse-once" 
+              ? "text-brand-yellow font-bold animate-pulse-once" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
@@ -417,7 +496,7 @@ export default function App() {
             <MessageSquare className="w-4 h-4 mb-0.5" />
             <div className="absolute -top-1 -right-1 w-2 h-2 bg-brand-red rounded-full border border-slate-950" />
           </div>
-          <span className="text-[8px] tracking-tight font-sans">Mindy AI</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Mindy AI</span>
         </button>
 
         {/* Syllabus Archive Library Tab */}
@@ -427,14 +506,14 @@ export default function App() {
             setActiveTab("library");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "library" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
           <BookOpen className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Library</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Library</span>
         </button>
 
         {/* Exam prep Quiz Tab */}
@@ -444,14 +523,14 @@ export default function App() {
             setActiveTab("quiz");
             setSelectedCourseForEnroll(null);
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "quiz" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
           <Award className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Challenge</span>
+          <span className="text-[8.5px] tracking-tight font-sans">Challenge</span>
         </button>
 
         {/* Register Physical slot Tab */}
@@ -460,16 +539,17 @@ export default function App() {
           onClick={() => {
             setActiveTab("enroll");
           }}
-          className={`flex-grow flex-shrink flex-basis-0 min-w-0 max-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
+          className={`flex-grow flex-shrink-0 min-w-[48px] pb-1 pt-0.5 rounded-lg transition-all cursor-pointer flex flex-col items-center justify-center ${
             activeTab === "enroll" 
-              ? "text-brand-yellow scale-102 font-bold" 
+              ? "text-brand-yellow font-bold" 
               : "text-slate-400 hover:text-slate-250"
           }`}
         >
-          <CalendarDays className="w-4 h-4 mb-0.5" />
-          <span className="text-[8px] tracking-tight">Book Trial</span>
+          <Calendar className="w-4 h-4 mb-0.5" />
+          <span className="text-[8.5px] tracking-tight font-sans">Book Trial</span>
         </button>
 
+      </div>
       </div>
     </PhoneContainer>
   );
