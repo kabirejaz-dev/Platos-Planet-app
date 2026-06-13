@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-blue: #024089;
+  --color-brand-blue-dark: #01295c;
+  --color-brand-blue-light: #1671e6;
+  --color-brand-red: #e11a22;
+  --color-brand-red-hover: #c41219;
+  --color-brand-yellow: #fdb813;
+  --color-brand-gold: #ffc20e;
+}
+
+@utility perspective-1000 {
+  perspective: 1000px;
+}
+@utility transform-style-3d {
+  transform-style: preserve-3d;
+}
+@utility backface-hidden {
+  backface-visibility: hidden;
+}
+@utility rotate-y-180 {
+  transform: rotateY(180deg);
+}
