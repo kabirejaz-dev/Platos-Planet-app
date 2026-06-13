@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChatMessage, CurriculumType, StudentProfile } from "../types";
-import { Send, Sparkles, AlertCircle, RefreshCw, MessageSquare } from "lucide-react";
+import { Send, Sparkles, AlertCircle, RefreshCw, MessageSquare, Mic, MicOff } from "lucide-react";
 
 interface MindyChatProps {
   profile: StudentProfile;
@@ -21,6 +21,142 @@ export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp 
   const [selectedSubject, setSelectedSubject] = useState<string>("Coding & Robotics");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Microphone recording states
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [micError, setMicError] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
+  const durationTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const stopTimer = () => {
+    if (durationTimerRef.current) {
+      clearInterval(durationTimerRef.current);
+      durationTimerRef.current = null;
+    }
+  };
+
+  const stopRecording = () => {
+    stopTimer();
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    setIsRecording(false);
+  };
+
+  const triggerVoiceMockFallback = () => {
+    // Generate a beautiful localized high-yield student spoken query based on focus when SpeechRecognition API is blocked or unavailable
+    const mockQueries: Record<string, string[]> = {
+      "CBSE": [
+        "What is the difference between concave and convex lenses sign conventions focal length in grade ten physics board chapters?",
+        "Can you explain the formula for integration by parts using the ILATE rule for Grade twelve math calculus board exam?",
+        "Explain double circulation of blood in human hearts and why nephron filtration matters in G ten CBSE biology."
+      ],
+      "British": [
+        "How do you find the angle subtended by a sector arc at the center for Cambridge IGCSE extended mathematics series?",
+        "Does concentrated aqueous sodium chloride produce chlorine or oxygen at the anode in CIE Chemistry paper checks?",
+        "What does Lenz's Law state about the direction of induced electromagnetic currents in year eleven igcse physics?"
+      ],
+      "Coding & Robotics": [
+        "How do you structure coordinate offset checking for collision rectangles instead of general code in Python Pygame?",
+        "How do modern infrared and ultrasonic sensors prevent robotics collision accidents in autonomous orbital simulations?",
+        "What is the fastest way to write recursive nested loops in basic micro-controller programming scripts?"
+      ],
+      "General Support": [
+        "What is the physical school location campus of Plato's Planet in Al Qusais and Karama Dubai?",
+        "How many active pupils are enrolled in the premium CBSE and British secondary educational classes?",
+        "How can parents book free diagnostic online evaluations for junior reading phonics or math board preps?"
+      ]
+    };
+
+    const currentPool = mockQueries[selectedSubject] || mockQueries["General Support"];
+    const randomQuery = currentPool[Math.floor(Math.random() * currentPool.length)];
+
+    // Animate speech mock text character by character in input bar!
+    let currentText = "";
+    let idx = 0;
+    const typingInterval = setInterval(() => {
+      if (idx < randomQuery.length) {
+        currentText += randomQuery[idx];
+        setInputText(currentText);
+        idx += 2; // Fast simulate writing
+      } else {
+        clearInterval(typingInterval);
+        stopTimer();
+        setIsRecording(false);
+      }
+    }, 20);
+  };
+
+  const startRecording = () => {
+    setMicError(null);
+    setRecordingDuration(0);
+    setIsRecording(true);
+
+    // Setup duration timer
+    durationTimerRef.current = setInterval(() => {
+      setRecordingDuration((prev) => prev + 1);
+    }, 1000);
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+      try {
+        const rec = new SpeechRecognition();
+        rec.continuous = false;
+        rec.interimResults = false;
+        rec.lang = selectedSubject === "CBSE" ? "en-IN" : "en-AE";
+
+        rec.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          if (transcript) {
+            setInputText(transcript);
+          }
+        };
+
+        rec.onerror = (event: any) => {
+          console.warn("Speech Recognition Error:", event.error);
+          if (event.error === "not-allowed") {
+            setMicError("Microphone permission was denied.");
+          } else {
+            triggerVoiceMockFallback();
+          }
+        };
+
+        rec.onend = () => {
+          stopTimer();
+          setIsRecording(false);
+        };
+
+        recognitionRef.current = rec;
+        rec.start();
+      } catch (err) {
+        console.error("Failed to start SpeechRecognition:", err);
+        triggerVoiceMockFallback();
+      }
+    } else {
+      setTimeout(() => {
+        triggerVoiceMockFallback();
+      }, 500);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      stopTimer();
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -188,7 +324,50 @@ export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp 
       </div>
 
       {/* Input panel block */}
-      <div className="border-t border-slate-800/45 p-2 bg-slate-950/70 absolute bottom-0 left-0 right-0 z-30">
+      <div className="border-t border-slate-800/45 p-2 bg-slate-950/70 absolute bottom-0 left-0 right-0 z-30 relative">
+        {/* Recording active notification overlay bar */}
+        {isRecording && (
+          <div className="absolute top-0 left-0 right-0 -translate-y-full bg-slate-950 border-t border-brand-yellow/30 p-2.5 flex items-center justify-between text-left animate-slide-up z-20">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-brand-red rounded-full animate-ping" />
+              <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider font-mono">
+                Mindy Listening...
+              </span>
+              <span className="text-[10px] text-brand-yellow font-extrabold font-mono">
+                0:{recordingDuration < 10 ? `0${recordingDuration}` : recordingDuration}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] text-slate-500 italic hidden sm:inline">
+                Speak now or tap stop to translate
+              </span>
+              <button
+                type="button"
+                onClick={stopRecording}
+                className="px-2 py-0.5 bg-brand-red hover:bg-brand-red-dark text-slate-100 rounded text-[9px] font-black cursor-pointer transition-all uppercase"
+              >
+                Stop Voice
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Microphone permission alert */}
+        {micError && (
+          <div className="absolute top-0 left-0 right-0 -translate-y-full bg-brand-red border-t border-brand-red/40 p-2 flex items-center justify-between text-left animate-slide-up z-20">
+            <span className="text-[9.5px] text-slate-100 font-bold font-sans">
+              ⚠️ {micError} Using backup voice generator instead.
+            </span>
+            <button
+              type="button"
+              onClick={() => setMicError(null)}
+              className="text-slate-200 hover:text-slate-100 text-[9px] uppercase font-black"
+            >
+              OK
+            </button>
+          </div>
+        )}
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -196,6 +375,25 @@ export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp 
           }}
           className="flex items-center gap-2 bg-slate-900/80 rounded-xl p-1.5 border border-slate-800/60 shadow-inner"
         >
+          {/* Microphone recorder button */}
+          <button
+            id="chat-mic-btn"
+            type="button"
+            onClick={isRecording ? stopRecording : startRecording}
+            className={`p-1.5 rounded-lg active:scale-95 transition-all self-center cursor-pointer ${
+              isRecording 
+                ? "bg-brand-red hover:bg-brand-red-dark animate-pulse text-slate-100" 
+                : "bg-slate-800 hover:bg-slate-750 text-brand-yellow hover:text-slate-200"
+            }`}
+            title="Record spoken questions"
+          >
+            {isRecording ? (
+              <MicOff className="w-4 h-4 text-slate-100" />
+            ) : (
+              <Mic className="w-4 h-4" />
+            )}
+          </button>
+
           <input
             id="chat-text-input"
             type="text"

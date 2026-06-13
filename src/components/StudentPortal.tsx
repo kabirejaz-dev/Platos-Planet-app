@@ -27,9 +27,12 @@ import {
   Lightbulb,
   Loader2,
   Star,
-  MessageSquare
+  MessageSquare,
+  Trophy,
+  Award
 } from "lucide-react";
 import { StudentProfile, Course, CurriculumType } from "../types";
+import { MOCK_ACHIEVEMENTS } from "../data";
 
 // Constant preset accounts to let the user log in immediately or create their custom ones
 const PRESET_STUDENTS = [
@@ -189,6 +192,73 @@ export default function StudentPortal({
 }: StudentPortalProps) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
   const [loginStep, setLoginStep] = useState<"preset" | "new">("preset");
+
+  // Sub-page state: 'academy' (classes and attendance) or 'trophies' (Trophy Case)
+  const [portalSubTab, setPortalSubTab] = useState<"academy" | "trophies">("academy");
+
+  // Trophy Case inspect dialogue state
+  const [selectedTrophy, setSelectedTrophy] = useState<any | null>(null);
+
+  // Dynamic unlocked dates log
+  const [badgeUnlockDates, setBadgeUnlockDates] = useState<Record<string, string>>(() => {
+    try {
+      const saved = localStorage.getItem(`plato_badge_dates_${currentProfile.name}`);
+      if (saved) return JSON.parse(saved);
+    } catch (err) {
+      console.error(err);
+    }
+    
+    // Fallback dictionary for initial presets
+    const fallbackMap: Record<string, string> = {
+      "badge-first": "June 08, 2026"
+    };
+    if (currentProfile.badges.includes("badge-quiz")) {
+      fallbackMap["badge-quiz"] = "June 11, 2026";
+    }
+    if (currentProfile.badges.includes("badge-ai")) {
+      fallbackMap["badge-ai"] = "June 12, 2026";
+    }
+    if (currentProfile.badges.includes("badge-enrolled")) {
+      fallbackMap["badge-enrolled"] = "June 13, 2026";
+    }
+    return fallbackMap;
+  });
+
+  // Keep dates synchronized with unlocked badges
+  useEffect(() => {
+    let rawDates: Record<string, string> = {};
+    try {
+      const stored = localStorage.getItem(`plato_badge_dates_${currentProfile.name}`);
+      if (stored) rawDates = JSON.parse(stored);
+    } catch (e) {
+      console.error(e);
+    }
+
+    let updated = false;
+    const nowStr = new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+
+    currentProfile.badges.forEach((id) => {
+      if (!rawDates[id]) {
+        if (id === "badge-first") {
+          rawDates[id] = "June 08, 2026";
+        } else if (id === "badge-quiz" && currentProfile.name === "Rohan Bhatia") {
+          rawDates[id] = "June 11, 2026";
+        } else {
+          rawDates[id] = nowStr;
+        }
+        updated = true;
+      }
+    });
+
+    if (updated) {
+      setBadgeUnlockDates(rawDates);
+      try {
+        localStorage.setItem(`plato_badge_dates_${currentProfile.name}`, JSON.stringify(rawDates));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }, [currentProfile.badges, currentProfile.name]);
   
   // Feedback star-rating and text-input states
   const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
@@ -699,9 +769,42 @@ export default function StudentPortal({
             </div>
           </div>
 
-          {/* ======================================================= */}
-          {/* DAILY STUDY REMINDER CENTER                             */}
-          {/* ======================================================= */}
+          {/* Middle Navigation Tabs */}
+          <div id="student-portal-tabs" className="flex gap-2 p-1 bg-slate-950 border border-slate-850 rounded-2xl mb-1">
+            <button
+              onClick={() => setPortalSubTab("academy")}
+              className={`flex-1 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 uppercase ${
+                portalSubTab === "academy"
+                  ? "bg-brand-blue border border-brand-blue-dark text-slate-100 font-bold shadow-md"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Video className="w-3.5 h-3.5" />
+              <span>Study Academy</span>
+            </button>
+            <button
+              onClick={() => setPortalSubTab("trophies")}
+              className={`flex-grow py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 uppercase ${
+                portalSubTab === "trophies"
+                  ? "bg-brand-yellow text-slate-950 font-black shadow-md border border-brand-yellow/30"
+                  : "text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              <Trophy className="w-3.5 h-3.5" />
+              <span>Trophy Case</span>
+              {currentProfile.badges.length > 0 && (
+                <span className="bg-slate-950 text-brand-yellow text-[8px] px-1.5 py-0.2 rounded font-black font-mono ml-1">
+                  {currentProfile.badges.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {portalSubTab === "academy" ? (
+            <>
+              {/* ======================================================= */}
+              {/* DAILY STUDY REMINDER CENTER                             */}
+              {/* ======================================================= */}
           <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-4.5 space-y-3 shadow-xl relative overflow-hidden">
             <div className="absolute -left-10 -top-10 w-24 h-24 bg-brand-yellow/5 rounded-full blur-2xl pointer-events-none" />
             
@@ -1327,6 +1430,150 @@ export default function StudentPortal({
               </p>
             </div>
           </div>
+          </>
+          ) : (
+            /* BRAND NEW TROPHY CASE SUB-PAGE */
+            <div id="trophy-case-subview" className="space-y-4 animate-fade-in pb-4">
+              {/* Overview Stats Block */}
+              <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-4.5 space-y-3 relative overflow-hidden shadow-xl">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 rounded-full blur-2xl pointer-events-none" />
+                <div className="relative z-10 flex items-start justify-between">
+                  <div>
+                    <span className="text-[9px] bg-brand-yellow/10 text-brand-yellow font-extrabold px-2 py-0.5 rounded border border-brand-yellow/20 uppercase tracking-widest font-mono">
+                      Gamified Milestones
+                    </span>
+                    <h3 className="text-xs font-black text-slate-100 flex items-center gap-1.5 mt-1">
+                      <Trophy className="w-4 h-4 text-brand-yellow" />
+                      <span>Plato Trophy Cabin</span>
+                    </h3>
+                    <p className="text-[10px] text-slate-450">
+                      Earn active syllabus badges by viewing lesson material, mastering test sessions, and seeking study help.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  <div className="bg-slate-950/60 border border-slate-850 p-2.5 rounded-xl text-center">
+                    <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block font-mono">Academic Lvl</span>
+                    <span className="text-xs font-black text-brand-yellow font-mono mt-0.5 block">
+                      Lvl {Math.floor(currentProfile.xp / 100) + 1}
+                    </span>
+                  </div>
+                  <div className="bg-slate-950/60 border border-slate-850 p-2.5 rounded-xl text-center">
+                    <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block font-mono">XP Climbed</span>
+                    <span className="text-xs font-black text-brand-red font-mono mt-0.5 block">
+                      {currentProfile.xp} XP
+                    </span>
+                  </div>
+                  <div className="bg-slate-950/60 border border-slate-850 p-2.5 rounded-xl text-center">
+                    <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block font-mono">Trophy Unlocked</span>
+                    <span className="text-xs font-black text-emerald-400 font-mono mt-0.5 block">
+                      {currentProfile.badges.length} / {MOCK_ACHIEVEMENTS.length}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Nice Linear Progress Meter */}
+                <div className="space-y-1 pt-1">
+                  <div className="flex justify-between items-center text-[9px] text-slate-450 font-mono">
+                    <span>Syllabus Badges Progress</span>
+                    <span>{Math.round((currentProfile.badges.length / MOCK_ACHIEVEMENTS.length) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                    <div 
+                      className="bg-brand-yellow h-1 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(234,179,8,0.4)] animate-pulse"
+                      style={{ width: `${(currentProfile.badges.length / MOCK_ACHIEVEMENTS.length) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Achievements Bento-Style Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {MOCK_ACHIEVEMENTS.map((badge) => {
+                  const isUnlocked = currentProfile.badges.includes(badge.id);
+                  const unlockedDate = badgeUnlockDates[badge.id];
+                  
+                  return (
+                    <div
+                      key={badge.id}
+                      onClick={() => isUnlocked && setSelectedTrophy(badge)}
+                      className={`relative rounded-2xl p-4 flex flex-col justify-between border cursor-pointer select-none transition-all duration-300 min-h-[175px] ${
+                        isUnlocked
+                          ? "bg-slate-900 border-brand-yellow/30 hover:border-brand-yellow/60 shadow-lg hover:scale-[1.02]"
+                          : "bg-slate-955/40 border-slate-900 border-dashed opacity-65 cursor-not-allowed"
+                      }`}
+                    >
+                      {/* Background Ambient Glow for Unlocked Badges */}
+                      {isUnlocked && (
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-brand-yellow/5 rounded-full blur-xl pointer-events-none" />
+                      )}
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-start justify-between">
+                          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-inner ${
+                            isUnlocked 
+                              ? "bg-brand-yellow/15 border border-brand-yellow/30 text-brand-yellow" 
+                              : "bg-slate-900 border border-slate-850 text-slate-600"
+                          }`}>
+                            {isUnlocked ? badge.icon : "🔒"}
+                          </div>
+                          
+                          {isUnlocked ? (
+                            <span className="text-[7.5px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-full font-black uppercase font-mono tracking-widest">
+                              Unlocked
+                            </span>
+                          ) : (
+                            <span className="text-[7.5px] bg-slate-900 text-slate-550 border border-slate-850 px-1.5 py-0.5 rounded-full font-bold uppercase font-mono tracking-widest">
+                              Locked
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="pt-2">
+                          <h4 className={`text-xs font-black ${isUnlocked ? "text-slate-100" : "text-slate-450"}`}>
+                            {badge.name}
+                          </h4>
+                          <span className="text-[8px] text-slate-500 font-mono uppercase block -mt-0.5 block truncate">
+                            {badge.title}
+                          </span>
+                        </div>
+
+                        <p className={`text-[10px] leading-relaxed line-clamp-3 ${isUnlocked ? "text-slate-350" : "text-slate-650"}`}>
+                          {badge.desc}
+                        </p>
+                      </div>
+
+                      <div className="pt-3 border-t border-slate-850/50 mt-1 flex items-center justify-between text-[9px] font-mono">
+                        {isUnlocked ? (
+                          <>
+                            <span className="text-slate-555">Unlocked:</span>
+                            <span className="text-brand-yellow font-extrabold">{unlockedDate || "June 13, 2026"}</span>
+                          </>
+                        ) : (
+                          <span className="text-slate-600 text-[8.5px] font-sans truncate pr-1">
+                            {badge.id === "badge-quiz" && "🎯 Get 100% on a practice quiz"}
+                            {badge.id === "badge-ai" && "🤖 Ask Mindy AI a doubt"}
+                            {badge.id === "badge-enrolled" && "📅 Book a diagnostic trial"}
+                            {badge.id === "badge-first" && "⭐ Initial student sign-up"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Dynamic gamified tutorial advice header */}
+              <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl flex items-start gap-2.5 text-[10px] text-slate-450 leading-snug">
+                <Award className="w-4 h-4 text-brand-yellow flex-shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-bold text-slate-200">How to unlock remaining trophies:</span>
+                  <p>Complete quizzes with perfect 100% score to unlock the Quiz Conqueror, ask doubts during lecture replay sessions with Mindy AI to acquire AI Explorer, or book curriculum-specific physical trial sessions in the main slots browser.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
@@ -1491,6 +1738,96 @@ export default function StudentPortal({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================= */}
+      {/* TROPHY DETAIL INSPECTION MODAL                          */}
+      {/* ======================================================= */}
+      {selectedTrophy && (
+        <div className="fixed inset-0 z-50 bg-slate-955/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl relative overflow-hidden text-left animate-fade-in animate-scale-up">
+            <div className="absolute -right-16 -top-16 w-36 h-36 bg-brand-yellow/5 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="text-center space-y-3">
+              <div className="w-16 h-16 bg-brand-yellow/15 border border-brand-yellow/30 rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-lg animate-pulse">
+                {selectedTrophy.icon}
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[8px] bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 px-2 py-0.5 rounded font-extrabold uppercase font-mono tracking-widest inline-block">
+                  Platinum Badge Unlocked
+                </span>
+                <h3 className="text-sm font-black text-slate-100 tracking-tight mt-1">
+                  {selectedTrophy.name}
+                </h3>
+                <p className="text-[10px] text-brand-yellow font-bold uppercase font-mono tracking-wide">
+                  {selectedTrophy.title}
+                </p>
+              </div>
+
+              {/* Description box */}
+              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-850/60 leading-relaxed text-slate-300 text-[10.5px]">
+                {selectedTrophy.desc}
+              </div>
+
+              {/* Head Teacher's Advice note */}
+              <div className="bg-brand-blue-dark/15 border border-brand-blue/20 p-3 rounded-2xl text-left space-y-1">
+                <span className="text-[8px] font-extrabold uppercase tracking-wide text-brand-yellow block font-mono">
+                  Syllabus Board Mentor Note:
+                </span>
+                <p className="text-[10px] text-slate-250 italic leading-snug">
+                  "{
+                    selectedTrophy.id === "badge-first" ? "Welcome to Plato Planet, scholar! Starting early is the absolute key to mastering secondary school and board qualification benchmarks. Keep this peak momentum!" :
+                    selectedTrophy.id === "badge-quiz" ? "Scoring a perfect 100% in our challenge blocks proves clean formula retention under time pressure. Slay past CBSE/British exam papers with this zero-error standard!" :
+                    selectedTrophy.id === "badge-ai" ? "Technological synthesis is the future of learning. Harnessing Mindy's AI module for retrieval drills is a signature of top-tier cognitive development." :
+                    "Planning interactive real lab demo runs shows active dedication. We look forward to meeting you at our center soon!"
+                  }"
+                </p>
+                <span className="text-[8px] text-slate-450 block text-right font-medium font-sans">
+                  — {
+                    selectedTrophy.id === "badge-first" ? "Mrs. Meenu Raj (HOD Board Mathematics)" :
+                    selectedTrophy.id === "badge-quiz" ? "Dr. Satish Kumar (PhD, IIT Alumni)" :
+                    selectedTrophy.id === "badge-ai" ? "Dr. Farah Jamil (Senior Chemistry Lead)" :
+                    "Prof. Alistair Vance (Cambridge Certified)"
+                  }
+                </span>
+              </div>
+
+              {/* Share simulation */}
+              <div className="space-y-1 bg-slate-950 p-2.5 border border-slate-850 rounded-xl text-left">
+                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider block font-mono">
+                  Celebrate achievement with family:
+                </span>
+                <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-lg items-center gap-1.5 mt-1">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`I unlocked '${selectedTrophy.name}' badge on Plato Planet! Total XP: ${currentProfile.xp}. Reaching board peaks! 🏆🚀`}
+                    className="flex-1 bg-transparent px-2 text-[9.5px] text-slate-400 border-none focus:outline-none select-all truncate font-mono"
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`I unlocked '${selectedTrophy.name}' badge on Plato Planet! Total XP: ${currentProfile.xp}. Reaching board peaks! 🏆🚀`);
+                      triggerNotification("📋 Message Copied!", "Copied celebration text! Share with family on WhatsApp!");
+                    }}
+                    className="px-2 py-0.8 bg-brand-yellow hover:bg-brand-gold text-slate-950 text-[9px] font-extrabold uppercase rounded-md cursor-pointer transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+
+              {/* Close Button */}
+              <button
+                type="button"
+                onClick={() => setSelectedTrophy(null)}
+                className="w-full py-2 bg-slate-950 border border-slate-850 hover:border-slate-800 text-slate-250 font-bold text-[10px] uppercase rounded-xl transition-all cursor-pointer block"
+              >
+                Return to Case
+              </button>
+            </div>
           </div>
         </div>
       )}
