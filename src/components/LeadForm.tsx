@@ -220,8 +220,8 @@ export default function LeadForm({ initialCourse, onEnrollSuccess }: LeadFormPro
                 className="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-slate-250 focus:outline-none focus:border-brand-yellow cursor-pointer"
               >
                 <option value="Al Qusais">Al Qusais Hub (Centrally opposite Metro Station)</option>
-                <option value="Karama">Karama Center Branch</option>
                 <option value="Silicon Oasis">Dubai Silicon Oasis Hub</option>
+                <option value="Sharjah Campus">Sharjah Branch (Exclusive STEM & Language Hub)</option>
                 <option value="Online Hub">Plato Digital Virtual Classroom</option>
               </select>
             </div>

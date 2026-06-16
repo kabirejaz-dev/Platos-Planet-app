@@ -12,13 +12,13 @@ interface MindyChatProps {
 const PRESET_TOPICS = [
   { label: "CBSE G10 Math Formula", subject: "CBSE" },
   { label: "IGCSE Past Paper Tips", subject: "British" },
-  { label: "Python loop helper", subject: "Coding & Robotics" },
-  { label: "Astro-Robotics Sensors", subject: "Coding & Robotics" }
+  { label: "Public Speaking Tips", subject: "General Support" },
+  { label: "JEE & NEET Time Strategy", subject: "General Support" }
 ];
 
 export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp }: MindyChatProps) {
   const [inputText, setInputText] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState<string>("Coding & Robotics");
+  const [selectedSubject, setSelectedSubject] = useState<string>("CBSE");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -61,13 +61,8 @@ export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp 
         "Does concentrated aqueous sodium chloride produce chlorine or oxygen at the anode in CIE Chemistry paper checks?",
         "What does Lenz's Law state about the direction of induced electromagnetic currents in year eleven igcse physics?"
       ],
-      "Coding & Robotics": [
-        "How do you structure coordinate offset checking for collision rectangles instead of general code in Python Pygame?",
-        "How do modern infrared and ultrasonic sensors prevent robotics collision accidents in autonomous orbital simulations?",
-        "What is the fastest way to write recursive nested loops in basic micro-controller programming scripts?"
-      ],
       "General Support": [
-        "What is the physical school location campus of Plato's Planet in Al Qusais and Karama Dubai?",
+        "What is the physical school location campus of Plato's Planet in Al Qusais Dubai and Sharjah?",
         "How many active pupils are enrolled in the premium CBSE and British secondary educational classes?",
         "How can parents book free diagnostic online evaluations for junior reading phonics or math board preps?"
       ]
@@ -252,7 +247,6 @@ export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp 
         >
           <option value="CBSE">CBSE Syllabus</option>
           <option value="British">British (A* Target)</option>
-          <option value="Coding & Robotics">Robotics & Code</option>
           <option value="General Support">General Admissions</option>
         </select>
       </div>
@@ -265,7 +259,7 @@ export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp 
             <div className="space-y-1.5">
               <h4 className="text-xs font-bold text-slate-200">Connect to Planetary Wisdom</h4>
               <p className="text-[11px] text-slate-400 leading-relaxed font-light">
-                Ask Mindy about physics formulas, English composition formats, Python variables, or Dubai class timetables!
+                Ask Mindy about physics formulas, English composition formats, maths theories, or UAE class timetables!
               </p>
             </div>
 

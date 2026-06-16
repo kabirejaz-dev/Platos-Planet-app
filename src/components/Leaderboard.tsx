@@ -47,11 +47,11 @@ export default function Leaderboard({ currentProfile }: LeaderboardProps) {
         { id: "leader_1", name: "Mira Al-Mheiri", school: "GEMS Modern Academy", curriculum: "CBSE", xp: 790, avatar: "🥇", badge: "Math Prodigy" },
         { id: "leader_2", name: "Aarav Sharma", school: "Delhi Private School", curriculum: "CBSE", xp: 720, avatar: "🥈", badge: "Science Topper" },
         { id: "leader_3", name: "Sarah Higgins", school: "Dubai College", curriculum: "British", xp: 640, avatar: "🥉", badge: "A* Physics" },
-        { id: "leader_4", name: "Khaled Al-Marri", school: "Silicon Oasis Hub", curriculum: "Coding & Robotics", xp: 580, avatar: "👾", badge: "Python Wizard" },
+        { id: "leader_4", name: "Khaled Al-Marri", school: "Silicon Oasis Hub", curriculum: "British", xp: 580, avatar: "👾", badge: "Chemistry Wiz" },
         { id: "leader_5", name: "Ryan Parker", school: "Jumeirah College", curriculum: "British", xp: 510, avatar: "🇬🇧", badge: "IGCSE Champ" },
         { id: "leader_6", name: "Diya Narayanan", school: "Al Qusais Centre", curriculum: "Creative Arts & Test Prep", xp: 490, avatar: "🎨", badge: "Public Speaking" },
-        { id: "leader_7", name: "Arjun Verma", school: "Karama Hub", curriculum: "CBSE", xp: 430, avatar: "✍️", badge: "Speed Maths" },
-        { id: "leader_8", name: "Maria Fedorova", school: "Silicon Oasis Hub", curriculum: "Coding & Robotics", xp: 360, avatar: "🚀", badge: "Robotics Star" },
+        { id: "leader_7", name: "Arjun Verma", school: "Sharjah Campus", curriculum: "CBSE", xp: 430, avatar: "✍️", badge: "Speed Maths" },
+        { id: "leader_8", name: "Maria Fedorova", school: "Silicon Oasis Hub", curriculum: "Creative Arts & Test Prep", xp: 360, avatar: "🚀", badge: "Oratory Star" },
         { id: "leader_9", name: "Zainab Rashid", school: "Online Hub", curriculum: "British", xp: 220, avatar: "🌌", badge: "Astro Scholar" }
       ];
       setDbStudents(fallback);
@@ -218,7 +218,7 @@ export default function Leaderboard({ currentProfile }: LeaderboardProps) {
       <div className="space-y-2">
         {/* Horizontal scroll curriculum slider */}
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-1">
-          {["All", "CBSE", "British", "Coding & Robotics", "Creative Arts & Test Prep"].map((tab) => (
+          {["All", "CBSE", "British", "Creative Arts & Test Prep"].map((tab) => (
             <button
               key={tab}
               onClick={() => setFilterCurriculum(tab)}
@@ -228,7 +228,7 @@ export default function Leaderboard({ currentProfile }: LeaderboardProps) {
                   : "bg-slate-950 border-slate-850 text-slate-400 hover:text-slate-200 hover:border-slate-800"
               }`}
             >
-              {tab === "Coding & Robotics" ? "Robotics & Python" : tab}
+              {tab === "Creative Arts & Test Prep" ? "Speech & Arts" : tab}
             </button>
           ))}
         </div>
@@ -324,7 +324,7 @@ export default function Leaderboard({ currentProfile }: LeaderboardProps) {
                         <School className="w-3 h-3 text-slate-500 inline flex-shrink-0" />
                         <span className="truncate pr-1">{student.school}</span>
                         <strong className="text-slate-500 font-mono font-bold uppercase text-[8px] tracking-wide border-l border-slate-800 pl-1.5 flex-shrink-0 inline">
-                          {student.curriculum === "Coding & Robotics" ? "STEM" : student.curriculum}
+                          {student.curriculum === "Creative Arts & Test Prep" ? "Speech & Arts" : student.curriculum}
                         </strong>
                       </p>
                     </div>

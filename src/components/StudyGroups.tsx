@@ -53,7 +53,7 @@ export default function StudyGroups({
   onAwardXp 
 }: StudyGroupsProps) {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [activeRoomId, setActiveRoomId] = useState<string>("group-robo-astro");
+  const [activeRoomId, setActiveRoomId] = useState<string>("group-cbse-math-10");
   const [messages, setMessages] = useState<ServerMessage[]>([]);
   const [inputText, setInputText] = useState<string>("");
   const [isLoadingRooms, setIsLoadingRooms] = useState<boolean>(true);
@@ -191,10 +191,8 @@ export default function StudyGroups({
       return;
     }
     const questionsPool: Record<string, string> = {
-      "group-robo-astro": "How do we write an Arduino interrupt function to safeguard servo angles in high-load robots?",
       "group-cbse-math-10": "What is the simplest way to find the nature of roots for board exams when the discriminant is a fractional square value?",
       "group-british-igcse-physics": "Could some mentor explain the exact difference between electromagnetic induction and secondary Lenz's Law?",
-      "group-coding-python-games": "How do we structure a proper Pygame collision matrix using coordinate offsets instead of rect intersections?",
       "group-plato-phonics-champions": "What are the three most successful stage posture guidelines to win over mic-shyness?",
       "group-test-prep-neet-jee": "What quick trick allows us to solve projectile trajectory range vectors in under 40 seconds without derivation?",
       "group-british-igcse-math": "What is the fastest way to confirm if a transformation matrix represents a reflection or a shear?",
@@ -244,7 +242,7 @@ export default function StudyGroups({
       ],
       "group-cbse-math-10": [
         { name: "Aarav Sharma", school: "Delhi Private School", suffix: "🥈 720 XP" },
-        { name: "Arjun Verma", school: "Karama Hub", suffix: "✍️ 430 XP" },
+        { name: "Arjun Verma", school: "Sharjah Campus", suffix: "✍️ 430 XP" },
         { name: "Diya Narayanan", school: "Al Qusais Centre", suffix: "🎨 490 XP" }
       ],
       "group-british-igcse-physics": [
@@ -266,11 +264,11 @@ export default function StudyGroups({
       "group-cbse-science-10": [
         { name: "Aarav Sharma", school: "Delhi Private School", suffix: "🥈 720 XP" },
         { name: "Diya Narayanan", school: "Al Qusais Centre", suffix: "🎨 490 XP" },
-        { name: "Arjun Verma", school: "Karama Hub", suffix: "✍️ 430 XP" }
+        { name: "Arjun Verma", school: "Sharjah Campus", suffix: "✍️ 430 XP" }
       ],
       "group-cbse-math-12": [
         { name: "Aarav Sharma", school: "Delhi Private School", suffix: "🥈 720 XP" },
-        { name: "Arjun Verma", school: "Karama Hub", suffix: "✍️ 430 XP" }
+        { name: "Arjun Verma", school: "Sharjah Campus", suffix: "✍️ 430 XP" }
       ]
     };
     return peersLists[roomId] || [
@@ -330,7 +328,7 @@ export default function StudyGroups({
                 </div>
                 <div className="flex items-center justify-between mt-0.5 gap-2">
                   <span className="text-[8px] text-slate-500 font-mono tracking-wider">
-                    {room.curriculum === "Coding & Robotics" ? "STEM" : room.curriculum}
+                    {room.curriculum === "Creative Arts & Test Prep" ? "Speech & Arts" : room.curriculum}
                   </span>
                   <span className="text-[8px] text-brand-yellow/85 font-mono">
                     👥 {room.memberCount}
@@ -346,7 +344,7 @@ export default function StudyGroups({
       {activeRoom && (
         <div className="bg-slate-950 border border-slate-900 rounded-2xl p-3 space-y-2 relative overflow-hidden">
           <div className="absolute right-0 top-0 text-[35px] opacity-10 font-black tracking-tighter select-none">
-            {activeRoom.curriculum === "Coding & Robotics" ? "STEM" : activeRoom.curriculum}
+            {activeRoom.curriculum === "Creative Arts & Test Prep" ? "Speech & Arts" : activeRoom.curriculum}
           </div>
 
           <div className="flex items-start justify-between gap-2">

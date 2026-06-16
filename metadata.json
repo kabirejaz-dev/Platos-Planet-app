@@ -1,6 +1,6 @@
 {
   "name": "Plato's Planet Dubai",
-  "description": "Specialized training center app for CBSE, British Curriculums, Coding & Robotics in Dubai, showcasing course catalogs, virtual AI study buddies, and interactive training quizzes.",
+  "description": "Specialized training center app for CBSE, British, and language curriculums in Dubai, showcasing course catalogs, virtual AI study buddies, and interactive training quizzes.",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

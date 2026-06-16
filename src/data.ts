@@ -2,22 +2,6 @@ import { Course } from "./types";
 
 export const PLATO_COURSES: Course[] = [
   {
-    id: "robo-astro",
-    title: "Astro-Robotics & Tinkering Lab",
-    curriculum: "Coding & Robotics",
-    gradeLevel: "Ages 6 - 15 (Grouped by age)",
-    description: "Connect microcontrollers, sensor nodes, and real servo actuators. Build space rovers, line-following robots, and responsive smart-home rigs under certified STEM trainers.",
-    highlights: [
-      "Prepare for World Adolescent Robot Contest & local Olympiads",
-      "Hands-on electronics breadboards and Arduino modules",
-      "Official STEM Excellence Certificate"
-    ],
-    feeRange: "AED 350 - 450 per month",
-    schedule: "Fridays 4:00 PM - 6:00 PM | Saturdays 11:00 AM - 1:00 PM",
-    duration: "12 Weeks (Syllabus term)",
-    rating: 4.9
-  },
-  {
     id: "cbse-math-10",
     title: "CBSE G10 Boards Maths Intensive",
     curriculum: "CBSE",
@@ -47,22 +31,6 @@ export const PLATO_COURSES: Course[] = [
     feeRange: "AED 400 - 500 per month",
     schedule: "Sundays 10:00 AM - 12:30 PM | Tuesdays 5:00 PM - 7:30 PM",
     duration: "Full Revision Semester",
-    rating: 4.9
-  },
-  {
-    id: "coding-python-games",
-    title: "Python Game Developer & AI Hub",
-    curriculum: "Coding & Robotics",
-    gradeLevel: "Ages 9 - 16",
-    description: "Master real text-based instructions! Progress smoothly from basic lists and conditionals to structuring Object-Oriented games using Pygame and simple logic engines.",
-    highlights: [
-      "Build & deploy a portfolio of 4 fully playable custom games",
-      "Introduction to machine learning and game AI models",
-      "Lifetime access to online code playgrounds and support"
-    ],
-    feeRange: "AED 380 - 480 per month",
-    schedule: "Saturdays 2:00 PM - 4:00 PM | Thursdays 5:00 PM - 7:00 PM",
-    duration: "16 Sessions Block",
     rating: 4.9
   },
   {

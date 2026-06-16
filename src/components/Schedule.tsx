@@ -88,10 +88,10 @@ export default function Schedule({ profile, onAwardXp, triggerNotification, onNa
       defaultDate.setDate(defaultDate.getDate() + 10);
       initialExams.push({
         subjectId: "custom-math",
-        subjectName: "General STEM & Coding Diagnostic",
+        subjectName: "General STEM Diagnostic",
         examDate: defaultDate.toISOString().split("T")[0],
         targetScore: "A*",
-        syllabusChapters: ["Syllabus Foundation Check", "Trigonometric Formulations", "Weekly Robotics Calibration"]
+        syllabusChapters: ["Syllabus Foundation Check", "Trigonometric Formulations", "Practical Science Lab Prep"]
       });
     }
 

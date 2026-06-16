@@ -1,2225 +1,1856 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { 
-  UserCheck, 
-  Lock, 
-  Unlock, 
-  Play, 
-  Pause, 
-  CheckCircle, 
-  Calendar, 
-  Video, 
-  Clock, 
-  FileText, 
-  Search, 
+  User, 
+  Brain, 
   Sparkles, 
+  CheckCircle, 
+  Clock, 
   Tv, 
-  NotebookPen, 
-  Check, 
-  LogOut, 
-  UserPlus, 
+  Video, 
+  HelpCircle, 
+  BookOpen, 
+  ChevronRight, 
+  Award, 
   TrendingUp, 
+  Trophy, 
   AlertCircle,
-  Brain,
-  Send,
-  ChevronLeft,
-  ChevronRight,
+  FileText, 
+  DollarSign, 
+  Users, 
+  Calendar, 
+  MessageSquare, 
+  ArrowRight,
+  ShieldAlert,
+  Search,
+  Check,
   RotateCw,
-  Lightbulb,
-  Loader2,
-  Star,
-  MessageSquare,
-  Trophy,
-  Award,
-  Download
+  PlusCircle,
+  Send,
+  Upload,
+  UserCheck,
+  Activity,
+  ThumbsUp,
+  MapPin,
+  Clock3,
+  Download,
+  Flame,
+  Info
 } from "lucide-react";
-import { StudentProfile, Course, CurriculumType } from "../types";
-import { MOCK_ACHIEVEMENTS } from "../data";
-import { LIBRARY_DOCUMENTS } from "./Library";
-
-// Constant preset accounts to let the user log in immediately or create their custom ones
-const PRESET_STUDENTS = [
-  {
-    name: "Zayd Al-Mansoori",
-    grade: "10 (Secondary)",
-    curriculum: "Coding & Robotics" as CurriculumType,
-    streak: 6,
-    xp: 280,
-    badges: ["badge-first"],
-    enrolledCourses: ["robo-astro"],
-    bookedTrials: [],
-    preferredStudyTime: "17:30",
-    studyRemindersEnabled: true
-  },
-  {
-    name: "Rohan Bhatia",
-    grade: "Grade 12",
-    curriculum: "CBSE" as CurriculumType,
-    streak: 14,
-    xp: 620,
-    badges: ["badge-first", "badge-quiz"],
-    enrolledCourses: ["test-prep-neet-jee"],
-    bookedTrials: ["cbse-math-10"],
-    preferredStudyTime: "16:00",
-    studyRemindersEnabled: true
-  },
-  {
-    name: "Emily Harrison",
-    grade: "Grade 11",
-    curriculum: "British" as CurriculumType,
-    streak: 3,
-    xp: 150,
-    badges: ["badge-first"],
-    enrolledCourses: ["british-igcse-physics"],
-    bookedTrials: [],
-    preferredStudyTime: "19:00",
-    studyRemindersEnabled: false
-  }
-];
-
-interface RecordedClass {
-  id: string;
-  title: string;
-  subject: string;
-  grade: string;
-  curriculum: "CBSE" | "British" | "Coding & Robotics";
-  duration: string;
-  instructor: string;
-  summary: string;
-  boardFormula: string;
-  videoDurationSec: number;
-}
-
-const RECORDED_CLASSES: RecordedClass[] = [
-  // CBSE Classes
-  {
-    id: "rec-cbse-10-trig",
-    title: "Trigonometric Identities & Height Calculations",
-    subject: "Mathematics",
-    grade: "Grade 10",
-    curriculum: "CBSE",
-    duration: "45 mins",
-    instructor: "Mrs. Meenu Raj (HOD Board Mathematics)",
-    summary: "Solving complex Board questions involving sin²θ + cos²θ = 1, and angle of elevation word problems representing Burj Khalifa height diagnostics.",
-    boardFormula: "sin²θ + cos²θ = 1 | tan(θ) = Height / Distance",
-    videoDurationSec: 2700
-  },
-  {
-    id: "rec-cbse-12-org",
-    title: "Chemistry: Carbonyl Nucleophilic Reaction Chains",
-    subject: "Chemistry",
-    grade: "Grade 12",
-    curriculum: "CBSE",
-    duration: "50 mins",
-    instructor: "Dr. Farah Jamil (Senior Chemistry Lead)",
-    summary: "Detailed analysis of Aldehydes, Ketones, and Carboxylic Acids board blueprint questions. Nucleophilic addition reactions step-by-step.",
-    boardFormula: "R-CHO + Nu⁻ → R-CH(OH)-Nu (Addition mechanism)",
-    videoDurationSec: 3000
-  },
-  {
-    id: "rec-cbse-11-phy",
-    title: "Physics: Laws of Motion & Friction Mechanics",
-    subject: "Physics",
-    grade: "Grade 11",
-    curriculum: "CBSE",
-    duration: "40 mins",
-    instructor: "Dr. Satish Kumar (PhD, IIT Alumni)",
-    summary: "Resolving vectors on inclined planes and checking kinetic vs static friction parameters with CBSE standard problems.",
-    boardFormula: "F_friction = μ * N | F_net = m * a",
-    videoDurationSec: 2400
-  },
-  
-  // IGCSE / British Year 9 to 12
-  {
-    id: "rec-igcse-11-vector",
-    title: "Forces in Equilibrium & Vector Resolving",
-    subject: "Physics",
-    grade: "Grade 11",
-    curriculum: "British",
-    duration: "35 mins",
-    instructor: "Prof. Alistair Vance (Cambridge Certified)",
-    summary: "Analyzing coplanar systems, resolving horizontal & vertical components using sine/cosine equations to attain total static equilibrium state.",
-    boardFormula: "Σ F_x = 0 | Σ F_y = 0",
-    videoDurationSec: 2100
-  },
-  {
-    id: "rec-igcse-10-fraction",
-    title: "Algebraic Fractions & Advanced Indices Laws",
-    subject: "Mathematics",
-    grade: "Grade 10",
-    curriculum: "British",
-    duration: "30 mins",
-    instructor: "Andrew Sterling (Exam Spec Senior Tutor)",
-    summary: "Simplifying tedious algebraic fractions by factoring quadratic expressions first. Rigorous application of IGCSE fractional power indices laws.",
-    boardFormula: "x^(a/b) = ᵇ√(xᵃ) | (a² - b²) = (a-b)(a+b)",
-    videoDurationSec: 1800
-  },
-  {
-    id: "rec-igcse-12-bio",
-    title: "A2 Biology: Mitosis Stages & DNA Polymerase Rates",
-    subject: "Biology",
-    grade: "Grade 12",
-    curriculum: "British",
-    duration: "55 mins",
-    instructor: "Mrs. Karen O'Connor (King's College Alumni)",
-    summary: "Tracing chromosomes through Metaphase and Anaphase under high definition electron microscope simulation sheets with past-paper markschemes.",
-    boardFormula: "Mitotic Index = (Number of cells in mitosis) / (Total cells seen) * 100",
-    videoDurationSec: 3300
-  }
-];
-
-interface AttendanceRecord {
-  id: string;
-  studentName: string;
-  classId: string;
-  classTitle: string;
-  dateStr: string;
-  timeStr: string;
-  verificationCode: string;
-}
+import { StudentProfile, CurriculumType } from "../types";
 
 interface StudentPortalProps {
   currentProfile: StudentProfile;
-  onUpdateProfile: (newProfile: StudentProfile) => void;
-  onAwardXp: (amount: number, badgeId?: string) => void;
+  onUpdateProfile: (p: StudentProfile) => void;
+  onAwardXp: (amount: number) => void;
   soundEnabled: boolean;
   triggerNotification: (title: string, desc: string) => void;
 }
 
-export default function StudentPortal({ 
-  currentProfile, 
-  onUpdateProfile, 
-  onAwardXp, 
-  soundEnabled, 
-  triggerNotification 
+// Custom Interfaces for the newly structured premium data
+interface SubjectInfo {
+  name: string;
+  progress: number;
+  masteryScore: number;
+  lastTestScore: number;
+  weakChapter: string;
+  nextAction: string;
+  predictedGrade: string;
+  teacherComment: string;
+}
+
+interface ActionCardItem {
+  id: string;
+  title: string;
+  timeRequired: string;
+  priority: "High" | "Medium" | "Low";
+  subject: string;
+  ctaText: string;
+  type: string;
+}
+
+interface FeedbackEvent {
+  id: string;
+  date: string;
+  teacher: string;
+  subject: string;
+  feedback: string;
+  recommendedAction: string;
+}
+
+interface AlertNotification {
+  id: string;
+  type: "absence" | "homework" | "test" | "fee" | "meeting";
+  title: string;
+  desc: string;
+  severity: "critical" | "warning" | "info";
+  time: string;
+  actionText: string;
+  dismissed: boolean;
+}
+
+export default function StudentPortal({
+  currentProfile,
+  onUpdateProfile,
+  onAwardXp,
+  soundEnabled,
+  triggerNotification
 }: StudentPortalProps) {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
-  const [loginStep, setLoginStep] = useState<"preset" | "new">("preset");
 
-  // Sub-page state: 'academy' (classes and attendance), 'trophies' (Trophy Case), or 'report' (Comprehensive Study Summary Report)
-  const [portalSubTab, setPortalSubTab] = useState<"academy" | "trophies" | "report">("academy");
+  // Primary Role Switches: Student Workspace vs Parent Dashboard
+  const [activeRole, setActiveRole] = useState<"student" | "parent">("student");
+  // Curriculum Switch: IGCSE (British Standard) vs CBSE (Indian National Standard)
+  const [curriculum, setCurriculum] = useState<"IGCSE" | "CBSE">("IGCSE");
 
-  // Dynamic monthly summary report state
-  const [reportStudyLogs, setReportStudyLogs] = useState<any[]>([]);
-  const [reportQuizHistory, setReportQuizHistory] = useState<any[]>([]);
-
-  useEffect(() => {
-    try {
-      const storedLogs = localStorage.getItem(`plato_study_logs_${currentProfile.name}`);
-      const logs = storedLogs ? JSON.parse(storedLogs) : [];
-      setReportStudyLogs(logs);
-
-      const storedQuiz = localStorage.getItem(`plato_quiz_history_${currentProfile.name}`);
-      const quizzes = storedQuiz ? JSON.parse(storedQuiz) : [];
-      setReportQuizHistory(quizzes);
-    } catch (e) {
-      console.error("Failed to sync reports database:", e);
-    }
-  }, [portalSubTab, currentProfile.name]);
-
-  const parsedStudyLogs = useMemo(() => {
-    if (reportStudyLogs.length > 0) return reportStudyLogs;
-    // Elegant system-seeded historical study logs for previous 30 days to make empty state beautiful!
-    return [
-      { date: "Fri Jun 12 2026", hours: 2, subject: "Mathematics", topic: "Quadratic Equation Roots", xpAwarded: 45 },
-      { date: "Thu Jun 11 2026", hours: 1.5, subject: "Physics", topic: "Equilibrium Vectors", xpAwarded: 35 },
-      { date: "Mon Jun 08 2026", hours: 3, subject: "Chemistry", topic: "Organic Carbonyl Chains", xpAwarded: 60 },
-      { date: "Sun Jun 07 2026", hours: 2, subject: "Coding & Robotics", topic: "Touch & Ultrasonic Echoes", xpAwarded: 40 },
-      { date: "Wed Jun 03 2026", hours: 2.5, subject: "Mathematics", topic: "Trigonometric Height Calculation", xpAwarded: 50 },
-      { date: "Tue Jun 02 2026", hours: 1, subject: "Physics", topic: "Friction Vector Plains", xpAwarded: 25 },
-      { date: "Sat May 30 2026", hours: 2, subject: "Biology", topic: "A2 Chromosomes Map", xpAwarded: 40 }
-    ];
-  }, [reportStudyLogs, currentProfile.name]);
-
-  const parsedQuizHistory = useMemo(() => {
-    if (reportQuizHistory.length > 0) return reportQuizHistory;
-    // Elegant fallback seed matching the student's level and curriculum
-    return [
-      { topic: "Python Basics & Loops", score: 3, total: 3, date: "Thu Jun 11 2026", gradeLevel: "Grade 11-12" },
-      { topic: "CBSE Quadratic Equations", score: 2, total: 3, date: "Tue Jun 09 2026", gradeLevel: "Grade 9-10" },
-      { topic: "Physical Forces & Angles", score: 3, total: 3, date: "Thu Jun 04 2026", gradeLevel: "Grade 11-12" },
-      { topic: "Dubai STEM Science Trivia", score: 1, total: 3, date: "Sat May 30 2026", gradeLevel: "Grade 6-8" }
-    ];
-  }, [reportQuizHistory, currentProfile.name]);
-
-  // Cumulative Calculations for Report Card
-  const totalHours = useMemo(() => {
-    return parsedStudyLogs.reduce((sum, log) => sum + Number(log.hours || 0), 0);
-  }, [parsedStudyLogs]);
-
-  const totalQuizzes = useMemo(() => {
-    return parsedQuizHistory.length;
-  }, [parsedQuizHistory]);
-
-  const quizSuccessRate = useMemo(() => {
-    if (parsedQuizHistory.length === 0) return 0;
-    const totalCorrect = parsedQuizHistory.reduce((sum, q) => sum + Number(q.score || 0), 0);
-    const totalQuestions = parsedQuizHistory.reduce((sum, q) => sum + Number(q.total || 3), 0);
-    return (totalCorrect / totalQuestions) * 100;
-  }, [parsedQuizHistory]);
-
-  const subjectStudyHours = useMemo(() => {
-    const map: Record<string, number> = {};
-    parsedStudyLogs.forEach((log) => {
-      const sub = log.subject || "General Revision";
-      map[sub] = (map[sub] || 0) + Number(log.hours || 0);
-    });
-    return Object.entries(map).map(([subject, hours]) => ({ subject, hours }));
-  }, [parsedStudyLogs]);
-
-  const downloadTxtReport = () => {
-    const divider = "========================================================================\n";
-    let text = "";
-    text += divider;
-    text += "                     PLATO PLANET STUDY REPORT CARD                     \n";
-    text += "                     DUBAI HOLISTIC ACADEMIC AUDIT                      \n";
-    text += divider;
-    text += `  Student Name  : ${currentProfile.name}\n`;
-    text += `  Target Grade  : ${currentProfile.grade}\n`;
-    text += `  Curriculum    : ${currentProfile.curriculum}\n`;
-    text += `  Report Date   : ${new Date().toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" })}\n`;
-    text += `  Syllabus Stage: Active Term Assessment Period\n`;
-    text += divider;
-    text += "                      SECTION 1: KEY PERFORMANCE METRICS                \n";
-    text += divider;
-    text += `  🪐 Total Academic XP Earned : ${currentProfile.xp} XP (Level ${Math.floor(currentProfile.xp / 100) + 1})\n`;
-    text += `  🔥 Current Study Streak     : ${currentProfile.streak} Days\n`;
-    text += `  ⏰ Cumulative Study Logged  : ${totalHours.toFixed(1)} Hours\n`;
-    text += `  🎯 STEM Quizzes Taken       : ${totalQuizzes} CHALLENGES\n`;
-    text += `  📈 Average Quiz Accuracy    : ${quizSuccessRate.toFixed(1)}%\n`;
-    text += divider;
-    text += "                      SECTION 2: CLASSROOM FOCUS DISTRIBUTION           \n";
-    text += divider;
-    
-    subjectStudyHours.forEach(({ subject, hours }) => {
-      text += `  • ${subject.padEnd(25)}: ${hours.toFixed(1)} hours\n`;
-    });
-    
-    text += divider;
-    text += "                      SECTION 3: HISTORICAL STUDY LOGS                  \n";
-    text += divider;
-    if (parsedStudyLogs.length > 0) {
-      parsedStudyLogs.forEach((l, i) => {
-        text += `  [${i + 1}] Date: ${l.date.padEnd(16)} | Hours: ${l.hours.toString().padEnd(3)} | Topic: ${l.topic || "N/A"}\n`;
-        text += `      Subject: ${l.subject.padEnd(20)} | Awarded: +${l.xpAwarded} XP\n\n`;
-      });
-    } else {
-      text += "  No verified study hours logged in local database.\n";
-    }
-    text += divider;
-    text += "                      SECTION 4: VERIFIED QUIZ HISTORIES                \n";
-    text += divider;
-    if (parsedQuizHistory.length > 0) {
-      parsedQuizHistory.forEach((q, i) => {
-        text += `  [${i + 1}] Date: ${q.date.padEnd(16)} | Topic: ${q.topic.padEnd(28)} | Grade: ${q.gradeLevel}\n`;
-        text += `      Score: ${q.score}/${q.total} questions correct (${Math.round((q.score / q.total) * 100)}% accuracy)\n\n`;
-      });
-    } else {
-      text += "  No interactive curriculum challenges passed yet.\n";
-    }
-    text += divider;
-    text += "                 END OF SECURE EXAM READINESS TRANSCRIPT                \n";
-    text += divider;
-    text += "  Verified by: Plato Planet AI Director (Dubai, UAE)\n";
-    text += "  Verification Code: PLTX-" + Math.floor(100000 + Math.random() * 900000) + "-DXB\n";
-    text += divider;
-
-    const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Plato_Planet_Student_Report_${currentProfile.name.replace(/\s+/g, "_")}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    triggerNotification("📥 Report Card Ready", `Official summary report downloaded successfully for ${currentProfile.name}.`);
+  // TOAST NOTIFICATIONS STATE (In-app beautiful toast stack)
+  const [toasts, setToasts] = useState<Array<{ id: string; title: string; message: string; type: "success" | "info" }>>([]);
+  const addToast = (title: string, message: string, type: "success" | "info" = "success") => {
+    const id = Math.random().toString();
+    setToasts(prev => [...prev, { id, title, message, type }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, 4000);
   };
 
-  // Trophy Case inspect dialogue state
-  const [selectedTrophy, setSelectedTrophy] = useState<any | null>(null);
+  // State values customized based on user's literal instructions
+  const studentName = "Sara";
+  const parentName = "Mr. Kabir";
+  const location = "Dubai, UAE";
+  const academicYear = "2026–27";
 
-  // Dynamic unlocked dates log
-  const [badgeUnlockDates, setBadgeUnlockDates] = useState<Record<string, string>>(() => {
-    try {
-      const saved = localStorage.getItem(`plato_badge_dates_${currentProfile.name}`);
-      if (saved) return JSON.parse(saved);
-    } catch (err) {
-      console.error(err);
+  // GAMIFICATION STATES
+  const [studentXP, setStudentXP] = useState<number>(340);
+  const [studyStreak, setStudyStreak] = useState<number>(12);
+  const [leaderboardRank, setLeaderboardRank] = useState<number>(4);
+  const [unlockedBadges, setUnlockedBadges] = useState<string[]>(["badge-first", "badge-perfect-attendance"]);
+
+  const [weeklyMissions, setWeeklyMissions] = useState([
+    { id: "m1", title: "Complete 2 Core Subject Quizzes", done: true, points: 50 },
+    { id: "m2", title: "Review Chemistry Organic Formulas via AI", done: false, points: 60 },
+    { id: "m3", title: "Upload & Verify 1 Homework doubt", done: false, points: 40 }
+  ]);
+
+  // LOCAL DATABASE FOR SUBJECTS
+  const [subjectsState, setSubjectsState] = useState<SubjectInfo[]>([
+    {
+      name: "Mathematics",
+      progress: 88,
+      masteryScore: 85,
+      lastTestScore: 90,
+      weakChapter: "Trigonometric Identities & Calculus proofs",
+      nextAction: "Complete IGCSE Paper 4 Trigonometry Worksheet",
+      predictedGrade: "A* (98%)",
+      teacherComment: "Sara demonstrates exceptionally solid command of equation proof frameworks but needs slightly more promptness during dry-runs."
+    },
+    {
+      name: "Physics",
+      progress: 78,
+      masteryScore: 80,
+      lastTestScore: 82,
+      weakChapter: "Electromagnetic Induction & Forces Variant 2",
+      nextAction: "Solve 10 MCQ Practice items with Mindy AI Tutor",
+      predictedGrade: "A (93%)",
+      teacherComment: "Brilliant understanding of mechanics, but core electromagnetic theories require visual recall repetition."
+    },
+    {
+      name: "Chemistry",
+      progress: 82,
+      masteryScore: 79,
+      lastTestScore: 84,
+      weakChapter: "Organic Chemistry Practice & Esters",
+      nextAction: "Review Organic Synthesis flashcard stack on Plato AI",
+      predictedGrade: "A (91%)",
+      teacherComment: "Organic chains are accurate, though chemical state notation speeds must improve."
+    },
+    {
+      name: "Biology",
+      progress: 91,
+      masteryScore: 88,
+      lastTestScore: 92,
+      weakChapter: "Genetic Crosses & Paper 6 Practical Methods",
+      nextAction: "Verify cell division diagrams with study buddies",
+      predictedGrade: "A* (96%)",
+      teacherComment: "Sara commands biological processes with ease and writes precise examiner-friendly answers."
+    },
+    {
+      name: "English",
+      progress: 95,
+      masteryScore: 92,
+      lastTestScore: 94,
+      weakChapter: "Complex Essay structures & reading schemas",
+      nextAction: "Prepare analysis outline for descriptive prose",
+      predictedGrade: "A* (97%)",
+      teacherComment: "Outstanding voice and grammar maturity. She writes beautiful critical analyses."
     }
-    
-    // Fallback dictionary for initial presets
-    const fallbackMap: Record<string, string> = {
-      "badge-first": "June 08, 2026"
-    };
-    if (currentProfile.badges.includes("badge-quiz")) {
-      fallbackMap["badge-quiz"] = "June 11, 2026";
+  ]);
+
+  // EXPANDABLE DETAILS STATE
+  const [expandedSubjectIndex, setExpandedSubjectIndex] = useState<number | null>(null);
+
+  // ACTIVE RECALL / DOUBT OCR STATES
+  const [doubtQuestion, setDoubtQuestion] = useState<string>("");
+  const [doubtSubject, setDoubtSubject] = useState<string>("Physics");
+  const [doubtFile, setDoubtFile] = useState<File | null>(null);
+  const [doubtFileName, setDoubtFileName] = useState<string>("");
+  const [isSolvingDoubt, setIsSolvingDoubt] = useState<boolean>(false);
+  const [doubtResponse, setDoubtResponse] = useState<any | null>(null);
+  const [dragActive, setDragActive] = useState<boolean>(false);
+
+  // PLANET LEARNING JOURNEY STATE
+  const [selectedPlanetIndex, setSelectedPlanetIndex] = useState<number>(3); // Starts on Mars
+  const planetsList = [
+    { name: "Mercury", milestone: "Foundational Formulas", xpRequired: 50, status: "completed", reward: "Formula Novice badge", desc: "Covers Core algebraic structures and NCERT science fundamentals." },
+    { name: "Venus", milestone: "Mechanics & Stoichiometry", xpRequired: 120, status: "completed", reward: "Lab Wizard title", desc: "Covers core kinematics and chemical weight transformations." },
+    { name: "Earth", milestone: "Cell Biology & Trigonometry", xpRequired: 200, status: "completed", reward: "Planet Balance badge", desc: "Covers basic English prose, cell cycles, and sine laws." },
+    { name: "Mars", milestone: "Organic Chemistry & Calculus", xpRequired: 300, status: "active", reward: "Cosmic Element Shield", desc: "Currently revising organic ester chains & standard differentiation!" },
+    { name: "Jupiter", milestone: "Advanced Wave Optics", xpRequired: 450, status: "locked", reward: "+100 XP Bonus", desc: "Locked. Requires mastering electrostatics and physical chemistry concepts." },
+    { name: "Saturn", milestone: "Thermal Physics & Integration", xpRequired: 600, status: "locked", reward: "UAE Space Booster pack", desc: "Locked. Deep dive into thermal mechanics and integral calculus methods." },
+    { name: "Neptune", milestone: "Genetics and Probability", xpRequired: 750, status: "locked", reward: "Infinite Wisdom insignia", desc: "Locked. Focuses on Mendel's laws and complex statistical sets." },
+    { name: "Pluto", milestone: "Booster Pre-Board Mock Series", xpRequired: 900, status: "locked", reward: "Grand Master Certificate", desc: "Locked. Comprehensive exam simulation mimicking final KHDA / CBSE papers." }
+  ];
+
+  // ACTION CARDS LIST
+  const actionCards: ActionCardItem[] = [
+    { id: "act-1", title: "Join Live IGCSE Math Paper 4 Webinar", timeRequired: "40 mins", priority: "High", subject: "Mathematics", ctaText: "Join Webclass", type: "live" },
+    { id: "act-2", title: "Resume Biology Paper 6 Recorded Session", timeRequired: "20 mins", priority: "Medium", subject: "Biology", ctaText: "Resume Class", type: "recorded" },
+    { id: "act-3", title: "Verify Physics Spherical Shell Doubt with Plato AI", timeRequired: "5 mins", priority: "High", subject: "Physics", ctaText: "Solve OCR", type: "doubt" },
+    { id: "act-4", title: "Launch CBSE Pre-Board Mathematics Mock", timeRequired: "60 mins", priority: "High", subject: "Mathematics", ctaText: "Enter Room", type: "test" },
+    { id: "act-5", title: "Upload Organic Esters Assignment Worksheets", timeRequired: "15 mins", priority: "Medium", subject: "Chemistry", ctaText: "Submit PDF", type: "homework" },
+    { id: "act-6", title: "Practice NCERT Forces Weak-Topic MCQ Drill", timeRequired: "10 mins", priority: "Low", subject: "Physics", ctaText: "Start Drill", type: "practice" }
+  ];
+
+  // EXAM PREP QUEUE WITH FILTERS
+  const [examSubjectFilter, setExamSubjectFilter] = useState<string>("ALL");
+  const examQueue = [
+    { title: "British IGCSE Physics Variant 2 Past Paper Practice", curriculum: "IGCSE", subject: "Physics", dueDate: "June 20, 2026", difficulty: "Hard", readiness: "84%", status: "Pending", xpValue: 50 },
+    { title: "CBSE Class 10 NCERT Science Term-End Chapter 4 Prep", curriculum: "CBSE", subject: "Chemistry", dueDate: "June 25, 2026", difficulty: "Medium", readiness: "91%", status: "In Progress", xpValue: 40 },
+    { title: "CBSE Mathematics Board Assessment Competency Set", curriculum: "CBSE", subject: "Mathematics", dueDate: "June 18, 2026", difficulty: "Hard", readiness: "72%", status: "Pending", xpValue: 60 },
+    { title: "British IGCSE English Essay Writing Assessment Mock", curriculum: "IGCSE", subject: "English", dueDate: "June 22, 2026", difficulty: "Medium", readiness: "95%", status: "Completed", xpValue: 35 },
+    { title: "British IGCSE Organic Chemistry practice variant pack", curriculum: "IGCSE", subject: "Chemistry", dueDate: "June 29, 2026", difficulty: "Hard", readiness: "80%", status: "Pending", xpValue: 55 }
+  ];
+
+  // TEACHER FEEDBACK TIMELINE
+  const feedbackTimeline: FeedbackEvent[] = [
+    {
+      id: "feed-1",
+      date: "June 14, 2026",
+      teacher: "Dr. Al-Mansoori",
+      subject: "Mathematics",
+      feedback: "Sara did extremely well in the mock calculus proofs. She has a very bright analytical mind.",
+      recommendedAction: "Focus on speed drills for trigonometry variant proof structures to ensure maximum marks."
+    },
+    {
+      id: "feed-2",
+      date: "June 11, 2026",
+      teacher: "Mrs. Harrison",
+      subject: "Physics",
+      feedback: "Understands electrostatic field structures, though induction equations need minor study attention.",
+      recommendedAction: "Watch the recommended 15-minute electromagnetism active video in Plato's student lounge."
+    },
+    {
+      id: "feed-3",
+      date: "June 08, 2026",
+      teacher: "Dr. Bhatia",
+      subject: "Chemistry",
+      feedback: "Excellent recall of organic structures. Ready for CBSE NCERT-based Board challenges.",
+      recommendedAction: "Practice drawing high-yield ester bond formations once more on a physical whiteboard draft."
     }
-    if (currentProfile.badges.includes("badge-ai")) {
-      fallbackMap["badge-ai"] = "June 12, 2026";
-    }
-    if (currentProfile.badges.includes("badge-enrolled")) {
-      fallbackMap["badge-enrolled"] = "June 13, 2026";
-    }
-    return fallbackMap;
-  });
+  ];
 
-  // Keep dates synchronized with unlocked badges
-  useEffect(() => {
-    let rawDates: Record<string, string> = {};
-    try {
-      const stored = localStorage.getItem(`plato_badge_dates_${currentProfile.name}`);
-      if (stored) rawDates = JSON.parse(stored);
-    } catch (e) {
-      console.error(e);
-    }
+  // SMART ALERT NOTIFICATIONS
+  const [notifications, setNotifications] = useState<AlertNotification[]>([
+    { id: "not-1", type: "absence", title: "Absence Detected - Physics 12A", desc: "Missed mock test prep due to school schedule conflict.", severity: "warning", time: "1 day ago", actionText: "Request Makeup Class", dismissed: false },
+    { id: "not-2", type: "homework", title: "Chemistry Homework Overdue", desc: "Organic esters chapter assignment is pending since Wednesday.", severity: "critical", time: "2 hours ago", actionText: "Upload Homework PDF", dismissed: false },
+    { id: "not-3", type: "test", title: "Test Score Dropped - Physics Field Mock", desc: "Slight dip from prior performance (82% actual vs 88% average score).", severity: "info", time: "3 days ago", actionText: "Review Wrong Answers", dismissed: false },
+    { id: "not-4", type: "fee", title: "Term 2 Core Tuition Fee Due", desc: "Invoice pending due date in 12 days. (AED 1,575 standard UAE VAT inclusive).", severity: "warning", time: "Today", actionText: "Pay Online Secured", dismissed: false },
+    { id: "not-5", type: "meeting", title: "1-on-1 Dubai Parent Counselor Conference Selected", desc: "Scheduled online zoom meeting with educational director.", severity: "info", time: "Scheduled: June 20 at 16:00", actionText: "Manage Meeting", dismissed: false }
+  ]);
 
-    let updated = false;
-    const nowStr = new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+  // FEES AND BILLING HISTORY
+  const [billingList, setBillingList] = useState([
+    { id: "inv-2026-c1", term: "Term 1 Premium Tuition", baseAmount: 1500, vat: 75, status: "Paid", datePaid: "May 01, 2026", receiptRequested: true },
+    { id: "inv-2026-c2", term: "Term 2 Board Booster Class Pack", baseAmount: 1500, vat: 75, status: "Unpaid", datePaid: "-", receiptRequested: false }
+  ]);
 
-    currentProfile.badges.forEach((id) => {
-      if (!rawDates[id]) {
-        if (id === "badge-first") {
-          rawDates[id] = "June 08, 2026";
-        } else if (id === "badge-quiz" && currentProfile.name === "Rohan Bhatia") {
-          rawDates[id] = "June 11, 2026";
-        } else {
-          rawDates[id] = nowStr;
-        }
-        updated = true;
-      }
-    });
+  // MODAL OVERLAYS STATE MANAGER
+  const [activeModal, setActiveModal] = useState<"ai-coach" | "book-meeting" | "pay-fees" | "upload-doubt" | "report-card" | null>(null);
 
-    if (updated) {
-      setBadgeUnlockDates(rawDates);
-      try {
-        localStorage.setItem(`plato_badge_dates_${currentProfile.name}`, JSON.stringify(rawDates));
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  }, [currentProfile.badges, currentProfile.name]);
-  
-  // Feedback star-rating and text-input states
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState<boolean>(false);
-  const [feedbackRating, setFeedbackRating] = useState<number>(5);
-  const [feedbackComment, setFeedbackComment] = useState<string>("");
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState<boolean>(false);
-  
-  // Login input states
-  const [selectedPresetIndex, setSelectedPresetIndex] = useState<number>(0);
-  const [newStudentName, setNewStudentName] = useState<string>("");
-  const [newStudentGrade, setNewStudentGrade] = useState<string>("Grade 10");
-  const [newStudentCurriculum, setNewStudentCurriculum] = useState<CurriculumType>("CBSE");
-  const [pinCode, setPinCode] = useState<string>("");
+  // REUSABLE INPUT STATES for modals
+  const [selectedTeacher, setSelectedTeacher] = useState<string>("Dr. Al-Mansoori (Mathematics)");
+  const [meetingDate, setMeetingDate] = useState<string>("2026-06-20");
+  const [meetingTime, setMeetingTime] = useState<string>("16:00");
+  const [meetingNote, setMeetingNote] = useState<string>("");
 
-  // Search and filter for classes
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeCurriculumFilter, setActiveCurriculumFilter] = useState<"ALL" | "CBSE" | "British" | "Coding & Robotics">("ALL");
+  const [cardHolder, setCardHolder] = useState<string>("Kabir Al-Mansoori");
+  const [cardNumber, setCardNumber] = useState<string>("4000 1234 5678 9010");
+  const [isPayingProcess, setIsPayingProcess] = useState<boolean>(false);
 
-  // AI Interactive Study states
-  const [aiTab, setAiTab] = useState<"flashcards" | "qa">("flashcards");
-  const [aiFlashcards, setAiFlashcards] = useState<Array<{ question: string; answer: string; hint: string }>>([]);
-  const [activeCardIdx, setActiveCardIdx] = useState<number>(0);
-  const [isCardFlipped, setIsCardFlipped] = useState<boolean>(false);
-  const [isGeneratingCards, setIsGeneratingCards] = useState<boolean>(false);
-  const [viewedCardsIndices, setViewedCardsIndices] = useState<number[]>([]); // Tracks which card indices were reviewed
-  const [hasAwardedAiClassBonus, setHasAwardedAiClassBonus] = useState<string[]>([]); // Tracks bonus XP awards per classId
+  const [aiCoachPrompt, setAiCoachPrompt] = useState<string>("");
+  const [aiCoachHistory, setAiCoachHistory] = useState<Array<{ sender: "user" | "ai"; text: string }>>([
+    { sender: "ai", text: "How can I assist you with your IGCSE / CBSE revision today? I can solve physics equations, check organic chem chains, or prepare descriptive English outlines!" }
+  ]);
+  const [isGeneratingAiCoachMsg, setIsGeneratingAiCoachMsg] = useState<boolean>(false);
 
-  // Lecture custom AI Support Q&A
-  const [studentQuestion, setStudentQuestion] = useState<string>("");
-  const [aiAnswerResponse, setAiAnswerResponse] = useState<string>("");
-  const [isExplainingLecture, setIsExplainingLecture] = useState<boolean>(false);
+  // Trigger Local Notification for parent/student
+  const localNotify = (title: string, desc: string) => {
+    triggerNotification(title, desc);
+    addToast(title, desc, "info");
+  };
 
-  // Video Simulator states
-  const [playingVideoId, setPlayingVideoId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [currentTimeProgress, setCurrentTimeProgress] = useState<number>(10); // Simulated progress bar percentage
-  const [whiteboardText, setWhiteboardText] = useState<string>("Click Play to boot video transmitter...");
-
-  // Attendance log database (simulated with localStorage)
-  const [attendanceLogs, setAttendanceLogs] = useState<AttendanceRecord[]>([]);
-
-  // Initialize and load attendance log database
-  useEffect(() => {
-    const savedLogs = localStorage.getItem(`plato_attendance_${currentProfile.name}`);
-    if (savedLogs) {
-      setAttendanceLogs(JSON.parse(savedLogs));
+  // HANDLERS
+  const handlePlanetProgress = (idx: number) => {
+    setSelectedPlanetIndex(idx);
+    const planet = planetsList[idx];
+    if (planet.status === "completed") {
+      addToast("🪐 Milestone Selected", `Reviewing progress for ${planet.name}: ${planet.milestone}`);
     } else {
-      // Mock initial presence log
-      const initialLogs: AttendanceRecord[] = [
-        {
-          id: "att-init-1",
-          studentName: currentProfile.name,
-          classId: "v-initial",
-          classTitle: "STEM Orientation Lecture",
-          dateStr: "June 08, 2026",
-          timeStr: "05:15 PM",
-          verificationCode: "PLA-ATT-1092"
-        }
-      ];
-      setAttendanceLogs(initialLogs);
-      localStorage.setItem(`plato_attendance_${currentProfile.name}`, JSON.stringify(initialLogs));
+      setActivePlanetRewardClaim(idx);
     }
-  }, [currentProfile.name]);
-
-  // Reset AI states when switching active class
-  useEffect(() => {
-    setAiFlashcards([]);
-    setIsCardFlipped(false);
-    setActiveCardIdx(0);
-    setViewedCardsIndices([]);
-    setAiAnswerResponse("");
-    setStudentQuestion("");
-  }, [playingVideoId]);
-
-  // If student profile name changes dynamically (e.g. from outer components)
-  const handlePresetSelect = (idx: number) => {
-    setSelectedPresetIndex(idx);
   };
 
-  const handleApplyPresetLogin = () => {
-    const chosen = PRESET_STUDENTS[selectedPresetIndex];
-    onUpdateProfile({
-      name: chosen.name,
-      grade: chosen.grade,
-      curriculum: chosen.curriculum,
-      streak: chosen.streak,
-      xp: chosen.xp,
-      badges: chosen.badges,
-      enrolledCourses: chosen.enrolledCourses,
-      bookedTrials: chosen.bookedTrials,
-      preferredStudyTime: chosen.preferredStudyTime,
-      studyRemindersEnabled: chosen.studyRemindersEnabled
-    });
-    setIsLoggedIn(true);
-    triggerNotification("🔑 Access Granted", `Logged in successfully as ${chosen.name}!`);
+  const [activePlanetRewardClaim, setActivePlanetRewardClaim] = useState<number | null>(null);
+
+  const claimPlanetBonus = (idx: number) => {
+    const planet = planetsList[idx];
+    addToast("🎁 Reward Claimed!", `You unlocked the ${planet.reward} milestone reward and earned 100 XP!`, "success");
+    setStudentXP(prev => prev + 100);
+    onAwardXp(100);
+    localNotify("🏆 XP Awarded", `Added +100 XP to Sara's profile for reaching station ${planet.name}!`);
+    setActivePlanetRewardClaim(null);
   };
 
-  const handleRegisterNewStudent = (e: React.FormEvent) => {
+  // DRAG & DROP MULTI-DEVICE SUPPORT
+  const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!newStudentName.trim()) {
-      triggerNotification("⚠️ Missing Detail", "Please enter the student's name.");
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const droppedFile = e.dataTransfer.files[0];
+      setDoubtFile(droppedFile);
+      setDoubtFileName(droppedFile.name);
+      addToast("📂 Document Dropped", `Staged ${droppedFile.name} successfully for AI OCR solver diagnostics.`);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selected = e.target.files[0];
+      setDoubtFile(selected);
+      setDoubtFileName(selected.name);
+      addToast("📂 File Uploaded", `Loaded ${selected.name} for doubt solving.`);
+    }
+  };
+
+  const solveDoubtTrigger = () => {
+    if (!doubtQuestion && !doubtFile) {
+      addToast("⚠️ Input Required", "Please type a challenge question or upload an image/PDF first.", "info");
       return;
     }
-
-    const newPrf: StudentProfile = {
-      name: newStudentName.trim(),
-      grade: newStudentGrade,
-      curriculum: newStudentCurriculum,
-      streak: 1,
-      xp: 120, // bonus starting XP
-      badges: ["badge-first"],
-      enrolledCourses: [],
-      bookedTrials: [],
-      preferredStudyTime: "17:30",
-      studyRemindersEnabled: true
-    };
-
-    onUpdateProfile(newPrf);
-    setIsLoggedIn(true);
-    setNewStudentName("");
-    triggerNotification("🚀 Profile Created!", `Welcome standard scholar ${newPrf.name}! +120 starting XP added.`);
-  };
-
-  const handleLogCircleOut = () => {
-    setIsLoggedIn(false);
-    setPlayingVideoId(null);
-    setIsPlaying(false);
-    triggerNotification("🔒 Logged Out", "Securely stored current student workspace progress.");
-  };
-
-  // Video simulated controls
-  const handleLaunchVideo = (cls: RecordedClass) => {
-    setPlayingVideoId(cls.id);
-    setIsPlaying(true);
-    setCurrentTimeProgress(12); // start slightly into class
-    setWhiteboardText(`Lecture: ${cls.subject} by ${cls.instructor}\nTopic Focus: ${cls.title}\nKey Formula: ${cls.boardFormula}\n---------------------------------\nNotes: Keep active board verification code ready.`);
-    triggerNotification("📺 Video Server Connected", `Streaming: "${cls.title}"`);
-  };
-
-  const handleTogglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handleProgressSlider = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentTimeProgress(parseInt(e.target.value));
-  };
-
-  // MARK ATTENDANCE LOGIC
-  const handleMarkAttendanceForClass = (classId: string, classTitle: string) => {
-    // Check if already present
-    const alreadyLogged = attendanceLogs.some(log => log.studentName === currentProfile.name && log.classId === classId);
-    if (alreadyLogged) {
-      triggerNotification("✓ Presence Extant", "Attendance already verified for this lecture.");
-      return;
-    }
-
-    // Generate random mock verification code
-    const randomCode = `PLA-ATT-${Math.floor(1000 + Math.random() * 9000)}`;
-    const now = new Date();
-    const dateFormatted = now.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
-    const timeFormatted = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-    const newRecord: AttendanceRecord = {
-      id: `att-log-${Date.now()}`,
-      studentName: currentProfile.name,
-      classId,
-      classTitle,
-      dateStr: dateFormatted,
-      timeStr: timeFormatted,
-      verificationCode: randomCode
-    };
-
-    const updatedLogs = [newRecord, ...attendanceLogs];
-    setAttendanceLogs(updatedLogs);
-    localStorage.setItem(`plato_attendance_${currentProfile.name}`, JSON.stringify(updatedLogs));
-
-    // Award +20 XP
-    onAwardXp(30);
-    triggerNotification("🎟️ Attendance Swiped", `Signed in successfully! +30 XP revision point awarded. Code: ${randomCode}`);
-  };
-
-  // FETCH LECTURE FLASHCARDS FROM AI BACKEND
-  const handleGenerateAiFlashcards = async (cls: RecordedClass) => {
-    setIsGeneratingCards(true);
-    setAiFlashcards([]);
-    setIsCardFlipped(false);
-    setActiveCardIdx(0);
-    setViewedCardsIndices([0]); // start with looking at the first card
-
-    try {
-      const response = await fetch("/api/gemini/flashcards", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: cls.title,
-          subject: cls.subject,
-          curriculum: cls.curriculum,
-          summary: cls.summary
-        })
+    setIsSolvingDoubt(true);
+    setTimeout(() => {
+      setIsSolvingDoubt(false);
+      setStudentXP(prev => prev + 30);
+      onAwardXp(30);
+      setDoubtResponse({
+        question: doubtQuestion || `Doubt scanned from file: ${doubtFileName}`,
+        steps: [
+          `Identify core constants: Subject: ${doubtSubject}. Scoped in Dubai Academic Year ${academicYear}.`,
+          `Formulate theoretical layout using standard British / CBSE marking criteria.`,
+          `Resolution Step 1: Isolate the force scalar variables horizontally along the vector paths.`,
+          `Resolution Step 2: Integrate terms using calculus power structures to calculate continuous net field state.`,
+          `Final verified outcome: Realised score yield of 4.5 N / complete balanced derivative form.`
+        ],
+        practiceQuests: [
+          `Compare the force fields in standard Physics Variant Paper 2 formats.`,
+          `Calculate NCERT Science competency Chapter 4 class proofs.`
+        ]
       });
-      const data = await response.json();
-      if (data.flashcards && data.flashcards.length > 0) {
-        setAiFlashcards(data.flashcards);
-        triggerNotification("🧠 AI Study cards Synchronized", `Generated 3 revision cards for "${cls.title}"`);
+      addToast("🧠 AI Doubt Resolved", "Earned +30 XP! Step-by-step solution compiled.", "success");
+      localNotify("🎯 Level Progress Boosted", "Sara solved her homework doubt using Plato's AI Solver and unlocked +30 XP!");
+    }, 2000);
+  };
+
+  // SEND AI MESSAGE
+  const sendAiCoachMessage = () => {
+    if (!aiCoachPrompt.trim()) return;
+    const userMsg = aiCoachPrompt;
+    setAiCoachHistory(prev => [...prev, { sender: "user", text: userMsg }]);
+    setAiCoachPrompt("");
+    setIsGeneratingAiCoachMsg(true);
+
+    setTimeout(() => {
+      setIsGeneratingAiCoachMsg(false);
+      let reply = "";
+      if (userMsg.toLowerCase().includes("math") || userMsg.toLowerCase().includes("calculus")) {
+        reply = "For British Mathematics Paper 4 calculus proofs: Always state the boundary constraints. Remember, the derivative f'(x) determines local gradients, while the definite integral models area density under IGCSE curves. Try practicing similar variant 2 sets!";
+      } else if (userMsg.toLowerCase().includes("physic") || userMsg.toLowerCase().includes("optics")) {
+        reply = "Physics variant tests require you to define vector forces first. Under CBSE specifications, NCERT chapter 10 models focal lengths as f = R/2. Keep units strictly as metric SI scalars to score maximum points!";
       } else {
-        throw new Error("No flashcard returned");
+        reply = "That is a brilliant exploration! Let's schedule a diagnostic mock task on this topic. Practice makes perfect. Don't forget that you can also check out our student reference logs inside the Library tab anytime.";
       }
-    } catch (err) {
-      console.error("AI Flashcards error:", err);
-      // Hardcoded fallback
-      setAiFlashcards([
-        {
-          question: `What is the core formula discussed in "${cls.title}"?`,
-          answer: cls.boardFormula || "Variables represent values in STEM blocks.",
-          hint: "Double check your classroom whiteboard worksheet snap!"
-        },
-        {
-          question: `What was the primary goal of this ${cls.curriculum} session?`,
-          answer: cls.summary,
-          hint: "Focus closely on the key chapters taught by " + cls.instructor
-        },
-        {
-          question: "How can you reinforce this topic for final board marks?",
-          answer: `Solve past school papers and note key formulas. Stating variables correctly secures 70% basic marks in CBSE & British systems.`,
-          hint: "Burj levels of precision require writing clear worksheets!"
-        }
-      ]);
-    } finally {
-      setIsGeneratingCards(false);
-    }
+      setAiCoachHistory(prev => [...prev, { sender: "ai", text: reply }]);
+      addToast("💡 AI Mentor Advice", "Plato AI study advice received.");
+    }, 1200);
   };
 
-  // FETCH CUSTOM EXPLANATION FROM AI BACKEND
-  const handleAskMindyQuestion = async (cls: RecordedClass) => {
-    if (!studentQuestion.trim()) return;
-    setIsExplainingLecture(true);
-    setAiAnswerResponse("");
-
-    try {
-      const response = await fetch("/api/gemini/explain-lecture", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: cls.title,
-          subject: cls.subject,
-          curriculum: cls.curriculum,
-          summary: cls.summary,
-          boardFormula: cls.boardFormula,
-          question: studentQuestion
-        })
-      });
-      const data = await response.json();
-      setAiAnswerResponse(data.answer);
-      // Award XP for engaging with Mindy classroom helper
-      onAwardXp(15);
-      triggerNotification("✨ Mindy Answered Your Doubt", "Study companion solved your query. +15 XP credited!");
-    } catch (err) {
-      console.error("AI Explain Error:", err);
-      setAiAnswerResponse(`### Mindy Study Note 🚀\n\nI processed your query about: *"${studentQuestion}"*\n\n1. **Core Concept**: Storing active values is important in ${cls.subject}.\n2. **Revision Tip**: Look closely at the board formula: \`${cls.boardFormula}\`.\n3. Keep revisions going at our Dubai tutoring hub to easily scale past CBSE and British board criteria!`);
-    } finally {
-      setIsExplainingLecture(false);
-    }
+  // MEETING SUBMIT
+  const handleConfirmMeeting = () => {
+    addToast("📅 Counselor Booking Submitted", `Meeting scheduled with ${selectedTeacher} on ${meetingDate} at ${meetingTime}. Check WhatsApp or email for confirmations.`, "success");
+    localNotify("📅 Parent Consultation Scheduled", `Parent-Teacher feedback slot reserved for June 20 at Silicon Oasis Dubai outlet.`);
+    
+    // update parent notifications
+    setNotifications(prev => prev.map(n => n.type === "meeting" ? { ...n, title: `Meeting Confirmed: ${selectedTeacher}`, desc: `Scheduled: ${meetingDate} at ${meetingTime} - GCC Dubai Standard Time.`, severity: "info" } : n));
+    setActiveModal(null);
   };
 
-  // Flip state tracker to award XP when all 3 cards are examined!
-  const handleCardNav = (direction: "prev" | "next") => {
-    setIsCardFlipped(false);
-    let nextIdx = activeCardIdx;
-    if (direction === "prev") {
-      nextIdx = Math.max(0, activeCardIdx - 1);
-    } else {
-      nextIdx = Math.min(aiFlashcards.length - 1, activeCardIdx + 1);
-    }
-    setActiveCardIdx(nextIdx);
-    
-    // Add to viewed list if not there
-    if (!viewedCardsIndices.includes(nextIdx)) {
-      const updated = [...viewedCardsIndices, nextIdx];
-      setViewedCardsIndices(updated);
-      
-      // If we have viewed all cards (0, 1, 2) and haven't awarded yet for this class
-      if (updated.length === aiFlashcards.length && currentlyPlayingClass && !hasAwardedAiClassBonus.includes(currentlyPlayingClass.id)) {
-        setHasAwardedAiClassBonus([...hasAwardedAiClassBonus, currentlyPlayingClass.id]);
-        onAwardXp(20);
-        triggerNotification("🎉 Mindy AI Revision Award", "Flawless retrieval! Reviewed all study cards. +20 XP awarded!");
-      }
-    }
+  // FEES TRANSACTION
+  const handlePaymentSubmit = () => {
+    setIsPayingProcess(true);
+    setTimeout(() => {
+      setIsPayingProcess(false);
+      setBillingList(prev => prev.map(b => b.status === "Unpaid" ? { ...b, status: "Paid", datePaid: new Date().toLocaleDateString() } : b));
+      addToast("💳 Fee Paid Successfully", "AED 1,575 transaction cleared via secured Stripe checkout. Receipt issued.", "success");
+      localNotify("🧾 Dubai Hub Fees Cleared", "Kabir Al-Mansoori processed standard CBSE/IGCSE Term Tuition fee + UAE VAT. Ledger updated.");
+      setNotifications(prev => prev.filter(n => n.type !== "fee"));
+      setActiveModal(null);
+    }, 2000);
   };
 
-  // Filter list of recorded classes dynamically based on curriculum alignment
-  const filteredRecordedClasses = RECORDED_CLASSES.filter(c => {
-    const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          c.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          c.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesCurriculum = activeCurriculumFilter === "ALL" || c.curriculum === activeCurriculumFilter;
-    
-    return matchesSearch && matchesCurriculum;
-  });
+  // DOWNLOAD SIMULATED INVOICE
+  const downloadSimulatedInvoice = (invoiceId: string, term: string, base: number, vat: number) => {
+    const textBlob = `
+========================================
+     PLATO'S PLANET TUITION CENTER
+       DUBAI, UNITED ARAB EMIRATES
+========================================
+INVOICE REFERENCE: ${invoiceId}
+DATE: June 16, 2026
+ACADEMIC YEAR: ${academicYear}
+BRANCH LOCATION: Al Qusais, Dubai
+STUDENT REFERENCE: ${studentName} (Sara)
+PARENT GUARDIAN: ${parentName}
 
-  const currentlyPlayingClass = RECORDED_CLASSES.find(c => c.id === playingVideoId);
+BILLING SUMMARY:
+----------------------------------------
+Item Description: ${term}
+Base Course Fee: AED ${base.toFixed(2)}
+Standard UAE VAT (5%): AED ${vat.toFixed(2)}
+TOTAL CHARGE: AED ${(base + vat).toFixed(2)}
+STATUS: CLEAR / PAID SECURELY
+----------------------------------------
+Thank you for enrolling at Plato's Planet. 
+Providing elite CBSE & IGCSE booster scores!
+========================================
+    `;
+    const element = document.createElement("a");
+    const file = new Blob([textBlob], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `${invoiceId}-PlatoInvoice.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    addToast("📥 Invoice Downloaded", "Plato UAE tax compliant statement downloaded successfully.");
+  };
 
-  // Auto-calculated attendance rate
-  const attendanceRate = Math.min(100, 75 + (attendanceLogs.length * 5));
+  // APPROVE MAKEUP CLASS
+  const handleApproveMakeup = (alertId: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== alertId));
+    addToast("✅ Makeup Approved", "Makeup class with Cambridge assessor schedule added.", "success");
+    localNotify("📅 Attendance Slot Updated", "Approved Physics 12A makeup slot for Tuesday 17:30. SMS sent.");
+  };
 
   return (
-    <div id="student-portal-root" className="flex flex-col p-4 space-y-4">
+    <div id="student-portal-wrapper" className="min-h-screen bg-slate-950 text-slate-100 p-2 sm:p-4 md:p-6 font-sans relative">
       
-      {/* ⚠️ NOT LOGGED IN MODE */}
-      {!isLoggedIn ? (
-        <div id="login-panel" className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-2xl relative overflow-hidden animate-pulse-once">
-          {/* Neon aesthetic headers */}
-          <div className="absolute top-0 right-0 w-36 h-36 bg-brand-yellow/5 rounded-full blur-2xl pointer-events-none" />
-          
-          <div className="text-center space-y-1">
-            <div className="w-10 h-10 bg-brand-yellow/15 text-brand-yellow rounded-xl flex items-center justify-center mx-auto border border-brand-yellow/30 shadow-md">
-              <Lock className="w-5 h-5 text-brand-yellow" />
+      {/* Visual background lights */}
+      <div className="absolute top-24 left-10 w-72 h-72 bg-gradient-to-tr from-brand-blue/10 to-brand-yellow/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-24 right-10 w-80 h-80 bg-gradient-to-tr from-red-500/5 to-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+
+      {/* FIXED TOAST STACK */}
+      <div className="fixed bottom-18 right-4 z-50 flex flex-col gap-2 max-w-sm">
+        {toasts.map(t => (
+          <div 
+            key={t.id} 
+            className="p-3 bg-slate-900 border-l-4 border-l-brand-yellow border border-slate-800 rounded-lg shadow-xl flex items-start gap-2.5 animate-slide-in"
+          >
+            <div className="flex-1">
+              <div className="text-[11px] font-black uppercase text-brand-yellow flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5" /> {t.title}
+              </div>
+              <p className="text-[10px] text-slate-350 leading-normal mt-0.5">{t.message}</p>
             </div>
-            <h3 className="text-base font-black text-slate-100 tracking-tight mt-1.5">
-              Secure Plato Student Terminal
-            </h3>
-            <p className="text-[11px] text-slate-400 max-w-[220px] mx-auto leading-normal">
-              Validate credentials to access live lesson archives, syllabus worksheets, and attendance record logs.
-            </p>
           </div>
+        ))}
+      </div>
 
-          {/* Selector login options */}
-          <div className="grid grid-cols-2 gap-1 bg-slate-950 p-1 border border-slate-850 rounded-lg">
+      {/* PREMIUM NAVIGATION SWITCHER */}
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 mb-6 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+        
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-slate-950 flex items-center justify-center border border-slate-800">
+            <User className="text-brand-yellow w-5 h-5" />
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 block">ACADEMIC HUB</span>
+            <h1 className="text-sm sm:text-base font-black text-slate-100 uppercase tracking-tight flex items-center gap-2">
+              <span>Plato's Dubai Digital Campus</span>
+              <span className="text-[9.5px] bg-brand-red/10 text-brand-red border border-brand-red/20 px-2 py-0.5 rounded-full">
+                {academicYear}
+              </span>
+            </h1>
+          </div>
+        </div>
+
+        {/* CONTROLS AREA WITH ROLE SWITCHER & CURRICULUM TOGGLE */}
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          
+          {/* ROLE SWITCHER */}
+          <div className="bg-slate-950 p-1 rounded-xl border border-slate-800 flex items-center w-full sm:w-auto">
             <button
-              onClick={() => setLoginStep("preset")}
-              className={`py-1 text-[11px] font-black rounded-md cursor-pointer transition-colors ${
-                loginStep === "preset"
-                  ? "bg-brand-blue border border-brand-blue-dark text-slate-100 font-bold"
-                  : "bg-transparent text-slate-500 hover:text-slate-400"
+              onClick={() => {
+                setActiveRole("student");
+                localNotify("🎓 Role Switched", "Currently viewing Student portal dashboard workspace.");
+              }}
+              className={`flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 flex items-center justify-center gap-1.5 ${
+                activeRole === "student"
+                  ? "bg-brand-blue text-white shadow-lg"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Select Active Student
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Student (Sara)</span>
             </button>
             <button
-              onClick={() => setLoginStep("new")}
-              className={`py-1 text-[11px] font-black rounded-md cursor-pointer transition-colors ${
-                loginStep === "new"
-                  ? "bg-brand-blue border border-brand-blue-dark text-slate-100 font-bold"
-                  : "bg-transparent text-slate-500 hover:text-slate-400"
+              onClick={() => {
+                setActiveRole("parent");
+                localNotify("👨‍👩‍👧 Role Switched", "Currently viewing Parent tracking center.");
+              }}
+              className={`flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 flex items-center justify-center gap-1.5 ${
+                activeRole === "parent"
+                  ? "bg-brand-yellow text-slate-950 shadow-lg font-black"
+                  : "text-slate-400 hover:text-slate-200"
               }`}
             >
-              Register New ID
+              <Users className="w-3.5 h-3.5" />
+              <span>Parent (Mr. Kabir)</span>
             </button>
           </div>
 
-          {loginStep === "preset" ? (
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block font-mono">
-                  Registered Dubai Students
-                </label>
-                <div className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
-                  {PRESET_STUDENTS.map((st, i) => (
+          {/* CURRICULUM TOGGLER */}
+          <div className="bg-slate-950 p-1 rounded-xl border border-slate-800 flex items-center w-full sm:w-auto">
+            <button
+              onClick={() => {
+                setCurriculum("IGCSE");
+                addToast("🇬🇧 Cambridge Select", "Curriculum switched to British IGCSE Paper standard.");
+              }}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider duration-150 ${
+                curriculum === "IGCSE"
+                  ? "bg-rose-950/80 border border-brand-red text-brand-red"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              British IGCSE
+            </button>
+            <button
+              onClick={() => {
+                setCurriculum("CBSE");
+                addToast("🇮🇳 Board Standard Select", "Curriculum switched to Indian CBSE syllabus.");
+              }}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider duration-150 ${
+                curriculum === "CBSE"
+                  ? "bg-teal-950/80 border border-emerald-500 text-emerald-450"
+                  : "text-slate-500 hover:text-slate-300"
+              }`}
+            >
+              CBSE Boards
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ========================================== */}
+      {/*            STUDENT WORKSPACE AREA          */}
+      {/* ========================================== */}
+      {activeRole === "student" && (
+        <div id="student-workspace-view" className="space-y-6 animate-fade-in">
+          
+          {/* SECTION 1: HERO LEARNING PANEL */}
+          <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial-at-tr from-brand-yellow/10 via-transparent to-transparent pointer-none" />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              <div className="lg:col-span-8 space-y-4">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 rounded-full">
+                  <Flame className="w-3.5 h-3.5 text-brand-yellow" /> Daily Quest Space
+                </span>
+                
+                <div className="space-y-1.5">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-100 leading-tight">
+                    Marhaban, <span className="bg-gradient-to-r from-brand-yellow via-rose-455 to-sky-400 text-transparent bg-clip-text font-black">{studentName}!</span>
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Academic Goal for today: <strong className="text-slate-200">Solve Organic Synthesis chains & Calculus Variant 2 papers</strong>
+                  </p>
+                </div>
+
+                {/* Sub Metadata Strip */}
+                <div className="flex flex-wrap items-center gap-3 text-[11px] font-mono text-slate-450 border-t border-slate-850 pt-3">
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="w-3.5 h-3.5 text-slate-500" /> Syllabus: {curriculum === "IGCSE" ? "British Extended IGCSE" : "CBSE Grade 10 Boor"}
+                  </span>
+                  <span className="text-slate-700">•</span>
+                  <span className="flex items-center gap-1">
+                    <Activity className="w-3.5 h-3.5 text-slate-500" /> Exam Readiness Score: <strong className="text-emerald-400">84% Gold</strong>
+                  </span>
+                  <span className="text-slate-700">•</span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-slate-500" /> Campus: {location}
+                  </span>
+                </div>
+
+                <div className="bg-slate-950/70 p-3.5 rounded-xl border border-slate-850 flex items-start gap-2.5 max-w-2xl">
+                  <Brain className="w-5 h-5 text-brand-yellow shrink-0 mt-0.5" />
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-brand-yellow block">Plato AI Action Plan</span>
+                    <p className="text-[10.5px] text-slate-300 leading-relaxed">
+                      "Optics refraction formulas have shown a 12% comprehension dip. Practice the Class 10/IGCSE Optics MCQ Challenge right now to secure +25 XP and stabilize your streak rating!"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Exam countdown & summary widgets */}
+              <div className="lg:col-span-4 bg-slate-950 p-4 border border-slate-800 rounded-2xl space-y-3 shadow-inner">
+                <div className="text-center pb-2 border-b border-slate-900">
+                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-wider block">BOARD COUNTDOWN</span>
+                  <span className="text-2xl font-black text-rose-500 font-mono">48 Days Left</span>
+                  <span className="text-[9.5px] text-slate-400 block mt-0.5">{curriculum === "IGCSE" ? "Cambridge Board Autumn Series" : "CBSE Class 10 Finals"}</span>
+                </div>
+                
+                <div className="space-y-1 text-xs">
+                  <span className="text-slate-400 font-medium">Currently Subscribed Subjects:</span>
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {subjectsState.map(s => (
+                      <span key={s.name} className="px-2 py-0.5 bg-slate-900 rounded-md border border-slate-850 text-[10px] text-slate-300 font-semibold font-mono">
+                        {s.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 2: INTERACTIVE PLANET LEARNING JOURNEY */}
+          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-850 pb-3">
+              <div>
+                <h3 className="text-sm font-black uppercase text-slate-200 tracking-wider flex items-center gap-1.5">
+                  <Trophy className="w-5 h-5 text-brand-yellow" />
+                  <span>Plato's Planet Orbit Learning Map</span>
+                </h3>
+                <p className="text-[11px] text-slate-450">
+                  Simulated multi-stage revision roadmap. Advance through space coordinates as you practice CBSE & IGCSE mock sheets!
+                </p>
+              </div>
+              <span className="text-[10px] bg-slate-950 border border-slate-800 px-2 py-1 rounded-lg text-brand-yellow font-mono font-bold shrink-0">
+                Current Space Station: Mars
+              </span>
+            </div>
+
+            {/* Simulated Map Nodes */}
+            <div className="relative py-4 overflow-x-auto select-none no-scrollbar">
+              
+              {/* Connected Line Background */}
+              <div className="absolute top-1/2 left-2 right-2 h-1 bg-gradient-to-r from-emerald-500 via-brand-yellow to-slate-800 -translate-y-1/2 z-0 rounded-full" />
+
+              <div className="flex justify-between min-w-[700px] px-4 relative z-10 gap-2">
+                {planetsList.map((pl, idx) => {
+                  const isCur = idx === selectedPlanetIndex;
+                  const isComp = pl.status === "completed";
+                  const isLock = pl.status === "locked";
+
+                  return (
                     <button
-                      key={st.name}
-                      onClick={() => handlePresetSelect(i)}
-                      className={`w-full text-left p-2.5 rounded-lg border text-xs cursor-pointer transition-all ${
-                        selectedPresetIndex === i
-                          ? "bg-brand-blue-dark/50 border-brand-yellow text-brand-yellow font-bold shadow-sm"
-                          : "bg-slate-950/60 border-slate-850 text-slate-350 hover:bg-slate-950"
+                      key={pl.name}
+                      onClick={() => handlePlanetProgress(idx)}
+                      className={`relative flex flex-col items-center gap-2 max-w-[85px] cursor-pointer focus:outline-none transition-transform duration-150 hover:scale-105 ${
+                        isCur ? "z-20" : ""
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold">{st.name}</span>
-                        <span className="text-[9px] text-slate-500 bg-slate-900 border border-slate-800 px-1.5 py-0.2 rounded">
-                          {st.curriculum} {st.grade.split(" ")[0]}
+                      {/* Planet visual shape representation */}
+                      <div 
+                        className={`w-11 h-11 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
+                          isCur 
+                            ? "bg-slate-900 border-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.4)] text-rose-400" 
+                            : isComp
+                            ? "bg-slate-950 border-emerald-400 text-emerald-400"
+                            : "bg-slate-950 border-slate-800 text-slate-600"
+                        }`}
+                      >
+                        {isComp ? (
+                          <CheckCircle className="w-5 h-5 fill-emerald-500/10" />
+                        ) : isCur ? (
+                          <Sparkles className="w-5 h-5 text-brand-yellow animate-spin" style={{ animationDuration: "5s" }} />
+                        ) : (
+                          <Lock className="w-4 h-4" />
+                        )}
+                      </div>
+
+                      {/* Name & Milestone tag info */}
+                      <div className="text-center">
+                        <span className={`text-[10px] font-black block leading-none ${isCur ? "text-rose-455 font-bold animate-pulse" : isComp ? "text-slate-300" : "text-slate-500"}`}>
+                          {pl.name}
+                        </span>
+                        <span className="text-[8px] font-mono text-slate-450 block truncate max-w-[80px] mt-0.5 leading-none">
+                          {pl.milestone}
                         </span>
                       </div>
                     </button>
+                  );
+                })}
+              </div>
+
+            </div>
+
+            {/* Dynamic Planet details inspector card */}
+            <div className="bg-slate-950 p-4 border border-slate-850 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="space-y-1 text-center sm:text-left flex-1">
+                <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/15 px-2 py-0.5 rounded-full font-mono uppercase font-bold tracking-wide">
+                  Station {selectedPlanetIndex + 1}: {planetsList[selectedPlanetIndex].name}
+                </span>
+                <h4 className="text-xs font-bold text-slate-200 mt-1">
+                  Revision Milestone: <span className="text-brand-yellow">{planetsList[selectedPlanetIndex].milestone}</span>
+                </h4>
+                <p className="text-[10.5px] text-slate-400 italic">
+                  "{planetsList[selectedPlanetIndex].desc}"
+                </p>
+                <div className="text-[9.5px] text-slate-500 font-mono pt-1">
+                  Station Reward Target: <strong className="text-sky-400 font-black">{planetsList[selectedPlanetIndex].reward}</strong>
+                </div>
+              </div>
+
+              <div className="shrink-0">
+                {planetsList[selectedPlanetIndex].status === "locked" ? (
+                  <button 
+                    onClick={() => claimPlanetBonus(selectedPlanetIndex)}
+                    className="px-4 py-2 bg-gradient-to-r from-brand-yellow to-brand-gold text-slate-950 text-[10px] font-black uppercase rounded-xl hover:shadow-lg transition-all"
+                  >
+                    Simulator Force-Unlock Task
+                  </button>
+                ) : (
+                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> Milestone Completed
+                  </span>
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* GRID: ACTIONS AND SUBJECTS */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* LEFT: ACTIONS & DOUBTS MODULE (lg:col-span-8) */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* TODAY'S LEARNING TASKS */}
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                    <Clock3 className="w-4 h-4 text-rose-500" />
+                    <span>Sara's Today Action Tasks</span>
+                  </h3>
+                  <span className="text-[10px] text-slate-500">6 high priority revisions listed</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {actionCards.map(act => (
+                    <div 
+                      key={act.id} 
+                      className="bg-slate-900 border border-slate-800 hover:border-slate-700 p-4 rounded-2xl flex flex-col justify-between gap-3 shadow-md hover:shadow-lg transition-all duration-150"
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[9px] font-mono">
+                          <span className="px-2 py-0.5 rounded bg-slate-950 text-slate-350 border border-slate-850">
+                            {act.subject}
+                          </span>
+                          <span className={`font-bold px-1.5 rounded ${
+                            act.priority === "High" 
+                              ? "bg-red-500/10 text-red-400" 
+                              : act.priority === "Medium"
+                              ? "bg-amber-500/10 text-amber-400"
+                              : "bg-slate-800 text-slate-400"
+                          }`}>
+                            {act.priority} Unit
+                          </span>
+                        </div>
+
+                        <h4 className="text-[11.5px] font-bold text-slate-200 leading-tight">
+                          {act.title}
+                        </h4>
+
+                        <div className="flex items-center gap-1.5 text-[9.5px] text-slate-450 font-mono">
+                          <Clock className="w-3 h-3 text-slate-500" /> Estimated: <span className="text-slate-300">{act.timeRequired}</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => {
+                          if (act.type === "doubt") {
+                            const el = document.getElementById("doubt-solver-anchor");
+                            if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            addToast("🔍 Doubts Scanner Active", "Scrolled to OCR doubt submission zone!");
+                          } else if (act.type === "live") {
+                            addToast("🚀 Direct Webinar Webinar", "Connecting to live Cisco WebClass server node code...");
+                          } else if (act.type === "test") {
+                            addToast("📋 Entering Lobby", "Loading secured lock browser engine for board mockup...");
+                          } else {
+                            addToast("📥 Resource Loaded", `Access unit scheduled successfully for ${act.subject}`);
+                          }
+                        }}
+                        className="w-full py-2 bg-slate-950 hover:bg-slate-850 text-[10px] font-bold uppercase tracking-wider text-brand-yellow rounded-xl border border-slate-850 hover:border-brand-yellow/30 transition-all cursor-pointer flex items-center justify-center gap-1"
+                      >
+                        <span>{act.ctaText}</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-brand-yellow" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              {/* Pin Code Box */}
-              <div className="space-y-1">
-                <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-extrabold uppercase tracking-wider text-slate-450 block font-mono">
-                    Secured Passcode PIN
-                  </label>
-                  <span className="text-[9px] text-slate-650">(Demo code defaults to: 1234)</span>
+              {/* INTEGRATED INTERACTIVE DOUBT SOLVER AREA */}
+              <div id="doubt-solver-anchor" className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+                <div>
+                  <h3 className="text-sm font-black uppercase text-slate-250 tracking-wider flex items-center gap-1.5">
+                    <Brain className="w-5 h-5 text-indigo-400" />
+                    <span>Plato Doubt Solver Scanner OCR</span>
+                  </h3>
+                  <p className="text-[10.5px] text-slate-400">
+                    Snap an image of CBSE mathematics or IGCSE organic equations of past papers, choose your subject, and hit Solve to get immediate detailed solutions!
+                  </p>
                 </div>
-                <input
-                  type="password"
-                  placeholder="• • • •"
-                  value={pinCode}
-                  maxLength={4}
-                  onChange={(e) => setPinCode(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 tracking-widest text-center px-3 py-2 text-xs rounded-lg text-brand-yellow font-black focus:outline-none focus:border-brand-yellow"
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Inputs */}
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[9.5px] uppercase font-mono font-bold tracking-wider text-slate-450 block">Select Subject:</label>
+                      <select 
+                        value={doubtSubject}
+                        onChange={(e) => setDoubtSubject(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-800 text-xs text-slate-300 p-2.5 rounded-xl focus:border-brand-yellow"
+                      >
+                        <option value="Physics">Physics Variant 2 / CBSE Mechanics</option>
+                        <option value="Chemistry">Organic Chemistry chains / CBSE NCERT</option>
+                        <option value="Mathematics">IGCSE Calculus Paper 4 / Algebra</option>
+                        <option value="Biology">Genetic Crosses Paper 6 Practical</option>
+                        <option value="English">Critical descriptive prose themes</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[9.5px] uppercase font-mono font-bold tracking-wider text-slate-450 block">Or Type Your Question:</label>
+                      <textarea
+                        value={doubtQuestion}
+                        onChange={(e) => setDoubtQuestion(e.target.value)}
+                        placeholder="e.g., Prove why f'(x) of x^3 + 5x is 3x^2 + 5 using definition limits..."
+                        rows={2.5}
+                        className="w-full bg-slate-950 border border-slate-800 text-xs text-slate-300 p-2.5 rounded-xl focus:border-brand-yellow placeholder-slate-700"
+                      />
+                    </div>
+
+                    {/* Drag and Drop Zone */}
+                    <div 
+                      onDragEnter={handleDrag}
+                      onDragOver={handleDrag}
+                      onDragLeave={handleDrag}
+                      onDrop={handleDrop}
+                      className={`border-2 border-dashed rounded-xl p-4 text-center cursor-pointer transition-all ${
+                        dragActive 
+                          ? "border-brand-yellow bg-slate-950/50" 
+                          : doubtFile 
+                          ? "border-emerald-500 bg-emerald-500/5" 
+                          : "border-slate-800 hover:border-slate-700 bg-slate-950"
+                      }`}
+                    >
+                      <input 
+                        type="file" 
+                        id="doubt-file-upload" 
+                        className="hidden" 
+                        accept="image/*,.pdf" 
+                        onChange={handleFileChange} 
+                      />
+                      <label htmlFor="doubt-file-upload" className="cursor-pointer space-y-1 flex flex-col items-center">
+                        <Upload className={`w-6 h-6 ${doubtFile ? "text-emerald-400" : "text-indigo-400 animate-pulse"}`} />
+                        <span className="text-[10px] font-semibold text-slate-300 block">
+                          {doubtFile ? "Change file" : "Drag-and-drop Image/PDF or Click to Browse"}
+                        </span>
+                        <span className="text-[8.5px] text-slate-500 block">Supports high-fidelity snaps & worksheets</span>
+                      </label>
+                    </div>
+
+                    {doubtFileName && (
+                      <div className="flex items-center justify-between bg-slate-950 p-2 border border-slate-850 rounded-lg text-[9px] font-mono pr-3">
+                        <span className="text-emerald-400 truncate max-w-[200px]">{doubtFileName}</span>
+                        <button 
+                          onClick={() => { setDoubtFile(null); setDoubtFileName(""); }}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
+
+                    <button 
+                      onClick={solveDoubtTrigger}
+                      disabled={isSolvingDoubt}
+                      className="w-full py-2.5 bg-gradient-to-r from-brand-blue to-indigo-650 hover:from-brand-blue-dark hover:to-indigo-600 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5"
+                    >
+                      {isSolvingDoubt ? (
+                        <>
+                          <RotateCw className="w-4 h-4 animate-spin" />
+                          <span>Mindy OCR Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="w-4 h-4 text-white" />
+                          <span>AI Solve doubt</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Results box */}
+                  <div className="bg-slate-950 p-4 border border-slate-850 rounded-2xl flex flex-col justify-between">
+                    <div>
+                      <span className="text-[9.5px] text-indigo-400 font-mono uppercase tracking-widest block font-bold mb-2">Step-by-Step AI Solutions output</span>
+                      {doubtResponse ? (
+                        <div className="space-y-3">
+                          <p className="text-[10.5px] text-slate-200 font-black italic">
+                            "{doubtResponse.question}"
+                          </p>
+                          <div className="space-y-1.5 text-[10px] text-slate-350">
+                            {doubtResponse.steps.map((st: string, sIdx: number) => (
+                              <div key={sIdx} className="flex gap-1.5 items-start">
+                                <span className="text-brand-yellow font-black">✔</span>
+                                <span>{st}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-40 flex flex-col items-center justify-center text-center space-y-2 text-slate-650 select-none">
+                          <HelpCircle className="w-10 h-10 text-slate-800" />
+                          <p className="text-[10.5px]">No doubts resolved yet in current active session.</p>
+                          <span className="text-[9px] max-w-[180px]">Submit an organic molecule equation or math proof on the left for diagnostic step breakdowns.</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {doubtResponse && (
+                      <div className="border-t border-slate-900 pt-3 mt-3">
+                        <span className="text-[9px] font-mono text-slate-500 uppercase block">RECOMMENDED ADDITIONAL TRIALS:</span>
+                        <div className="flex gap-1 pt-1.5 overflow-x-auto no-scrollbar">
+                          {doubtResponse.practiceQuests.map((pQ: string, pIdx: number) => (
+                            <button 
+                              key={pIdx}
+                              onClick={() => { setDoubtQuestion(pQ); addToast("🔬 Study Prompt Selected", "Question pasted successfully."); }}
+                              className="px-2 py-1 bg-slate-900 border border-slate-850 rounded text-[9px] hover:border-brand-yellow/30 text-indigo-300 max-w-[150px] truncate"
+                            >
+                              {pQ}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* RIGHT SIDEBAR: LEVEL, BADGES & SUBJECT MASTERY (lg:col-span-4) */}
+            <div className="lg:col-span-4 space-y-6">
+              
+              {/* GAMIFICATION STATS */}
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+                <span className="text-[9px] uppercase font-mono tracking-widest text-[#F59E0B] block">LEVEL STATS</span>
+                <div className="flex items-center justify-between border-b border-slate-850 pb-3">
+                  <div>
+                    <span className="text-2xl font-black text-brand-yellow font-mono">{studentXP}</span>
+                    <span className="text-[10px] text-slate-450 block font-mono">Planetary XP points</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-black text-emerald-400 font-mono">#{leaderboardRank}</span>
+                    <span className="text-[10px] text-slate-450 block font-mono">Rank: Dubai Campus</span>
+                  </div>
+                </div>
+
+                {/* Progress bar to target Burj peak height (828 XP points!) */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-[10px] text-slate-400">
+                    <span>Burj Peak Milestone: 828 XP</span>
+                    <span>{Math.round((studentXP / 828) * 100)}% Clear</span>
+                  </div>
+                  <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-900">
+                    <div className="bg-gradient-to-r from-brand-yellow to-emerald-400 h-2 rounded-full" style={{ width: `${Math.min(100, (studentXP / 828) * 100)}%` }} />
+                  </div>
+                </div>
+
+                {/* STUDY STREAK */}
+                <div className="p-3 bg-slate-950 rounded-2xl border border-slate-850 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-5 h-5 text-red-500 animate-pulse" />
+                    <div>
+                      <span className="text-[10px] text-slate-450 block">Streak Power</span>
+                      <strong className="text-slate-100 font-bold text-xs">{studyStreak} Days Active</strong>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setStudyStreak(prev => prev + 1);
+                      addToast("🔥 Streak Maintained", "You checked into Plato's hub class and extended your study streak count!");
+                    }}
+                    className="p-1 px-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-mono text-[9px] rounded-lg border border-slate-800 transition-all cursor-pointer"
+                  >
+                    Check In
+                  </button>
+                </div>
+
+                {/* WEEKLY MISSIONS */}
+                <div className="space-y-2 pt-1">
+                  <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400">This Week's Space Missions:</h4>
+                  <div className="space-y-1.5 text-[10px]">
+                    {weeklyMissions.map(m => (
+                      <div key={m.id} className="flex justify-between items-center p-2 bg-slate-950/80 rounded-xl border border-slate-850/60">
+                        <div className="flex items-center gap-1.5">
+                          <CheckCircle className={`w-3.5 h-3.5 ${m.done ? "text-emerald-400 fill-emerald-500/10" : "text-slate-600"}`} />
+                          <span className={m.done ? "text-slate-500 line-through" : "text-slate-300"}>{m.title}</span>
+                        </div>
+                        <span className="text-indigo-400 font-mono text-[9px] shrink-0 font-bold">+{m.points} XP</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* STUDY COACH WIDGET */}
+              <div className="bg-gradient-to-br from-indigo-950/40 via-slate-900 to-indigo-950/40 border border-slate-800 rounded-3xl p-4.5 space-y-3 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <span className="text-[9px] bg-indigo-500/15 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full font-mono font-bold tracking-wide">
+                    COACH ADVICE
+                  </span>
+                  <span className="text-[10.5px] text-emerald-400 font-mono font-black">+12% Predicted Gain</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h4 className="text-xs font-black text-slate-200">Recommended Next Steps for Sara</h4>
+                  <p className="text-[10px] text-slate-400 leading-normal">
+                    Based on mock paper variant errors, we advise targeting:
+                  </p>
+                  <ul className="text-[10px] text-slate-300 space-y-1">
+                    <li className="flex gap-1.5 items-start">
+                      <span className="text-brand-yellow font-black">•</span>
+                      <span>Review Electromagnetic variants (Physics test card pending)</span>
+                    </li>
+                    <li className="flex gap-1.5 items-start">
+                      <span className="text-brand-yellow font-black">•</span>
+                      <span>Practice organic chemistry esters and bonds representation sheet</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <button 
+                  onClick={() => {
+                    addToast("🤖 Plato Coach Loaded", "Opening standard Plato Chat Mentor drawer!");
+                    setAiCoachHistory([
+                      { sender: "ai", text: `Assalamu Alaikum! I am Plato's AI Tutor. I see that Sara is currently working through British IGCSE and NCERT boards in ${location}. Tell me what chapter you want help with!` }
+                    ]);
+                    setActiveModal("ai-coach");
+                  }}
+                  className="w-full py-2 bg-indigo-650 hover:bg-indigo-600 text-[10px] text-white uppercase tracking-widest font-extrabold rounded-xl transition-all shadow-md mt-1 flex items-center justify-center gap-1.5"
+                >
+                  <Brain className="w-3.5 h-3.5 text-white" />
+                  <span>Ask Plato Coach AI</span>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* SECTION 4: EXAM PREPARATION QUEUE */}
+          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3.5">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-850 pb-3">
+              <div>
+                <h3 className="text-sm font-black uppercase text-slate-200 tracking-wider flex items-center gap-1.5">
+                  <BookOpen className="w-5 h-5 text-emerald-400" />
+                  <span>Interactive Exam Preparation Queue</span>
+                </h3>
+                <p className="text-[11px] text-slate-450">
+                  Targeted past papers, एनसीईआरटी chapter competency sets, and specimen variant checklists.
+                </p>
+              </div>
+
+              {/* Queue Filters */}
+              <div className="flex gap-1 flex-wrap">
+                {["ALL", "Physics", "Chemistry", "Mathematics", "Biology", "English"].map(subj => (
+                  <button
+                    key={subj}
+                    onClick={() => setExamSubjectFilter(subj)}
+                    className={`px-3 py-1 rounded-lg text-[9.5px] font-bold duration-150 ${
+                      examSubjectFilter === subj 
+                        ? "bg-brand-blue text-white shadow-md border border-brand-blue-dark/50" 
+                        : "bg-slate-950 hover:bg-slate-800 text-slate-400"
+                    }`}
+                  >
+                    {subj}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* List items */}
+            <div className="space-y-2">
+              {examQueue
+                .filter(eq => examSubjectFilter === "ALL" || eq.subject === examSubjectFilter)
+                .map((eq, qIdx) => (
+                  <div 
+                    key={qIdx}
+                    className="p-3.5 bg-slate-950 border border-slate-850 rounded-2xl hover:border-slate-800 transition-all flex flex-col sm:flex-row items-center justify-between gap-4 text-left"
+                  >
+                    <div className="space-y-1 w-full sm:flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-1.5 py-0.2 rounded font-mono text-[8px] font-bold ${
+                          eq.curriculum === "IGCSE" ? "bg-rose-950/80 text-brand-red" : "bg-teal-950/80 text-emerald-450"
+                        }`}>
+                          {eq.curriculum} Unit
+                        </span>
+                        <span className="text-[9.5px] text-slate-500 font-mono">Due date: {eq.dueDate}</span>
+                      </div>
+                      <h4 className="text-xs font-bold text-slate-200 leading-snug">{eq.title}</h4>
+                      
+                      <div className="flex items-center gap-3 text-[9.5px] text-slate-450 font-mono">
+                        <span>Readiness Rank: <strong className="text-brand-yellow font-black">{eq.readiness}</strong></span>
+                        <span>•</span>
+                        <span>Challenge: <strong className="text-slate-300">{eq.difficulty}</strong></span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end sm:justify-start">
+                      <span className="text-[10px] font-mono text-indigo-400 font-bold shrink-0">+{eq.xpValue} XP Award</span>
+                      <button 
+                        onClick={() => {
+                          setStudentXP(prev => prev + eq.xpValue);
+                          onAwardXp(eq.xpValue);
+                          addToast("🎯 Specimen Sheet Opened", `Loading BoardSpecimen: ${eq.title}. Earned +${eq.xpValue} XP!`, "success");
+                          localNotify("📊 Board Mock Activated", `Sara initialized past paper workspace: ${eq.title}`);
+                        }}
+                        className="p-1 px-3.5 bg-slate-900 border border-slate-800 hover:border-brand-yellow/30 text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer"
+                      >
+                        {eq.status === "Completed" ? "Review Mock" : "Start Task"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {/* SECTION 5: SUBJECT MASTERY DASHBOARD */}
+          <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+            <div>
+              <h3 className="text-sm font-black uppercase text-slate-200 tracking-wider flex items-center gap-1.5">
+                <TrendingUp className="w-5 h-5 text-indigo-450" />
+                <span>Sara's Subject Mastery & Feedback</span>
+              </h3>
+              <p className="text-[11px] text-slate-450">
+                Live board-aligned grade tracking. Expand to read core teacher notes and specialized Dubai counselor advice.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {subjectsState.map((subj, sIdx) => {
+                const isExpanded = expandedSubjectIndex === sIdx;
+                return (
+                  <div 
+                    key={subj.name}
+                    className="p-4 bg-slate-950 border border-slate-850 hover:border-slate-800 rounded-2xl transition-all flex flex-col justify-between gap-3 text-left"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-slate-100">{subj.name}</span>
+                        <span className="text-[10px] font-mono font-bold text-[#F59E0B] bg-[#F59E0B]/10 px-1.5 py-0.2 rounded border border-[#F59E0B]/10">
+                          {subj.predictedGrade}
+                        </span>
+                      </div>
+
+                      {/* Mini progress bar */}
+                      <div className="space-y-1 font-mono">
+                        <div className="flex items-center justify-between text-[9px] text-slate-500">
+                          <span>Syllabus Mastered</span>
+                          <span>{subj.progress}%</span>
+                        </div>
+                        <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
+                          <div className="bg-gradient-to-r from-indigo-500 to-indigo-400 h-1.5 rounded-full" style={{ width: `${subj.progress}%` }} />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[9.5px] text-slate-450 font-mono">
+                        <span>Mastery score: {subj.masteryScore}</span>
+                        <span>Last Quiz score: {subj.lastTestScore}%</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setExpandedSubjectIndex(isExpanded ? null : sIdx)}
+                      className="w-full py-1.5 bg-slate-900 text-slate-400 hover:text-slate-200 text-[9px] font-semibold uppercase tracking-wider rounded-lg text-center"
+                    >
+                      {isExpanded ? "Hide detailed analytics ▲" : "View diagnostic feedback ▼"}
+                    </button>
+
+                    {isExpanded && (
+                      <div className="p-2.5 bg-slate-900 rounded-xl border border-slate-850 text-[10px] space-y-1.5 animate-slide-in mt-1">
+                        <div>
+                          <strong className="text-brand-yellow font-extrabold block uppercase text-[8px] font-mono tracking-wider">Weak Chapters focus:</strong>
+                          <span className="text-slate-350">{subj.weakChapter}</span>
+                        </div>
+                        <div>
+                          <strong className="text-brand-yellow font-extrabold block uppercase text-[8px] font-mono tracking-wider">Teacher remarks:</strong>
+                          <span className="text-slate-400 italic">"{subj.teacherComment}"</span>
+                        </div>
+                        <div>
+                          <strong className="text-brand-blue block uppercase text-[8px] font-mono tracking-wider">Recommended Parent action:</strong>
+                          <span className="text-indigo-300">{subj.nextAction}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================== */}
+      {/*             PARENT WORKSPACE AREA          */}
+      {/* ========================================== */}
+      {activeRole === "parent" && (
+        <div id="parent-tracking-view" className="space-y-6 animate-fade-in text-left">
+          
+          {/* SECTION 1: CHILD SUCCESS SNAPSHOT */}
+          <div className="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
+            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial-at-tr from-rose-500/5 via-transparent to-transparent pointer-none" />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              
+              <div className="lg:col-span-8 space-y-4">
+                <span className="inline-flex items-center gap-1 bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/15 px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase">
+                  <UserCheck className="w-3.5 h-3.5 text-[#10B981]" /> Unified Diagnostic Space
+                </span>
+
+                <div className="space-y-1">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-100">
+                    Parent Workspace: <span className="text-brand-yellow">{parentName}</span>
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Real-time academic outcomes tracking for: <strong className="text-emerald-400">Sara</strong> • Grade 10 • Location: Dubai Campus
+                  </p>
+                </div>
+
+                {/* AI GENERATED PARENT BRIEF */}
+                <div className="p-3.5 bg-[#F59E0B]/5 rounded-2xl border border-[#F59E0B]/15 max-w-3xl space-y-1.5">
+                  <div className="flex items-center gap-1.5 text-[9.5px] text-[#F59E0B] font-black uppercase tracking-widest font-mono">
+                    <Sparkles className="w-4 h-4 text-[#F59E0B]" />
+                    <span>Plato AI Hub Parent Briefing note</span>
+                  </div>
+                  <p className="text-[10.5px] text-slate-300 leading-relaxed font-sans">
+                    "Sara is showing exceptional resilience in Mathematics proofs and Physics. Chemistry Organic Synthesis requires a 20-minute active recall booster this weekend to raise the confidence index to Gold Level."
+                  </p>
+                </div>
+              </div>
+
+              {/* ACADEMIC HEALTH SCORE MODULE */}
+              <div className="lg:col-span-4 bg-slate-950 p-4 border border-slate-800 rounded-2xl space-y-3.5 text-center shadow-inner">
+                <span className="text-[9.5px] font-mono font-bold text-slate-500 uppercase tracking-widest block">ACADEMIC HEALTH GRADE</span>
+                
+                {/* Visual Ring Gauge */}
+                <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full border-4 border-slate-900" />
+                  <div className="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent border-r-transparent animate-spin" style={{ animationDuration: "12s" }} />
+                  <div className="text-center z-10">
+                    <span className="text-2xl font-black text-emerald-400 block font-mono">92/100</span>
+                    <span className="text-[8.5px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 rounded">EXCELLENT</span>
+                  </div>
+                </div>
+
+                <p className="text-[9.5px] text-slate-400 leading-normal font-sans">
+                  Compiled from attendance checks, continuous exam homework submissions, and recent board past papers.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          {/* PARENT INTUITIVE NOTIFICATIONS FEED */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-3.5">
+            <div className="flex items-center justify-between border-b border-slate-850 pb-2">
+              <h3 className="text-xs font-black uppercase tracking-widest text-[#F59E0B] flex items-center gap-1.5">
+                <ShieldAlert className="w-4 h-4 text-[#F59E0B]" />
+                <span>Plato Smart Alert Notifications feed</span>
+              </h3>
+              <span className="text-[10px] text-slate-500">Action items require parental review</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {notifications.map(n => (
+                <div 
+                  key={n.id}
+                  className={`p-3.5 border rounded-2xl flex flex-col justify-between gap-3 text-left transition-all ${
+                    n.severity === "critical" 
+                      ? "bg-rose-950/20 border-rose-500/30" 
+                      : n.severity === "warning"
+                      ? "bg-amber-950/20 border-amber-550/30"
+                      : "bg-slate-950 border-slate-850"
+                  }`}
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[9px] font-mono">
+                      <span className={`px-2 py-0.2 rounded uppercase ${
+                        n.severity === "critical" 
+                          ? "bg-rose-500/15 text-rose-400" 
+                          : n.severity === "warning" 
+                          ? "bg-amber-500/15 text-amber-400" 
+                          : "bg-blue-500/10 text-blue-400"
+                      }`}>
+                        {n.severity} Alert
+                      </span>
+                      <span className="text-slate-500">{n.time}</span>
+                    </div>
+
+                    <h4 className="text-[11px] font-bold text-slate-205 leading-snug">{n.title}</h4>
+                    <p className="text-[10px] text-slate-400 font-sans leading-relaxed">{n.desc}</p>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      if (n.type === "absence") {
+                        handleApproveMakeup(n.id);
+                      } else if (n.type === "homework") {
+                        setActiveRole("student");
+                        const el = document.getElementById("doubt-solver-anchor");
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                        addToast("📂 Homework Workspace Active", "Switched role for target doc upload.");
+                      } else if (n.type === "fee") {
+                        setActiveModal("pay-fees");
+                      } else {
+                        addToast("🧠 Feedback Requested", "Connecting to parent advisor code console...");
+                      }
+                    }}
+                    className="w-full py-1.5 bg-slate-950 hover:bg-slate-900 border border-slate-850 text-[10px] font-mono font-bold text-brand-yellow rounded-xl text-center"
+                  >
+                    {n.actionText} →
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* PARENT VALUE CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            
+            <div className="bg-slate-900 border border-slate-800 p-4.5 rounded-3xl space-y-3.5 shadow-md">
+              <div className="flex items-center justify-between text-xs font-black text-slate-200">
+                <span className="flex items-center gap-1"><TrendingUp className="w-4 h-4 text-emerald-400" /> Learning Progress</span>
+                <span className="text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded text-[10px]">84% Done</span>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
+                Sara completed 14 core mathematics and chemistry modules this month. Specimen mock indices are strong.
+              </p>
+              <button 
+                onClick={() => addToast("📥 Report Generation", "Academic tracking worksheet compiled.")}
+                className="w-full py-1.5 bg-slate-950 hover:bg-slate-850 border border-slate-850 rounded-lg text-[10px] font-bold text-brand-yellow"
+              >
+                Detailed Progress Report
+              </button>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 p-4.5 rounded-3xl space-y-3.5 shadow-md">
+              <div className="flex items-center justify-between text-xs font-black text-slate-200">
+                <span className="flex items-center gap-1"><Users className="w-4 h-4 text-brand-blue" /> Attendance status</span>
+                <span className="text-[#3b82f6] bg-[#3b82f6]/10 px-1.5 py-0.2 rounded text-[10px]">98% Present</span>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
+                Consistent attendance monitored inside Dubai outlet. Confirms streak loop objectives.
+              </p>
+              <button 
+                onClick={() => addToast("📋 Attendance Log", "Absence, biometric logs verified with server.")}
+                className="w-full py-1.5 bg-slate-950 hover:bg-slate-850 border border-slate-850 rounded-lg text-[10px] font-bold text-brand-yellow"
+              >
+                View Attendance database
+              </button>
+            </div>
+
+            <div className="bg-slate-900 border border-slate-800 p-4.5 rounded-3xl space-y-3.5 shadow-md">
+              <div className="flex items-center justify-between text-xs font-black text-slate-200">
+                <span className="flex items-center gap-1"><Info className="w-4 h-4 text-[#F59E0B]" /> Dubai Branch Counselor</span>
+                <span className="text-[#F59E0B] bg-[#F59E0B]/10 px-1.5 py-0.2 rounded text-[10px]">Assigned</span>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
+                Receive specialized advice on board strategies from our resident KHDA-approved academic counselors.
+              </p>
+              <button 
+                onClick={() => setActiveModal("book-meeting")}
+                className="w-full py-1.5 bg-slate-950 hover:bg-slate-850 border border-slate-850 rounded-lg text-[10px] font-bold text-brand-yellow"
+              >
+                Schedule Free Slot Inquiry
+              </button>
+            </div>
+
+          </div>
+
+          {/* SECTION 4 & 5: PARENT ACTION CENTER & SUBJECT PERFORMANCE MATRIX */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* LEFT: SUBJECT PERFORMANCE & TEACHER TIMELINE (lg:col-span-8) */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* SUBJECT ANALYSIS */}
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-3.5 shadow-xl">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-200 font-mono">
+                    BOARD PREDICTION MATRIX (SARA)
+                  </h3>
+                  <p className="text-[10.5px] text-slate-400">
+                    Calculated in alignment with standard GCSE spec and NCERT Class 10 pre-board scaling logic.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  {subjectsState.map(subj => (
+                    <div 
+                      key={subj.name}
+                      className="p-3 bg-slate-950 border border-slate-850 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 text-left font-sans"
+                    >
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <strong className="text-xs text-slate-100 font-black">{subj.name}</strong>
+                          <span className="text-[9.5px] font-mono text-emerald-400">Predicted: {subj.predictedGrade}</span>
+                        </div>
+                        <p className="text-[9.5px] text-slate-450 italic leading-relaxed">
+                          Teacher remarks: "{subj.teacherComment}"
+                        </p>
+                        <div className="text-[9px] text-[#F59E0B] font-mono">
+                          Weak sub-topic: {subj.weakChapter}
+                        </div>
+                      </div>
+
+                      <div className="shrink-0 flex items-center gap-2">
+                        <span className="text-[10px] font-mono text-slate-400 font-semibold bg-slate-900 px-2 py-1 rounded">Score: {subj.lastTestScore}%</span>
+                        <button 
+                          onClick={() => {
+                            addToast("📝 Revision Dispatched", `Sent ${subj.nextAction} SMS to Sara.`);
+                          }}
+                          className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-[9px] font-bold text-white uppercase"
+                        >
+                          Send Reminder
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* TEACHER FEEDBACK TIMELINE */}
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+                <h3 className="text-xs font-black uppercase text-slate-100 tracking-wider font-mono">
+                  CHRONOLOGICAL TEACHER FEEDBACK TIMELINE
+                </h3>
+
+                <div className="space-y-3">
+                  {feedbackTimeline.map((f, fIdx) => (
+                    <div 
+                      key={f.id}
+                      className="p-3.5 bg-slate-950 border border-slate-850 rounded-2xl relative text-left"
+                    >
+                      <div className="flex items-center justify-between text-[9px] font-mono mb-1 text-slate-450">
+                        <span className="font-semibold text-slate-300">Reviewed by {f.teacher} ({f.subject})</span>
+                        <span>{f.date}</span>
+                      </div>
+                      
+                      <p className="text-[10px] text-slate-350 italic font-sans leading-relaxed">
+                        "{f.feedback}"
+                      </p>
+                      
+                      <div className="text-[9.5px] text-indigo-300 font-medium pt-1.5 border-t border-slate-900 mt-1.5 font-mono">
+                        💡 Advice key: {f.recommendedAction}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+            {/* RIGHT: BILLING LEDGER & ACTIONS (lg:col-span-4) */}
+            <div className="lg:col-span-4 space-y-6">
+              
+              {/* PARENT QUICK ACTION PANEL */}
+              <div className="bg-gradient-to-br from-indigo-950/20 via-slate-900 to-indigo-950/20 border border-slate-800 rounded-3xl p-4.5 space-y-3 shadow-xl">
+                <span className="text-[9.5px] uppercase font-mono tracking-widest text-[#10B981] block">PARENT HUB CENTER</span>
+                
+                <div className="space-y-1.5">
+                  <h4 className="text-xs font-black text-slate-200">Express UAE Parent Action keys</h4>
+                  <p className="text-[9.5px] text-slate-400 mb-2">Book consultations or clear bills standard secure:</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 text-left">
+                  <button 
+                    onClick={() => setActiveModal("pay-fees")}
+                    className="w-full p-2.5 bg-brand-yellow hover:bg-brand-gold text-slate-950 font-black text-[9.5px] uppercase tracking-widest rounded-xl hover:shadow duration-150 flex items-center justify-center gap-1"
+                  >
+                    <DollarSign className="w-3.5 h-3.5" /> Pay Tuition Fees
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      const unpaid = billingList.find(b => b.status === "Unpaid");
+                      if (unpaid) {
+                        downloadSimulatedInvoice(unpaid.id, unpaid.term, unpaid.baseAmount, unpaid.vat);
+                      } else {
+                        downloadSimulatedInvoice("inv-clear-01", "Term 1 Premium Tuition", 1500, 75);
+                      }
+                    }}
+                    className="w-full p-2.5 bg-slate-950 hover:bg-slate-850 border border-slate-850 text-slate-200 font-bold text-[9.5px] uppercase tracking-widest rounded-xl duration-150 flex items-center justify-center gap-1"
+                  >
+                    <Download className="w-3.5 h-3.5 text-slate-400" /> Download UAE VAT Invoice
+                  </button>
+
+                  <button 
+                    onClick={() => setActiveModal("book-meeting")}
+                    className="w-full p-2.5 bg-slate-950 hover:bg-slate-850 border border-slate-850 text-slate-200 font-bold text-[9.5px] uppercase tracking-widest rounded-xl duration-150 flex items-center justify-center gap-1"
+                  >
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" /> Book Conference Slot
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      localNotify("📲 WhatsApp Dispatch", "Direct chat trigger initialized with Professor Al-Mansoori.");
+                      addToast("💬 Encrypted SMS", "Connecting safely to educator secure line standard WhatsApp.");
+                    }}
+                    className="w-full p-2.5 bg-slate-950 hover:bg-slate-850 border border-slate-850 text-[#10B981] font-bold text-[9.5px] uppercase tracking-widest rounded-xl duration-150 flex items-center justify-center gap-1"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-[#10B981]" /> Send Teacher SMS
+                  </button>
+                </div>
+              </div>
+
+              {/* REGISTERED LEDGER / FEE STATUS */}
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4.5 space-y-4 shadow-xl">
+                <div>
+                  <h4 className="text-[10px] font-mono font-bold text-slate-450 uppercase block">FEE TRANSACTION SYSTEM</h4>
+                  <span className="text-[8.5px] text-slate-500 font-sans block">Al Qusais Campus registration</span>
+                </div>
+
+                <div className="space-y-3 text-[10px]">
+                  {billingList.map((bill, bIdx) => (
+                    <div 
+                      key={bill.id} 
+                      className={`p-3 rounded-2xl border ${
+                        bill.status === "Paid" 
+                          ? "bg-slate-950/60 border-slate-850/60" 
+                          : "bg-red-950/10 border-red-500/20"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between font-mono text-[9px] mb-1">
+                        <span className="text-slate-450 uppercase">{bill.id}</span>
+                        <span className={`px-1.5 font-bold rounded ${
+                          bill.status === "Paid" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/15 text-brand-red"
+                        }`}>
+                          {bill.status}
+                        </span>
+                      </div>
+                      
+                      <h5 className="font-bold text-slate-200">{bill.term}</h5>
+                      <p className="text-[9px] text-[#F59E0B] font-mono m-0.5">Base: AED {bill.baseAmount} + Standard VAT 5%: AED {bill.vat}</p>
+                      
+                      <div className="flex items-center justify-between text-[9px] text-slate-500 pt-2 border-t border-slate-900 mt-2">
+                        <span>Paid: {bill.datePaid}</span>
+                        <button 
+                          onClick={() => downloadSimulatedInvoice(bill.id, bill.term, bill.baseAmount, bill.vat)}
+                          className="text-indigo-400 hover:text-indigo-300 font-bold"
+                        >
+                          Invoice PDF ↓
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/*                       MODAL OVERLAYS                      */}
+      {/* ========================================================= */}
+
+      {/* 1. BOOK MEETING MODAL */}
+      {activeModal === "book-meeting" && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md space-y-4 animate-scale-in text-left">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-200">
+                Book Dubai Teacher Conference
+              </h3>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="text-slate-600 hover:text-slate-400 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              <div className="space-y-1">
+                <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-slate-450 block">Select Educator:</label>
+                <select 
+                  value={selectedTeacher}
+                  onChange={(e) => setSelectedTeacher(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 focus:border-brand-yellow font-sans text-left"
+                >
+                  <option value="Dr. Al-Mansoori (Mathematics)">Dr. Al-Mansoori (Mathematics Variant Paper 4)</option>
+                  <option value="Mrs. Harrison (Physics)">Mrs. Harrison (Physics Grade 10 Specimen)</option>
+                  <option value="Dr. Bhatia (Chemistry)">Dr. Bhatia (Chemistry Organic NCERT)</option>
+                  <option value="Professor Emily (English Language)">Professor Emily (English descriptive critical)</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-slate-450 block">Select Date:</label>
+                  <input 
+                    type="date"
+                    value={meetingDate}
+                    onChange={(e) => setMeetingDate(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 font-sans"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-slate-450 block">Time Slot (Dubai):</label>
+                  <input 
+                    type="time"
+                    value={meetingTime}
+                    onChange={(e) => setMeetingTime(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 font-sans"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-slate-450 block">Brief Parent query note:</label>
+                <textarea
+                  value={meetingNote}
+                  onChange={(e) => setMeetingNote(e.target.value)}
+                  placeholder="e.g. Discussing SARA's trigonometry field proof scores..."
+                  rows={2.5}
+                  className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 font-sans focus:border-brand-yellow"
                 />
               </div>
 
-              <button
-                onClick={handleApplyPresetLogin}
-                className="w-full py-2.5 bg-gradient-to-r from-brand-yellow to-brand-gold hover:from-brand-gold hover:to-brand-yellow text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-brand-yellow/10 cursor-pointer transition-all"
+              <button 
+                onClick={handleConfirmMeeting}
+                className="w-full py-2.5 bg-brand-yellow hover:bg-brand-gold text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md"
               >
-                Authenticate Terminal ✓
+                Confirm Booking Inquiry
               </button>
             </div>
-          ) : (
-            /* Custom new registration form */
-            <form onSubmit={handleRegisterNewStudent} className="space-y-3.5">
+          </div>
+        </div>
+      )}
+
+      {/* 2. PAY FEES SECURE WINDOW */}
+      {activeModal === "pay-fees" && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-md space-y-4 animate-scale-in text-left">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-200">
+                Secured UAE Credit-Card payment gate
+              </h3>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="text-slate-600 hover:text-slate-400 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              <div className="p-3 bg-slate-950 border border-slate-850 rounded-2xl text-[10px] text-slate-400 space-y-1">
+                <span className="font-bold text-slate-200 block uppercase font-mono text-[8.5px]">BILLING SUMMARY:</span>
+                <div>Enrolled Child: <strong className="text-white">Sara (Grade 10)</strong></div>
+                <div>Standard Monthly Tuition: <strong className="text-white">AED 1,500.00</strong></div>
+                <div>Standard UAE VAT (5.00%): <strong className="text-white">AED 75.00</strong></div>
+                <div className="text-brand-yellow font-black border-t border-slate-900 pt-2 mt-2">
+                  GRAND TOTAL ENROLLED FEE: AED 1,575.00 USD equivalent (Cleared)
+                </div>
+              </div>
+
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block font-mono">
-                  Student Name
-                </label>
-                <input
+                <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-[#F59E0B] block">Cardholder Name:</label>
+                <input 
                   type="text"
-                  placeholder="e.g. Priyan Sethi"
-                  value={newStudentName}
-                  onChange={(e) => setNewStudentName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-850 px-3 py-2 text-xs text-slate-200 rounded-lg focus:outline-none focus:border-brand-yellow placeholder-slate-750"
-                  required
+                  value={cardHolder}
+                  onChange={(e) => setCardHolder(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 font-sans"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-[#F59E0B] block">Standard Card Number:</label>
+                <input 
+                  type="text"
+                  value={cardNumber}
+                  onChange={(e) => setCardNumber(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-205 p-2.5 font-mono"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block font-mono">
-                    Grade Level
-                  </label>
-                  <select
-                    value={newStudentGrade}
-                    onChange={(e) => setNewStudentGrade(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-850 text-xs text-slate-200 px-3 py-2 rounded-lg cursor-pointer focus:outline-none focus:border-brand-yellow"
-                  >
-                    <option value="Grade 9">Grade 9 (Secondary)</option>
-                    <option value="Grade 10">Grade 10 (Secondary)</option>
-                    <option value="Grade 11">Grade 11 (High School)</option>
-                    <option value="Grade 12">Grade 12 (Board Year)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block font-mono">
-                    Syllabus Stream
-                  </label>
-                  <select
-                    value={newStudentCurriculum}
-                    onChange={(e) => setNewStudentCurriculum(e.target.value as CurriculumType)}
-                    className="w-full bg-slate-950 border border-slate-850 text-xs text-slate-200 px-3 py-2 rounded-lg cursor-pointer focus:outline-none focus:border-brand-yellow"
-                  >
-                    <option value="CBSE">CBSE (India)</option>
-                    <option value="British">British (IGCSE)</option>
-                    <option value="Coding & Robotics">Tinkering / STEM</option>
-                  </select>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-gradient-to-r from-brand-red to-orange-500 hover:from-brand-red-hover hover:to-brand-red text-white font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all cursor-pointer"
-              >
-                Create Hub ID & Log In
-              </button>
-            </form>
-          )}
-        </div>
-      ) : (
-
-        /* 🟢 LOGGED IN MODE - FULL INTERACTIVE WORKSHEETS & RECORDED PLAYER */
-        <>
-          {/* Mini active profile block */}
-          <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex items-center justify-between shadow-md">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-brand-yellow/15 border border-brand-yellow/30 flex items-center justify-center font-black text-brand-yellow text-sm font-mono">
-                {currentProfile.name.charAt(0)}
-              </div>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h4 className="text-xs font-black text-slate-100">{currentProfile.name}</h4>
-                  <span className="text-[8px] bg-slate-950 border border-slate-850 text-brand-yellow font-extrabold px-1.5 py-0.2 rounded">
-                    Active Session
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-450">
-                  {currentProfile.curriculum} Syllabus • {currentProfile.grade}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <button
-                onClick={() => {
-                  setFeedbackRating(5);
-                  setFeedbackComment("");
-                  setFeedbackSubmitted(false);
-                  setIsFeedbackOpen(true);
-                }}
-                className="py-1.5 px-2 bg-gradient-to-r from-amber-500/10 to-brand-yellow/10 hover:from-amber-500/20 hover:to-brand-yellow/20 border border-brand-yellow/30 hover:border-brand-yellow/60 rounded-xl text-brand-yellow text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shadow-md active:scale-95"
-                title="Share feedback on your Plato tutorial experience"
-              >
-                <Star className="w-3 h-3 fill-brand-yellow text-brand-yellow" />
-                <span>Give Feedback</span>
-              </button>
-
-              <button
-                onClick={handleLogCircleOut}
-                className="p-1.5 rounded-xl bg-slate-950 border border-slate-850 text-slate-400 hover:text-brand-red hover:border-brand-red/30 transition-all cursor-pointer"
-                title="Secure Logout"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Middle Navigation Tabs */}
-          <div id="student-portal-tabs" className="grid grid-cols-3 gap-1 p-1 bg-slate-950 border border-slate-850 rounded-2xl mb-2">
-            <button
-              onClick={() => setPortalSubTab("academy")}
-              className={`py-1.5 text-[9.5px] sm:text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 uppercase ${
-                portalSubTab === "academy"
-                  ? "bg-brand-blue border border-brand-blue-dark text-slate-100 font-bold shadow-md"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <Video className="w-3.5 h-3.5" />
-              <span>Academy</span>
-            </button>
-            <button
-              onClick={() => setPortalSubTab("trophies")}
-              className={`py-1.5 text-[9.5px] sm:text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 uppercase ${
-                portalSubTab === "trophies"
-                  ? "bg-brand-yellow text-slate-950 font-black shadow-md border border-brand-yellow/30"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <Trophy className="w-3.5 h-3.5" />
-              <span>Trophies</span>
-              {currentProfile.badges.length > 0 && (
-                <span className="bg-slate-950 text-brand-yellow text-[8px] px-1.5 py-0.2 rounded font-black font-mono ml-1">
-                  {currentProfile.badges.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setPortalSubTab("report")}
-              className={`py-1.5 text-[9.5px] sm:text-xs font-black rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1 uppercase ${
-                portalSubTab === "report"
-                  ? "bg-brand-red text-slate-100 font-black shadow-md border border-brand-red/30"
-                  : "text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Report</span>
-            </button>
-          </div>
-
-          {portalSubTab === "academy" ? (
-            <>
-              {/* ======================================================= */}
-              {/* DAILY STUDY REMINDER CENTER                             */}
-              {/* ======================================================= */}
-          <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-4.5 space-y-3 shadow-xl relative overflow-hidden">
-            <div className="absolute -left-10 -top-10 w-24 h-24 bg-brand-yellow/5 rounded-full blur-2xl pointer-events-none" />
-            
-            <div className="flex items-start justify-between">
-              <div className="space-y-0.5">
-                <span className="text-[9px] bg-brand-yellow/10 text-brand-yellow font-extrabold px-1.5 py-0.5 rounded border border-brand-yellow/20 uppercase tracking-widest font-mono">
-                  Habit Loop Builder
-                </span>
-                <h3 className="text-xs font-black text-slate-100 flex items-center gap-1.5 mt-1.5">
-                  <Clock className="w-4 h-4 text-brand-yellow" />
-                  <span>Consistency Streak Scheduler</span>
-                </h3>
-                <p className="text-[10px] text-slate-400">
-                  Configure your preferred daily study time. Settle in for a class to maintain your streak!
-                </p>
-              </div>
-            </div>
-
-            {/* Inputs grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block font-mono">
-                  Preferred Time:
-                </label>
-                <input
-                  type="time"
-                  value={currentProfile.preferredStudyTime || "17:30"}
-                  onChange={(e) => {
-                    onUpdateProfile({
-                      ...currentProfile,
-                      preferredStudyTime: e.target.value
-                    });
-                  }}
-                  className="w-full bg-slate-950 border border-slate-850 hover:border-slate-700 rounded-lg py-1.5 px-2.5 text-[11px] text-slate-200 focus:outline-none transition-colors cursor-pointer font-mono"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block font-mono">
-                  Daily Reminders:
-                </label>
-                <div className="flex bg-slate-950 border border-slate-850 p-0.5 rounded-lg text-[10px] font-bold h-[30px] items-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onUpdateProfile({
-                        ...currentProfile,
-                        studyRemindersEnabled: true
-                      });
-                      triggerNotification("🕒 Daily Notifications Active", "Re-targeted daily reminders have been switched on.");
-                    }}
-                    className={`flex-1 py-1 rounded cursor-pointer text-center text-[9.5px] transition-all font-mono uppercase ${
-                      currentProfile.studyRemindersEnabled 
-                        ? "bg-brand-yellow text-slate-950 font-black" 
-                        : "text-slate-500 hover:text-slate-400"
-                    }`}
-                  >
-                    ON
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onUpdateProfile({
-                        ...currentProfile,
-                        studyRemindersEnabled: false
-                      });
-                      triggerNotification("🕒 Daily Reminders Silenced", "Preferred hour warnings have been temporarily silenced.");
-                    }}
-                    className={`flex-1 py-1 rounded cursor-pointer text-center text-[9.5px] transition-all font-mono uppercase ${
-                      !currentProfile.studyRemindersEnabled 
-                        ? "bg-slate-900 border border-slate-800 text-slate-350 font-bold" 
-                        : "text-slate-500 hover:text-slate-400"
-                    }`}
-                  >
-                    OFF
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions and instant Test simulation */}
-            <div className="flex gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => {
-                  triggerNotification(
-                    "💾 Preferences Saved!", 
-                    `Daily revision alert set to ${currentProfile.preferredStudyTime || "17:30"} successfully.`
-                  );
-                }}
-                className="flex-1 py-2 bg-slate-950 border border-slate-850 hover:border-slate-750 text-slate-250 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer text-center select-none hover:bg-slate-900 border-dashed"
-              >
-                Save Schedule ✓
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const libCurriculum = currentProfile.curriculum === "British" ? "IGCSE" : currentProfile.curriculum === "CBSE" ? "CBSE" : "General";
-                  const matches = LIBRARY_DOCUMENTS.filter(doc => doc.curriculum === libCurriculum || doc.curriculum === "General");
-                  const dateIndex = new Date().getDate();
-                  const doc = matches[dateIndex % (matches.length || 1)] || matches[0] || LIBRARY_DOCUMENTS[0];
-                  const suggestion = doc 
-                    ? `\n\n💡 Suggested Active Recall: "${doc.title}" (${doc.subject}) under standard difficulty [${doc.difficulty}]. Tap 'Focus Zone' to begin!` 
-                    : "";
-
-                  triggerNotification(
-                    "⏱️ Daily Study Hour Reminder!", 
-                    `Prestige discipline, ${currentProfile.name}! It is exactly ${currentProfile.preferredStudyTime || "17:30"}. Start a 25-min Pomodoro session to claim +35 XP and maintain your ${currentProfile.streak}-day streak! 🚀${suggestion}`
-                  );
-                }}
-                className="px-3.5 py-2 bg-brand-yellow hover:bg-brand-gold text-slate-950 text-[10px] font-black uppercase rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 shadow-md active:scale-95 flex-none"
-                title="Immediately simulate a preferred time study session alert to inspect its high fidelity banner"
-              >
-                <Sparkles className="w-3 h-3" />
-                <span>Test Alert</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Stats Grid with Attendance rate */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-center">
-              <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block">Verified Present</span>
-              <span className="text-sm font-extrabold text-brand-yellow font-mono">{attendanceLogs.length} Lectures</span>
-            </div>
-            
-            <div className="bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-center">
-              <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block">Attendance Score</span>
-              <span className={`text-sm font-extrabold font-mono ${attendanceRate >= 90 ? "text-emerald-400" : "text-brand-yellow"}`}>
-                {attendanceRate}%
-              </span>
-            </div>
-
-            <div className="bg-slate-950 border border-slate-900 rounded-xl p-2.5 text-center">
-              <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block">Ascending XP</span>
-              <span className="text-sm font-extrabold text-brand-red font-mono">+{currentProfile.xp}</span>
-            </div>
-          </div>
-
-          {/* SIMULATED LECTURE PLAYBACK ENVIRONMENT */}
-          {playingVideoId && currentlyPlayingClass ? (
-            <div id="video-console" className="bg-slate-950 border-2 border-brand-yellow/40 rounded-2xl p-4.5 space-y-3 relative overflow-hidden transition-all duration-300">
-              
-              <div className="flex justify-between items-center border-b border-slate-900 pb-2">
-                <div className="flex items-center gap-1.5">
-                  <Tv className="w-4 h-4 text-brand-yellow animate-pulse" />
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest font-mono">
-                    Plato Streaming Hub
-                  </span>
-                </div>
-                <button
-                  onClick={() => { setPlayingVideoId(null); setIsPlaying(false); }}
-                  className="text-[10px] text-slate-400 hover:text-slate-100 font-bold hover:underline"
-                >
-                  Close Player ×
-                </button>
-              </div>
-
-              {/* Simulated Interactive Video Screen view */}
-              <div className="h-44 bg-slate-900 border border-slate-850 rounded-xl relative overflow-hidden flex flex-col justify-end p-2 text-center group">
-                <div className="absolute inset-0 bg-slate-950/20 pointer-events-none" />
-                
-                {/* Visual Audio waves playing indicator */}
-                {isPlaying && (
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none space-x-1 opacity-25">
-                    <span className="w-1 h-8 bg-brand-yellow rounded-full animate-pulse transition-all duration-500 delay-75" />
-                    <span className="w-1 h-14 bg-brand-yellow rounded-full animate-pulse transition-all duration-500 delay-150" />
-                    <span className="w-1 h-10 bg-brand-yellow rounded-full animate-pulse transition-all duration-500 delay-300" />
-                    <span className="w-1 h-6 bg-brand-yellow rounded-full animate-pulse transition-all duration-500 delay-450" />
-                  </div>
-                )}
-
-                {/* Simulated Floating teacher dialogue bar */}
-                <div className="absolute top-4 left-4 right-4 bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 text-left scale-95 select-none animate-fadeIn">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                    <span className="text-[8px] font-bold text-slate-400 uppercase font-mono">TRANSCRIPT SUBTITLE (LIVE CAPTIONS)</span>
-                  </div>
-                  <p className="text-[10px] text-slate-100 italic leading-snug line-clamp-2">
-                    {currentTimeProgress < 30 ? 
-                      `"Marhaban! In this particular board module, we'll focus deeply on our curriculum guidelines. Be sure to note the structural formulas..."` :
-                      currentTimeProgress < 70 ? 
-                      `"Remember: CBSE examiners specifically award marks for writing formulas in step-by-step layout. Let's solve page 22 in your workbook."` :
-                      `"We have calculated the precise parameters! Now, click 'Mark Attendance' below to update your class registers instantly."`}
-                  </p>
-                </div>
-
-                {/* Big play button centered standard */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <button
-                    onClick={handleTogglePlay}
-                    className="w-11 h-11 bg-brand-yellow hover:bg-brand-gold text-slate-950 flex items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer z-20"
-                  >
-                    {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
-                  </button>
-                </div>
-
-                {/* Subtitle details */}
-                <div className="z-10 text-left bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent p-2 pt-6 rounded-b-xl">
-                  <h4 className="text-[11px] font-black text-slate-100 truncate">{currentlyPlayingClass.title}</h4>
-                  <p className="text-[9px] text-brand-yellow font-medium">Instructor: {currentlyPlayingClass.instructor}</p>
-                </div>
-              </div>
-
-              {/* Progress and Timeline Scrubber slider */}
-              <div className="space-y-1">
-                <input 
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={currentTimeProgress}
-                  onChange={handleProgressSlider}
-                  className="w-full accent-brand-yellow h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer"
-                />
-                <div className="flex justify-between items-center text-[9px] text-slate-550 font-mono">
-                  <span>{Math.floor((currentlyPlayingClass.videoDurationSec * currentTimeProgress) / 100 / 60)}m elapsed</span>
-                  <span>{currentlyPlayingClass.duration} total duration</span>
-                </div>
-              </div>
-
-              {/* Notebook / Teacher's whiteboard snap */}
-              <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-1.5 font-mono">
-                <span className="text-[8px] text-brand-yellow font-bold uppercase tracking-wider block">
-                  Interactive Board Worksheet Snap
-                </span>
-                <pre className="text-[9px] text-slate-350 leading-relaxed overflow-x-auto whitespace-pre-wrap font-sans bg-slate-955 p-2 rounded border border-slate-850">
-                  {whiteboardText}
-                </pre>
-              </div>
-
-              {/* Interactive Attendance register trigger inside the class */}
-              <div className="bg-brand-blue-dark/35 border border-brand-blue/30 p-3 rounded-xl flex items-center justify-between gap-1">
-                <div className="space-y-0.5 flex-1">
-                  <span className="text-[8px] text-slate-500 uppercase tracking-widest block font-mono">STEP 3: SECURE ABSOLUTE PRESENCE</span>
-                  <span className="text-[10px] font-extrabold text-slate-200">Confirm Class Attendance ID</span>
-                </div>
-                
-                <button
-                  onClick={() => handleMarkAttendanceForClass(currentlyPlayingClass.id, currentlyPlayingClass.title)}
-                  className="px-3.5 py-1.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-slate-950 text-[10px] font-extrabold rounded-lg flex items-center gap-1 cursor-pointer shadow transition-all hover:scale-102"
-                >
-                  <NotebookPen className="w-3 h-3" />
-                  <span>Mark Present ✓</span>
-                </button>
-              </div>
-
-              {/* ======================================================= */}
-              {/* BRAND NEW: MINDY AI INTERACTIVE STUDY SUITE FOR LECTURES */}
-              {/* ======================================================= */}
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 space-y-3.5 mt-3 shadow-inner">
-                {/* Header block with glow & micro badge */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1 bg-brand-yellow/10 rounded-lg text-brand-yellow">
-                      <Sparkles className="w-4 h-4 text-brand-yellow animate-pulse" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-black text-slate-100 flex items-center gap-1">
-                        <span>Mindy AI Study Suite</span>
-                        <span className="text-[8px] px-1 bg-slate-950 font-bold border border-slate-850 text-brand-yellow rounded">ACTIVE</span>
-                      </h4>
-                      <span className="text-[9px] text-slate-500 block">CBSE & British syllabus personalized assistant</span>
-                    </div>
-                  </div>
-                  
-                  {/* Tab Swappers */}
-                  <div className="flex bg-slate-950 p-0.5 border border-slate-850 rounded-lg text-[9px] font-bold">
-                    <button
-                      onClick={() => setAiTab("flashcards")}
-                      className={`px-2.5 py-1 rounded cursor-pointer transition-all ${aiTab === "flashcards" ? "bg-slate-900 text-brand-yellow font-black border border-slate-800" : "text-slate-500"}`}
-                    >
-                      Cards
-                    </button>
-                    <button
-                      onClick={() => setAiTab("qa")}
-                      className={`px-2.5 py-1 rounded cursor-pointer transition-all ${aiTab === "qa" ? "bg-slate-900 text-brand-yellow font-black border border-slate-800" : "text-slate-500"}`}
-                    >
-                      Doubt Q&A
-                    </button>
-                  </div>
-                </div>
-
-                {/* TAB CONTENT A: HIGHLY INTERACTIVE PERSPECTIVE REVISION CARDS */}
-                {aiTab === "flashcards" && (
-                  <div className="space-y-3">
-                    {aiFlashcards.length === 0 ? (
-                      <div className="p-4 bg-slate-950/60 border border-slate-850 rounded-lg text-center space-y-3 animate-fade-in">
-                        <div className="w-9 h-9 rounded-full bg-brand-yellow/10 flex items-center justify-center mx-auto text-brand-yellow">
-                          <Brain className="w-4 h-4 text-brand-yellow" />
-                        </div>
-                        <div className="space-y-1">
-                          <h5 className="text-xs font-bold text-slate-200">Prepare for Exam Questions</h5>
-                          <p className="text-[10px] text-slate-500 max-w-[280px] mx-auto leading-relaxed">
-                            Generate cards custom-tailored to *"{currentlyPlayingClass.title}"* to master syllabus rules and get instant tips.
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => handleGenerateAiFlashcards(currentlyPlayingClass)}
-                          disabled={isGeneratingCards}
-                          className="px-4 py-2 bg-gradient-to-r from-brand-yellow to-brand-gold text-slate-950 font-black text-[10px] rounded-lg tracking-wide hover:from-brand-gold active:scale-95 cursor-pointer disabled:opacity-50 transition-all flex items-center gap-1.5 mx-auto"
-                        >
-                          {isGeneratingCards ? (
-                            <>
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                              <span>Sustaining AI Mind...</span>
-                            </>
-                          ) : (
-                            <>
-                              <Sparkles className="w-3 h-3" />
-                              <span>Generate Revision Cards (+20 XP)</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-3 animate-fade-in text-center">
-                        {/* Interactive 3D Perspective Flip Card */}
-                        <div 
-                          onClick={() => setIsCardFlipped(!isCardFlipped)}
-                          className="cursor-pointer group perspective-1000 w-full min-h-[110px]"
-                        >
-                          <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${isCardFlipped ? "rotate-y-180" : ""}`}>
-                            
-                            {/* Card Front Component */}
-                            <div className={`w-full min-h-[110px] bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col justify-between text-left backface-hidden ${isCardFlipped ? "opacity-0 absolute pointer-events-none" : "opacity-100"}`}>
-                              <div className="space-y-1">
-                                <span className="text-[8px] text-slate-500 uppercase tracking-widest font-mono block">REVISION CARD {activeCardIdx + 1} OF {aiFlashcards.length}</span>
-                                <p className="text-xs font-semibold text-slate-100 leading-snug">
-                                  {aiFlashcards[activeCardIdx].question}
-                                </p>
-                              </div>
-                              <div className="flex justify-between items-center text-[9px] pt-3 text-slate-450 border-t border-slate-900 mt-2">
-                                <span className="flex items-center gap-1 text-slate-300">
-                                  <Lightbulb className="w-3.5 h-3.5 text-brand-yellow flex-shrink-0" />
-                                  <span className="truncate max-w-[180px]">Clue: {aiFlashcards[activeCardIdx].hint}</span>
-                                </span>
-                                <span className="text-brand-yellow font-bold uppercase tracking-wider text-[8px] flex items-center gap-1">
-                                  <RotateCw className="w-2.5 h-2.5 animate-spin-reverse" /> TAP TO FLIP
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Card Back Component */}
-                            <div className={`w-full min-h-[110px] bg-slate-950 border border-brand-yellow/30 rounded-xl p-4 flex flex-col justify-between text-left backface-hidden transform rotate-y-180 ${isCardFlipped ? "opacity-100" : "opacity-0 absolute pointer-events-none"}`}>
-                              <div className="space-y-1">
-                                <span className="text-[8px] text-brand-yellow uppercase tracking-widest font-mono block">MINDY ANSWER</span>
-                                <p className="text-xs font-medium text-slate-200 leading-snug">
-                                  {aiFlashcards[activeCardIdx].answer}
-                                </p>
-                              </div>
-                              <div className="flex justify-between items-center text-[9px] pt-3 text-slate-450 border-t border-slate-900 border-dashed mt-2">
-                                <span className="text-emerald-400 font-bold uppercase block text-[8px]">MODEL SOLUTION VERIFIED</span>
-                                <span className="text-slate-400 font-bold uppercase tracking-wider text-[8px]">
-                                  TAP FRONT SIDE
-                                </span>
-                              </div>
-                            </div>
-
-                          </div>
-                        </div>
-
-                        {/* Pagination Steppers and XP reward */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex gap-1.5">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleCardNav("prev"); }}
-                              disabled={activeCardIdx === 0}
-                              className="w-7 h-7 bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-350 disabled:opacity-30 rounded-lg flex items-center justify-center cursor-pointer active:scale-95 transition-all text-xs"
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleCardNav("next"); }}
-                              disabled={activeCardIdx === aiFlashcards.length - 1}
-                              className="w-7 h-7 bg-slate-950 border border-slate-800 hover:border-slate-700 text-slate-350 disabled:opacity-30 rounded-lg flex items-center justify-center cursor-pointer active:scale-95 transition-all text-xs"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                          </div>
-
-                          {/* XP and status indicator */}
-                          <div className="text-[10px] font-medium">
-                            {hasAwardedAiClassBonus.includes(currentlyPlayingClass.id) ? (
-                              <span className="text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1 bg-emerald-950/20 px-2 py-1 rounded border border-emerald-500/10">
-                                <Check className="w-3 h-3 text-emerald-400" />
-                                <span>Study completed (+20 XP Granted)</span>
-                              </span>
-                            ) : (
-                              <span className="text-slate-500 font-mono text-[9px]">
-                                Reviewed: {viewedCardsIndices.length} / 3 to earn XP
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* TAB CONTENT B: CLASS DOUBTS Q&A PORT */}
-                {aiTab === "qa" && (
-                  <div className="space-y-3.5 animate-fade-in">
-                    {/* Doubt Answer Container (reveals answer beautifully) */}
-                    {aiAnswerResponse ? (
-                      <div className="bg-slate-955 border border-slate-850 p-3 rounded-xl space-y-2 max-h-[140px] overflow-y-auto Scrollbar-thin animate-fade-in text-[11px] leading-relaxed relative">
-                        <div className="flex justify-between items-center border-b border-slate-900 pb-1.5 mb-1 bg-slate-955 sticky top-0">
-                          <span className="text-[8px] text-brand-yellow font-bold uppercase tracking-wider block font-mono">Plato Instructor Mindy</span>
-                          <button
-                            onClick={() => setAiAnswerResponse("")}
-                            className="text-[8.5px] text-slate-500 hover:text-slate-350"
-                          >
-                            Clear Answer ×
-                          </button>
-                        </div>
-                        <div className="text-slate-300 font-light whitespace-pre-line font-sans">
-                          {aiAnswerResponse}
-                        </div>
-                      </div>
-                    ) : isExplainingLecture ? (
-                      /* Thinking Loader representation */
-                      <div className="bg-slate-950/60 p-5 border border-dashed border-slate-850 rounded-xl text-center flex flex-col items-center justify-center space-y-2">
-                        <Loader2 className="w-6 h-6 text-brand-yellow animate-spin" />
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] font-bold text-slate-300 block">Formulating Study Resolution</span>
-                          <span className="text-[9px] text-slate-500 block leading-tight">Analyzing lecture formulas and board criteria...</span>
-                        </div>
-                      </div>
-                    ) : (
-                      /* Zero state explaining AI Q&A capabilities */
-                      <div className="bg-slate-955 p-3 border border-slate-850 rounded-xl flex items-center gap-3">
-                        <div className="p-2 bg-slate-950 text-brand-yellow rounded-lg">
-                          <Brain className="w-4 h-4 text-brand-yellow" />
-                        </div>
-                        <div className="space-y-0.5">
-                          <h6 className="text-[11px] font-bold text-slate-300">Stuck on calculation steps?</h6>
-                          <p className="text-[9.5px] text-slate-500 leading-snug">
-                            Type your specific doubt below to get contextual step instructions matched with your syllabus board rules.
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Question Input form fields */}
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        handleAskMindyQuestion(currentlyPlayingClass);
-                      }}
-                      className="flex items-center gap-1.5 bg-slate-950 p-1.5 rounded-lg border border-slate-850"
-                    >
-                      <input
-                        type="text"
-                        placeholder="e.g. Can you explain why Σ F_y must equal 0?"
-                        value={studentQuestion}
-                        onChange={(e) => setStudentQuestion(e.target.value)}
-                        className="flex-1 bg-transparent px-2.5 py-1 text-[11px] text-slate-200 focus:outline-none placeholder-slate-650"
-                      />
-                      <button
-                        type="submit"
-                        disabled={!studentQuestion.trim() || isExplainingLecture}
-                        className="p-1.5 bg-brand-yellow hover:bg-brand-gold text-slate-950 rounded-md disabled:opacity-45 cursor-pointer active:scale-95 transition-all"
-                      >
-                        <Send className="w-3.5 h-3.5 text-slate-950" />
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          ) : null}
-
-          {/* SECTION A: FILTERABLE LECTURE ARCHIVES */}
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                <Video className="w-4 h-4 text-brand-yellow" />
-                <span>Recorded Class Catalog</span>
-              </span>
-              <span className="text-[9px] text-slate-500">Dubai Board Archives</span>
-            </div>
-
-            {/* In-tab search bar filter */}
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
-                <input
-                  type="text"
-                  placeholder="Search recorded subjects, teachers..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-[11px] text-slate-200 placeholder-slate-650 focus:outline-none focus:border-brand-yellow"
-                />
-              </div>
-
-              {/* Curriculum Selector Pill filters */}
-              <select
-                value={activeCurriculumFilter}
-                onChange={(e) => setActiveCurriculumFilter(e.target.value as any)}
-                className="bg-slate-900 border border-slate-800 text-[10px] text-slate-350 px-2.5 py-1.5 rounded-lg focus:outline-none cursor-pointer"
-              >
-                <option value="ALL">All Boards</option>
-                <option value="CBSE">CBSE India</option>
-                <option value="British">British (IGCSE)</option>
-              </select>
-            </div>
-
-            {/* List entries */}
-            <div className="space-y-2.5">
-              {filteredRecordedClasses.length > 0 ? (
-                filteredRecordedClasses.map((cls) => {
-                  const isPresentLogged = attendanceLogs.some(log => log.studentName === currentProfile.name && log.classId === cls.id);
-                  const isClassAligned = cls.curriculum === currentProfile.curriculum;
-                  
-                  return (
-                    <div 
-                      key={cls.id}
-                      className={`bg-slate-900/80 border rounded-xl p-3 flex flex-col justify-between space-y-2.5 transition-all relative overflow-hidden group ${
-                        isClassAligned ? "border-brand-yellow/20" : "border-slate-800"
-                      }`}
-                    >
-                      {/* Highlight recommended items matching current student syllabus */}
-                      {isClassAligned && (
-                        <div className="absolute top-0 right-0 bg-brand-yellow/15 text-brand-yellow px-1.5 py-0.5 rounded-bl text-[8px] font-bold tracking-wide">
-                          RECOMMENDED FOR SYLLABUS
-                        </div>
-                      )}
-
-                      <div className="flex items-start gap-2.5">
-                        <div className="p-2 bg-slate-950 rounded-lg border border-slate-850 flex-shrink-0 text-brand-yellow">
-                          <Play className="w-4 h-4 fill-current text-brand-yellow group-hover:scale-105 transition-transform" />
-                        </div>
-                        
-                        <div className="space-y-0.5 min-w-0 pr-12">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="text-[8px] font-extrabold text-brand-yellow uppercase">
-                              {cls.curriculum} • {cls.grade}
-                            </span>
-                            <span className="text-[8px] font-medium text-slate-500 font-mono">
-                              ({cls.duration})
-                            </span>
-                          </div>
-                          <h4 className="text-xs font-black text-slate-200 leading-tight truncate group-hover:text-brand-yellow transition-colors">
-                            {cls.title}
-                          </h4>
-                          <p className="text-[10px] text-slate-400 line-clamp-2 leading-relaxed">
-                            {cls.summary}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Instructor subline and action triggers */}
-                      <div className="pt-2 border-t border-slate-850/60 flex items-center justify-between text-[10px] text-slate-450">
-                        <p className="truncate max-w-[130px]">Led by: <strong className="text-slate-350 font-medium">{cls.instructor}</strong></p>
-                        
-                        <div className="flex items-center gap-2">
-                          {isPresentLogged && (
-                            <span className="text-[9px] text-emerald-400 font-black flex items-center gap-0.5 bg-emerald-950/20 px-1.5 py-0.2 rounded border border-emerald-500/10">
-                              <Check className="w-2.5 h-2.5" />
-                              PRESENT
-                            </span>
-                          )}
-
-                          <button
-                            onClick={() => handleLaunchVideo(cls)}
-                            className="px-3 py-1 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-brand-yellow text-slate-200 hover:text-brand-yellow font-extrabold text-[10px] rounded-md cursor-pointer transition-all active:scale-98"
-                          >
-                            Play Class
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="py-8 bg-slate-900/10 border border-dashed border-slate-800 rounded-xl text-center text-slate-550 text-xs font-light">
-                  No matching recorded school classes found for filters.
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* SECTION B: MY SIGNED ATTENDANCE LOG */}
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4.5 space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-850 pb-2">
-              <span className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-emerald-400" />
-                <span>My Attendance Register History</span>
-              </span>
-              <span className="text-[9px] bg-emerald-500/15 text-emerald-400 px-1.5 rounded font-mono font-bold uppercase">
-                Term Registry
-              </span>
-            </div>
-
-            <div className="space-y-1.5 max-h-[150px] overflow-y-auto pr-1">
-              {attendanceLogs.length > 0 ? (
-                attendanceLogs.map((log) => (
-                  <div 
-                    key={log.id}
-                    className="bg-slate-950 p-2.5 rounded-lg border border-slate-850 flex items-center justify-between text-[10.5px]"
-                  >
-                    <div className="space-y-0.5">
-                      <h5 className="font-bold text-slate-200 line-clamp-1">{log.classTitle}</h5>
-                      <p className="text-[9px] text-slate-500">
-                        {log.dateStr} at {log.timeStr}
-                      </p>
-                    </div>
-
-                    <div className="text-right space-y-0.5">
-                      <span className="text-[9.5px] font-black text-emerald-400 block">
-                        Present ✓
-                      </span>
-                      <span className="text-[8.5px] font-mono text-slate-550 block">
-                        {log.verificationCode}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="py-4 text-center text-slate-650 text-[10px] italic">
-                  No attendance swiped yet. Run a lesson simulator and click present above!
-                </div>
-              )}
-            </div>
-
-            <div className="bg-slate-950 p-2 rounded-lg border border-slate-850 flex items-start gap-1.5 text-[9.5px] text-slate-450 leading-relaxed">
-              <AlertCircle className="w-3.5 h-3.5 text-brand-yellow flex-shrink-0 mt-0.5" />
-              <p>
-                Attendance verified records are automatically synchronized with Plato Planet's Al Qusais counselor database for annual CBSE / British syllabus qualifications. Keep a minimum 80% score to maintain your active discount vouchers.
-              </p>
-            </div>
-          </div>
-          </>
-          ) : portalSubTab === "trophies" ? (
-            /* BRAND NEW TROPHY CASE SUB-PAGE */
-            <div id="trophy-case-subview" className="space-y-4 animate-fade-in pb-4">
-              {/* Overview Stats Block */}
-              <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-4.5 space-y-3 relative overflow-hidden shadow-xl">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 rounded-full blur-2xl pointer-events-none" />
-                <div className="relative z-10 flex items-start justify-between">
-                  <div>
-                    <span className="text-[9px] bg-brand-yellow/10 text-brand-yellow font-extrabold px-2 py-0.5 rounded border border-brand-yellow/20 uppercase tracking-widest font-mono">
-                      Gamified Milestones
-                    </span>
-                    <h3 className="text-xs font-black text-slate-100 flex items-center gap-1.5 mt-1">
-                      <Trophy className="w-4 h-4 text-brand-yellow" />
-                      <span>Plato Trophy Cabin</span>
-                    </h3>
-                    <p className="text-[10px] text-slate-450">
-                      Earn active syllabus badges by viewing lesson material, mastering test sessions, and seeking study help.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 pt-1">
-                  <div className="bg-slate-950/60 border border-slate-850 p-2.5 rounded-xl text-center">
-                    <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block font-mono">Academic Lvl</span>
-                    <span className="text-xs font-black text-brand-yellow font-mono mt-0.5 block">
-                      Lvl {Math.floor(currentProfile.xp / 100) + 1}
-                    </span>
-                  </div>
-                  <div className="bg-slate-950/60 border border-slate-850 p-2.5 rounded-xl text-center">
-                    <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block font-mono">XP Climbed</span>
-                    <span className="text-xs font-black text-brand-red font-mono mt-0.5 block">
-                      {currentProfile.xp} XP
-                    </span>
-                  </div>
-                  <div className="bg-slate-950/60 border border-slate-850 p-2.5 rounded-xl text-center">
-                    <span className="text-[8px] text-slate-550 uppercase tracking-widest font-semibold block font-mono">Trophy Unlocked</span>
-                    <span className="text-xs font-black text-emerald-400 font-mono mt-0.5 block">
-                      {currentProfile.badges.length} / {MOCK_ACHIEVEMENTS.length}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Nice Linear Progress Meter */}
-                <div className="space-y-1 pt-1">
-                  <div className="flex justify-between items-center text-[9px] text-slate-450 font-mono">
-                    <span>Syllabus Badges Progress</span>
-                    <span>{Math.round((currentProfile.badges.length / MOCK_ACHIEVEMENTS.length) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-slate-950 h-2 rounded-full overflow-hidden p-0.5 border border-slate-800">
-                    <div 
-                      className="bg-brand-yellow h-1 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(234,179,8,0.4)] animate-pulse"
-                      style={{ width: `${(currentProfile.badges.length / MOCK_ACHIEVEMENTS.length) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Achievements Bento-Style Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                {MOCK_ACHIEVEMENTS.map((badge) => {
-                  const isUnlocked = currentProfile.badges.includes(badge.id);
-                  const unlockedDate = badgeUnlockDates[badge.id];
-                  
-                  return (
-                    <div
-                      key={badge.id}
-                      onClick={() => isUnlocked && setSelectedTrophy(badge)}
-                      className={`relative rounded-2xl p-4 flex flex-col justify-between border cursor-pointer select-none transition-all duration-300 min-h-[175px] ${
-                        isUnlocked
-                          ? "bg-slate-900 border-brand-yellow/30 hover:border-brand-yellow/60 shadow-lg hover:scale-[1.02]"
-                          : "bg-slate-955/40 border-slate-900 border-dashed opacity-65 cursor-not-allowed"
-                      }`}
-                    >
-                      {/* Background Ambient Glow for Unlocked Badges */}
-                      {isUnlocked && (
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-brand-yellow/5 rounded-full blur-xl pointer-events-none" />
-                      )}
-
-                      <div className="space-y-1.5">
-                        <div className="flex items-start justify-between">
-                          <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-inner ${
-                            isUnlocked 
-                              ? "bg-brand-yellow/15 border border-brand-yellow/30 text-brand-yellow" 
-                              : "bg-slate-900 border border-slate-850 text-slate-600"
-                          }`}>
-                            {isUnlocked ? badge.icon : "🔒"}
-                          </div>
-                          
-                          {isUnlocked ? (
-                            <span className="text-[7.5px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-full font-black uppercase font-mono tracking-widest">
-                              Unlocked
-                            </span>
-                          ) : (
-                            <span className="text-[7.5px] bg-slate-900 text-slate-550 border border-slate-850 px-1.5 py-0.5 rounded-full font-bold uppercase font-mono tracking-widest">
-                              Locked
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="pt-2">
-                          <h4 className={`text-xs font-black ${isUnlocked ? "text-slate-100" : "text-slate-450"}`}>
-                            {badge.name}
-                          </h4>
-                          <span className="text-[8px] text-slate-500 font-mono uppercase block -mt-0.5 block truncate">
-                            {badge.title}
-                          </span>
-                        </div>
-
-                        <p className={`text-[10px] leading-relaxed line-clamp-3 ${isUnlocked ? "text-slate-350" : "text-slate-650"}`}>
-                          {badge.desc}
-                        </p>
-                      </div>
-
-                      <div className="pt-3 border-t border-slate-850/50 mt-1 flex items-center justify-between text-[9px] font-mono">
-                        {isUnlocked ? (
-                          <>
-                            <span className="text-slate-555">Unlocked:</span>
-                            <span className="text-brand-yellow font-extrabold">{unlockedDate || "June 13, 2026"}</span>
-                          </>
-                        ) : (
-                          <span className="text-slate-600 text-[8.5px] font-sans truncate pr-1">
-                            {badge.id === "badge-quiz" && "🎯 Get 100% on a practice quiz"}
-                            {badge.id === "badge-ai" && "🤖 Ask Mindy AI a doubt"}
-                            {badge.id === "badge-enrolled" && "📅 Book a diagnostic trial"}
-                            {badge.id === "badge-first" && "⭐ Initial student sign-up"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Dynamic gamified tutorial advice header */}
-              <div className="bg-slate-900/60 border border-slate-800 p-3 rounded-2xl flex items-start gap-2.5 text-[10px] text-slate-450 leading-snug">
-                <Award className="w-4 h-4 text-brand-yellow flex-shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  <span className="font-bold text-slate-200">How to unlock remaining trophies:</span>
-                  <p>Complete quizzes with perfect 100% score to unlock the Quiz Conqueror, ask doubts during lecture replay sessions with Mindy AI to acquire AI Explorer, or book curriculum-specific physical trial sessions in the main slots browser.</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* BRAND NEW REPORT & ANALYTICS SUB-PAGE */
-            <div id="student-report-subview" className="space-y-4 animate-fade-in pb-4">
-              {/* Report Header Card */}
-              <div className="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-2xl p-4.5 space-y-4 shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-brand-red/5 rounded-full blur-2xl pointer-events-none" />
-                
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 text-left">
-                  <div className="space-y-1">
-                    <span className="text-[8px] sm:text-[9px] bg-brand-red/10 text-brand-red border border-brand-red/20 px-2 py-0.5 rounded font-extrabold uppercase font-mono tracking-widest">
-                      Holistic Academic Transcript
-                    </span>
-                    <h3 className="text-sm font-black text-slate-100 flex items-center gap-1.5 mt-1">
-                      <FileText className="w-4 h-4 text-brand-red" />
-                      <span>Monthly Summary Performance Report</span>
-                    </h3>
-                    <p className="text-[10px] sm:text-[10.5px] text-slate-400 leading-relaxed">
-                      Syllabus audit of self-study routines, lesson completions, and interactive STEM trivia certifications logged this term for <span className="text-slate-200 font-bold">{currentProfile.name}</span>.
-                    </p>
-                  </div>
-                  <button
-                    id="download-report-btn"
-                    onClick={downloadTxtReport}
-                    className="flex-shrink-0 bg-brand-red hover:bg-brand-red/95 text-slate-100 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center justify-center gap-1.5 self-start cursor-pointer border border-brand-red/35"
-                  >
-                    <Download className="w-3.5 h-3.5 text-slate-100 animate-bounce" />
-                    <span>Download Transcript</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Core Statistics grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                {/* Metric 1: Study hours */}
-                <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-2 relative overflow-hidden text-left">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-brand-blue/5 rounded-full blur-xl animate-pulse" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-[8.5px] text-slate-500 uppercase tracking-widest font-mono font-bold">
-                      Study Commitment
-                    </span>
-                    <Clock className="w-4 h-4 text-brand-blue" />
-                  </div>
-                  <div>
-                    <span className="text-xl font-bold text-slate-100 font-mono leading-none">
-                      {totalHours.toFixed(1)}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-medium ml-1">Hrs Logged</span>
-                  </div>
-                  <p className="text-[9px] text-slate-500 leading-normal border-t border-slate-900 pt-1.5 mt-1">
-                    Cumulative independent revision logged over the last 30 days.
-                  </p>
-                </div>
-
-                {/* Metric 2: XP Gained */}
-                <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-2 relative overflow-hidden text-left">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-brand-yellow/5 rounded-full blur-xl" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-[8.5px] text-slate-500 uppercase tracking-widest font-mono font-bold">
-                      Planetary Level
-                    </span>
-                    <Sparkles className="w-4 h-4 text-brand-yellow" />
-                  </div>
-                  <div>
-                    <span className="text-xl font-bold text-brand-yellow font-mono leading-none">
-                      {currentProfile.xp}
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-medium ml-1">Total XP</span>
-                  </div>
-                  <div className="border-t border-slate-900 pt-1.5 mt-1">
-                    <div className="flex justify-between text-[8px] text-slate-400 font-bold mb-1">
-                      <span>LEVEL {Math.floor(currentProfile.xp / 100) + 1}</span>
-                      <span>{100 - (currentProfile.xp % 100)} XP TO NEXT</span>
-                    </div>
-                    <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-gradient-to-r from-brand-yellow to-amber-500 h-full rounded-full animate-pulse"
-                        style={{ width: `${currentProfile.xp % 100}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Metric 3: Quiz Success */}
-                <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-2 relative overflow-hidden text-left">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/5 rounded-full blur-xl" />
-                  <div className="flex items-center justify-between">
-                    <span className="text-[8.5px] text-slate-500 uppercase tracking-widest font-mono font-bold">
-                      Quiz Proficiency
-                    </span>
-                    <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  </div>
-                  <div>
-                    <span className="text-xl font-bold text-emerald-400 font-mono leading-none">
-                      {quizSuccessRate.toFixed(1)}%
-                    </span>
-                    <span className="text-[10px] text-slate-400 font-medium ml-1">({totalQuizzes} Tests)</span>
-                  </div>
-                  <p className="text-[9px] text-slate-500 leading-normal border-t border-slate-900 pt-1.5 mt-1">
-                    Syllabus diagnostic test accuracy and exam readiness index.
-                  </p>
-                </div>
-              </div>
-
-              {/* Subject hours distribution & Study advise */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-left">
-                {/* Subject hours breakdown progress meters */}
-                <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-4">
-                  <div className="space-y-1">
-                    <h4 className="text-[11px] font-black uppercase text-slate-300 font-mono tracking-widest">
-                      Syllabus Focus Breakdown
-                    </h4>
-                    <p className="text-[9.5px] text-slate-500">
-                      Independent study hours distribution based on self-logged sessions.
-                    </p>
-                  </div>
-
-                  <div className="space-y-3 pt-1">
-                    {subjectStudyHours.length > 0 ? (
-                      subjectStudyHours.map(({ subject, hours }) => {
-                        const maxHours = Math.max(...subjectStudyHours.map(s => s.hours), 1);
-                        const percentOfMax = Math.round((hours / maxHours) * 100);
-                        return (
-                          <div key={subject} className="space-y-1.5">
-                            <div className="flex items-center justify-between text-[10px] font-bold">
-                              <span className="text-slate-350">{subject}</span>
-                              <span className="font-mono text-slate-400">{hours.toFixed(1)} hrs</span>
-                            </div>
-                            <div className="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden">
-                              <div 
-                                className="bg-brand-blue h-full rounded-full transition-all"
-                                style={{ width: `${percentOfMax}%` }}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-center py-6 text-[10px] text-slate-600 italic">
-                        No subject logs found. Log study hours in the consistency dashboard!
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Educational Advice Note */}
-                <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-3.5 flex flex-col justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[8px] bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 px-1.5 py-0.5 rounded font-black uppercase font-mono tracking-wider">
-                        Syllabus Advisory
-                      </span>
-                      <span className="text-[8px] bg-slate-900 text-slate-455 border border-slate-850 px-1.5 py-0.5 rounded font-mono">
-                        Exam Readiness
-                      </span>
-                    </div>
-                    <h4 className="text-xs font-black text-slate-100 uppercase tracking-tight">
-                      Director Assessment Study Note
-                    </h4>
-                    <p className="text-[10px] text-slate-400 leading-relaxed">
-                      {totalHours > 10 
-                        ? `Impressive consistency! With ${totalHours.toFixed(1)} study hours registered, your syllabus checkpoints put you in a superb scoring quadrant. Ensure you book a tailored curriculum trial session soon to verify board-specific marking schemes.`
-                        : `Your core learning baseline looks stable. However, elevating your self-study logs up to 1-2 hours per session is highly advised to tackle complex CBSE and British final topics. Keep utilizing Mindy AI's lecture playbacks!`}
-                    </p>
-                  </div>
-
-                  <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-850 text-[9.5px] text-slate-400 font-mono leading-relaxed space-y-1">
-                    <span className="font-bold text-slate-350 uppercase block text-[8px] tracking-wider">
-                      ★ Active Milestones Reached
-                    </span>
-                    <p>
-                      • Attendance verified: <span className="text-emerald-400 font-bold">Passed</span><br />
-                      • Syllabus Streak consistency: <span className="text-emerald-400 font-bold">Excellent</span><br />
-                      • Next diagnostic assessment: <span className="text-brand-yellow font-bold">Ready</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Detailed Activity Logs Grid */}
-              <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-4 text-left">
-                <div className="flex items-center justify-between border-b border-slate-900 pb-1.5">
-                  <h4 className="text-[11px] font-black uppercase text-slate-300 font-mono tracking-widest">
-                    Recent Verified Activities Log
-                  </h4>
-                  <span className="text-[8px] bg-slate-900 border border-slate-850 px-2 py-0.5 rounded font-mono text-slate-500">
-                    Showing Last 30 Days
-                  </span>
-                </div>
-
-                <div className="space-y-4 max-h-[220px] overflow-y-auto pr-1">
-                  <div className="space-y-2">
-                    <span className="text-[9px] font-black text-slate-450 font-mono uppercase block tracking-wider">Study Sessions</span>
-                    {parsedStudyLogs.length > 0 ? (
-                      parsedStudyLogs.slice(0, 5).map((log, idx) => (
-                        <div key={idx} className="bg-slate-900/40 p-2 rounded-xl border border-slate-850/50 flex justify-between items-center text-[10px]">
-                          <div>
-                            <span className="font-bold text-slate-200 block">{log.topic || "Syllabus revision"}</span>
-                            <span className="text-[9px] text-slate-500">{log.subject} • {log.date}</span>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-[10.5px] font-mono font-black text-brand-blue block">+{log.hours} Hrs</span>
-                            <span className="text-[8.5px] text-emerald-400 font-mono font-bold block">+{log.xpAwarded} XP</span>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-[9.5px] text-slate-600 italic">No study hours recorded yet.</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <span className="text-[9px] font-black text-slate-455 font-mono uppercase block tracking-wider">STEM Quiz Challenges</span>
-                    {parsedQuizHistory.length > 0 ? (
-                      parsedQuizHistory.slice(0, 4).map((q, idx) => (
-                        <div key={idx} className="bg-slate-900/40 p-2 rounded-xl border border-slate-850/50 flex justify-between items-center text-[10px]">
-                          <div>
-                            <span className="font-bold text-slate-200 block">{q.topic}</span>
-                            <span className="text-[9px] text-slate-500">{q.gradeLevel} • {q.date}</span>
-                          </div>
-                          <div className="text-right">
-                            <span className={`text-[10.5px] font-mono font-black block ${q.score === q.total ? "text-emerald-400" : "text-brand-yellow"}`}>
-                              {q.score} / {q.total} Correct
-                            </span>
-                            <span className="text-[8.5px] text-slate-500 font-mono block">
-                              {Math.round((q.score/q.total)*100)}% Accuracy
-                            </span>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-[9.5px] text-slate-600 italic">No quiz outcomes recorded yet.</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* ======================================================= */}
-      {/* INTERACTIVE STAR FEEDBACK MODAL OVERLAY                 */}
-      {/* ======================================================= */}
-      {isFeedbackOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl relative overflow-hidden text-left">
-            <div className="absolute -right-16 -top-16 w-36 h-36 bg-brand-yellow/5 rounded-full blur-3xl pointer-events-none" />
-            
-            {!feedbackSubmitted ? (
-              <>
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[8px] bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 px-1.5 py-0.5 rounded font-extrabold uppercase font-mono tracking-widest">
-                      Quality Control
-                    </span>
-                    <span className="text-[8px] bg-slate-950 text-slate-450 border border-slate-850 px-1.5 py-0.5 rounded font-mono">
-                      Plato Hub
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-black text-slate-100 flex items-center gap-1.5 mt-1">
-                    <MessageSquare className="w-4 h-4 text-brand-yellow" />
-                    <span>Improve Training Experience</span>
-                  </h3>
-                  <p className="text-[9.5px] text-slate-450 leading-relaxed">
-                    Your live rating influences teaching material and workbook updates across our Dubai hubs. Tell us how we are doing today!
-                  </p>
-                </div>
-
-                {/* Star selection component */}
-                <div className="space-y-1.5 bg-slate-950 p-3 rounded-2xl border border-slate-850/60 text-center">
-                  <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest block font-mono">
-                    Tap to Rate Center
-                  </span>
-                  
-                  <div className="flex items-center justify-center gap-2.5 py-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setFeedbackRating(star)}
-                        className="p-1 hover:scale-110 active:scale-95 transition-all cursor-pointer"
-                      >
-                        <Star 
-                          className={`w-6 h-6 transition-all ${
-                            star <= feedbackRating 
-                              ? "fill-brand-yellow text-brand-yellow drop-shadow-[0_0_4px_rgba(234,179,8,0.25)]" 
-                              : "text-slate-700 hover:text-slate-500"
-                          }`} 
-                        />
-                      </button>
-                    ))}
-                  </div>
-
-                  <span className="text-[10px] font-black text-brand-yellow block font-mono uppercase tracking-wide">
-                    {feedbackRating === 1 && "⚠️ Needs Attention"}
-                    {feedbackRating === 2 && "📚 Fair / Average"}
-                    {feedbackRating === 3 && "👍 Worthy study tool"}
-                    {feedbackRating === 4 && "🔥 Very Interactive"}
-                    {feedbackRating === 5 && "🌟 Stellar Experience!"}
-                  </span>
-                </div>
-
-                {/* Quick Touch Suggestions Presets */}
-                <div className="space-y-1">
-                  <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider block font-mono">
-                    Quick Suggestion Tag:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {[
-                      { text: "Excellent mentors! 🏫", rating: 5 },
-                      { text: "Love the whiteboard math snaps! 📝", rating: 5 },
-                      { text: "Mindy Assistant helps me pass board tests! 🧠", rating: 5 },
-                      { text: "Needs more trial slot options 📅", rating: 3 }
-                    ].map((preset, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => {
-                          setFeedbackComment((prev) => 
-                            prev ? `${prev} ${preset.text}` : preset.text
-                          );
-                          setFeedbackRating(preset.rating);
-                        }}
-                        className="px-2 py-1 bg-slate-950 hover:bg-slate-900 border border-slate-850 hover:border-slate-700 text-slate-400 hover:text-slate-200 text-[8.5px] rounded-lg transition-colors cursor-pointer"
-                      >
-                        {preset.text}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Comment textarea */}
-                <div className="space-y-1">
-                  <label className="text-[8px] font-bold text-slate-450 uppercase tracking-wider block font-mono">
-                    Syllabus remarks or general feedback:
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={feedbackComment}
-                    onChange={(e) => setFeedbackComment(e.target.value)}
-                    placeholder="Provide any additional tips or training hub recommendations to help our Dubai faculty..."
-                    className="w-full bg-slate-955 border border-slate-850 focus:border-brand-yellow/60 rounded-xl p-2.5 text-[10px] text-slate-200 placeholder-slate-650 focus:outline-none transition-colors resize-none font-sans"
-                  />
-                </div>
-
-                {/* Actions row */}
-                <div className="flex gap-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setIsFeedbackOpen(false)}
-                    className="flex-1 py-2 bg-slate-950 border border-slate-850 hover:border-slate-750 text-slate-450 hover:text-slate-200 text-[10px] font-bold uppercase rounded-xl transition-all cursor-pointer text-center"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFeedbackSubmitted(true);
-                      // Award structured XP points for interactive citizenship
-                      onAwardXp(20);
-                      triggerNotification(
-                        "⭐ Feedback Received!", 
-                        `Thank you! You have been awarded +20 XP points.`
-                      );
-                    }}
-                    className="flex-1 py-2 bg-brand-yellow hover:bg-brand-gold text-slate-950 text-[10px] font-black uppercase rounded-xl transition-all cursor-pointer text-center shadow-md active:scale-95"
-                  >
-                    Submit Feedback
-                  </button>
-                </div>
-              </>
-            ) : (
-              /* Success confirmation state */
-              <div className="text-center py-5 space-y-4">
-                <div className="w-12 h-12 bg-emerald-950/40 border-2 border-emerald-500/30 rounded-full flex items-center justify-center mx-auto text-emerald-400 shadow-lg">
-                  <CheckCircle className="w-6 h-6 animate-pulse text-emerald-400" />
-                </div>
-
-                <div className="space-y-1">
-                  <h4 className="text-xs font-black text-slate-100">
-                    Review Saved Successfully!
-                  </h4>
-                  <p className="text-[9.5px] text-slate-400 leading-relaxed px-2 font-sans">
-                    Thank you, <strong className="text-brand-yellow">{currentProfile.name}</strong>, for supporting our high standards. Your detailed comments are now synced for faculty review.
-                  </p>
-                  <div className="pt-2">
-                    <span className="inline-block px-2.5 py-0.5 bg-brand-yellow/10 border border-brand-yellow/20 rounded-md text-[9px] text-brand-yellow font-bold font-mono">
-                      ✨ CITIZEN BONUS: +20 XP CLAIMED!
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsFeedbackOpen(false)}
-                  className="w-full py-2 bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-slate-100 font-extrabold text-[10px] uppercase rounded-xl transition-all cursor-pointer block"
-                >
-                  Return to portal hub
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ======================================================= */}
-      {/* TROPHY DETAIL INSPECTION MODAL                          */}
-      {/* ======================================================= */}
-      {selectedTrophy && (
-        <div className="fixed inset-0 z-50 bg-slate-955/85 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl relative overflow-hidden text-left animate-fade-in animate-scale-up">
-            <div className="absolute -right-16 -top-16 w-36 h-36 bg-brand-yellow/5 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="text-center space-y-3">
-              <div className="w-16 h-16 bg-brand-yellow/15 border border-brand-yellow/30 rounded-3xl flex items-center justify-center mx-auto text-3xl shadow-lg animate-pulse">
-                {selectedTrophy.icon}
-              </div>
-
-              <div className="space-y-1">
-                <span className="text-[8px] bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20 px-2 py-0.5 rounded font-extrabold uppercase font-mono tracking-widest inline-block">
-                  Platinum Badge Unlocked
-                </span>
-                <h3 className="text-sm font-black text-slate-100 tracking-tight mt-1">
-                  {selectedTrophy.name}
-                </h3>
-                <p className="text-[10px] text-brand-yellow font-bold uppercase font-mono tracking-wide">
-                  {selectedTrophy.title}
-                </p>
-              </div>
-
-              {/* Description box */}
-              <div className="bg-slate-950 p-3 rounded-2xl border border-slate-850/60 leading-relaxed text-slate-300 text-[10.5px]">
-                {selectedTrophy.desc}
-              </div>
-
-              {/* Head Teacher's Advice note */}
-              <div className="bg-brand-blue-dark/15 border border-brand-blue/20 p-3 rounded-2xl text-left space-y-1">
-                <span className="text-[8px] font-extrabold uppercase tracking-wide text-brand-yellow block font-mono">
-                  Syllabus Board Mentor Note:
-                </span>
-                <p className="text-[10px] text-slate-250 italic leading-snug">
-                  "{
-                    selectedTrophy.id === "badge-first" ? "Welcome to Plato Planet, scholar! Starting early is the absolute key to mastering secondary school and board qualification benchmarks. Keep this peak momentum!" :
-                    selectedTrophy.id === "badge-quiz" ? "Scoring a perfect 100% in our challenge blocks proves clean formula retention under time pressure. Slay past CBSE/British exam papers with this zero-error standard!" :
-                    selectedTrophy.id === "badge-ai" ? "Technological synthesis is the future of learning. Harnessing Mindy's AI module for retrieval drills is a signature of top-tier cognitive development." :
-                    "Planning interactive real lab demo runs shows active dedication. We look forward to meeting you at our center soon!"
-                  }"
-                </p>
-                <span className="text-[8px] text-slate-450 block text-right font-medium font-sans">
-                  — {
-                    selectedTrophy.id === "badge-first" ? "Mrs. Meenu Raj (HOD Board Mathematics)" :
-                    selectedTrophy.id === "badge-quiz" ? "Dr. Satish Kumar (PhD, IIT Alumni)" :
-                    selectedTrophy.id === "badge-ai" ? "Dr. Farah Jamil (Senior Chemistry Lead)" :
-                    "Prof. Alistair Vance (Cambridge Certified)"
-                  }
-                </span>
-              </div>
-
-              {/* Share simulation */}
-              <div className="space-y-1 bg-slate-950 p-2.5 border border-slate-850 rounded-xl text-left">
-                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider block font-mono">
-                  Celebrate achievement with family:
-                </span>
-                <div className="flex bg-slate-900 border border-slate-800 p-1 rounded-lg items-center gap-1.5 mt-1">
-                  <input
+                  <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-slate-450 block">Expiry Date:</label>
+                  <input 
                     type="text"
-                    readOnly
-                    value={`I unlocked '${selectedTrophy.name}' badge on Plato Planet! Total XP: ${currentProfile.xp}. Reaching board peaks! 🏆🚀`}
-                    className="flex-1 bg-transparent px-2 text-[9.5px] text-slate-400 border-none focus:outline-none select-all truncate font-mono"
+                    placeholder="MM/YY"
+                    defaultValue="12/28"
+                    className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 font-mono"
                   />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(`I unlocked '${selectedTrophy.name}' badge on Plato Planet! Total XP: ${currentProfile.xp}. Reaching board peaks! 🏆🚀`);
-                      triggerNotification("📋 Message Copied!", "Copied celebration text! Share with family on WhatsApp!");
-                    }}
-                    className="px-2 py-0.8 bg-brand-yellow hover:bg-brand-gold text-slate-950 text-[9px] font-extrabold uppercase rounded-md cursor-pointer transition-colors"
-                  >
-                    Copy
-                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase font-mono tracking-wider font-bold text-slate-450 block">CVV Code:</label>
+                  <input 
+                    type="password"
+                    placeholder="•••"
+                    defaultValue="014"
+                    className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 font-mono"
+                  />
                 </div>
               </div>
 
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => setSelectedTrophy(null)}
-                className="w-full py-2 bg-slate-950 border border-slate-850 hover:border-slate-800 text-slate-250 font-bold text-[10px] uppercase rounded-xl transition-all cursor-pointer block"
+              <button 
+                onClick={handlePaymentSubmit}
+                disabled={isPayingProcess}
+                className="w-full py-2.5 bg-gradient-to-r from-emerald-555 to-teal-600 hover:from-emerald-600 hover:to-teal-550 text-slate-950 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                Return to Case
+                {isPayingProcess ? (
+                  <>
+                    <RotateCw className="w-4 h-4 animate-spin text-slate-950" />
+                    <span>Processing Cleared...</span>
+                  </>
+                ) : (
+                  <>
+                    <DollarSign className="w-3.5 h-3.5 text-slate-950" />
+                    <span>Authorize AED 1,575.00 Checkout</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. PLATOS ASK AI COACH OVERLAY */}
+      {activeModal === "ai-coach" && (
+        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-3">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 w-full max-w-lg space-y-4 animate-scale-in text-left flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2 shrink-0">
+              <div className="flex items-center gap-2">
+                <Brain className="w-5 h-5 text-indigo-400 animate-pulse" />
+                <h3 className="text-sm font-black uppercase tracking-wider text-slate-200">
+                  Plato AI Coach spec Solver
+                </h3>
+              </div>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="text-slate-600 hover:text-slate-400 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Chat list */}
+            <div className="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-950 rounded-2xl border border-slate-850 min-h-[250px] max-h-[400px]">
+              {aiCoachHistory.map((m, mIdx) => (
+                <div 
+                  key={mIdx}
+                  className={`p-3 rounded-2xl text-[11px] leading-relaxed max-w-[85%] ${
+                    m.sender === "user" 
+                      ? "bg-indigo-600 text-white ml-auto" 
+                      : "bg-slate-900 text-slate-300 border border-slate-850 mr-auto"
+                  }`}
+                >
+                  <strong>{m.sender === "user" ? "Sara" : "Plato Coach"}:</strong>
+                  <p className="mt-1 font-sans">{m.text}</p>
+                </div>
+              ))}
+              {isGeneratingAiCoachMsg && (
+                <div className="bg-slate-900 border border-slate-850 p-3 rounded-2xl text-[10px] text-slate-400 mr-auto max-w-[150px] flex items-center gap-2">
+                  <RotateCw className="w-3.5 h-3.5 text-indigo-400 animate-spin" />
+                  <span>Thinking steps...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Prompts quick keys */}
+            <div className="flex gap-1 overflow-x-auto no-scrollbar shrink-0 py-1">
+              {[
+                "Calculate standard physics acceleration vector",
+                "Explain how esters form in organic synthesis",
+                "Write outline essay structure for descriptive text"
+              ].map(qp => (
+                <button
+                  key={qp}
+                  onClick={() => { setAiCoachPrompt(qp); }}
+                  className="px-2.5 py-1 bg-slate-950 hover:bg-slate-850 border border-slate-850 text-[9px] text-indigo-300 rounded font-sans truncate max-w-[200px]"
+                >
+                  {qp}
+                </button>
+              ))}
+            </div>
+
+            {/* Inputs strip */}
+            <div className="flex gap-2 shrink-0 border-t border-slate-850 pt-3">
+              <input 
+                type="text"
+                value={aiCoachPrompt}
+                onChange={(e) => setAiCoachPrompt(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') sendAiCoachMessage(); }}
+                placeholder="Ask Plato Coach AI about boards equations..."
+                className="flex-1 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-350 p-2.5"
+              />
+              <button 
+                onClick={sendAiCoachMessage}
+                className="p-2 py-2.5 bg-indigo-650 hover:bg-indigo-600 text-white rounded-xl transition-all"
+              >
+                <Send className="w-4 h-4 text-white" />
               </button>
             </div>
           </div>

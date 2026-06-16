@@ -1,4 +1,4 @@
-export type CurriculumType = "CBSE" | "British" | "Coding & Robotics" | "Creative Arts & Test Prep";
+export type CurriculumType = "CBSE" | "British" | "Creative Arts & Test Prep";
 
 export interface Course {
   id: string;
@@ -47,6 +47,6 @@ export interface LeadQuery {
   email: string;
   courseId: string;
   curriculum: CurriculumType;
-  preferredCampus: "Al Qusais" | "Karama" | "Silicon Oasis" | "Online Hub";
+  preferredCampus: "Al Qusais" | "Silicon Oasis" | "Online Hub" | "Sharjah Campus";
   message: string;
 }

@@ -36,13 +36,6 @@ const CATEGORIES: { type: CurriculumType; label: string; icon: any; color: strin
     bg: "bg-brand-blue-dark/30"
   },
   { 
-    type: "Coding & Robotics", 
-    label: "STEM & Code", 
-    icon: Cpu, 
-    color: "text-brand-yellow border-brand-yellow/50",
-    bg: "bg-brand-blue-dark/30"
-  },
-  { 
     type: "Creative Arts & Test Prep", 
     label: "Test Prep & Speak", 
     icon: Mic, 

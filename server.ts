@@ -35,8 +35,7 @@ You are an exceptionally engaging, child-friendly, expert tutor specialized in t
 Core Subjects and Curriculums you teach:
 - CBSE & ICSE (Grade 1 to 12) Tuitions: Mathematics, Science, English, Hindi, etc.
 - British Curriculum (IGCSE/GCSE/A Levels) Tuitions & Exam Prep.
-- Coding Hub (Python, Scratch, Web Development).
-- Robo-Science (Astro-Robotics, Arduino, IoT).
+- Specialized STEM Tuitions & Scientific Practical Theories.
 - Plato Kids Expressive Arts: Public Speaking, Phonics, Creative Writing, Speed Maths, Calligraphy.
 - Test Prep: NEET, JEE, SAT, IELTS.
 
@@ -168,11 +167,11 @@ app.get("/api/leaderboard", (req: any, res: any) => {
       { id: "leader_1", name: "Mira Al-Mheiri", school: "GEMS Modern Academy", curriculum: "CBSE", xp: 790, avatar: "🥇", badge: "Math Prodigy" },
       { id: "leader_2", name: "Aarav Sharma", school: "Delhi Private School", curriculum: "CBSE", xp: 720, avatar: "🥈", badge: "Science Topper" },
       { id: "leader_3", name: "Sarah Higgins", school: "Dubai College", curriculum: "British", xp: 640, avatar: "🥉", badge: "A* Physics" },
-      { id: "leader_4", name: "Khaled Al-Marri", school: "Silicon Oasis Hub", curriculum: "Coding & Robotics", xp: 580, avatar: "👾", badge: "Python Wizard" },
+      { id: "leader_4", name: "Khaled Al-Marri", school: "Silicon Oasis Hub", curriculum: "British", xp: 580, avatar: "👾", badge: "Chemistry Wiz" },
       { id: "leader_5", name: "Ryan Parker", school: "Jumeirah College", curriculum: "British", xp: 510, avatar: "🇬🇧", badge: "IGCSE Champ" },
       { id: "leader_6", name: "Diya Narayanan", school: "Al Qusais Centre", curriculum: "Creative Arts & Test Prep", xp: 490, avatar: "🎨", badge: "Public Speaking" },
-      { id: "leader_7", name: "Arjun Verma", school: "Karama Hub", curriculum: "CBSE", xp: 430, avatar: "✍️", badge: "Speed Maths" },
-      { id: "leader_8", name: "Maria Fedorova", school: "Silicon Oasis Hub", curriculum: "Coding & Robotics", xp: 360, avatar: "🚀", badge: "Robotics Star" },
+      { id: "leader_7", name: "Arjun Verma", school: "Sharjah Campus", curriculum: "CBSE", xp: 430, avatar: "✍️", badge: "Speed Maths" },
+      { id: "leader_8", name: "Maria Fedorova", school: "Silicon Oasis Hub", curriculum: "Creative Arts & Test Prep", xp: 360, avatar: "🚀", badge: "Oratory Star" },
       { id: "leader_9", name: "Zainab Rashid", school: "Online Hub", curriculum: "British", xp: 220, avatar: "🌌", badge: "Astro Scholar" }
     ];
     res.json({ leaderboard: topStudents, lastUpdated: new Date().toLocaleTimeString() });
@@ -353,9 +352,9 @@ function getSimulatedFlashcards(curriculum: string, subject: string, title: stri
         hint: "Helps you avoid copying the same line multiple times."
       },
       {
-        question: "What is an ultrasonic sensor on a robot used for?",
-        answer: "It measures distance by bouncing sound waves, letting the robot navigate around objects safely.",
-        hint: "Exactly like bat echolocation."
+        question: "What is step-marking criteria on CBSE Board Exams?",
+        answer: "Every step from writing down formulas to isolating parameters is awarded partial marks, even if the final calculation has an error.",
+        hint: "Always write your formula step before calculating to secure some score."
       }
     ];
   }
@@ -366,31 +365,31 @@ function getSimulatedPlatoResponse(userMsg: string, subject: string = "General")
   if (msg.includes("hello") || msg.includes("hi")) {
     return `Hello Future Space Explorer! 🌟 Welcome to Plato's Planet Training Center in Dubai! 
 
-I am Mindy, your AI study buddy! Whether you want to master CBSE Formulas, conquer British Curriculum equations, code cool Python scripts, or construct galactic star-robots, I am here for you!
+I am Mindy, your AI study buddy! Whether you want to master CBSE Formulas, conquer British Curriculum equations, conquer tricky science topics, or develop supreme public speaking voice projection, I am here for you!
 
 What are you excited to learn today? Let's aim high like the Burj Khalifa! 🚀`;
   }
   
-  if (msg.includes("code") || msg.includes("python") || msg.includes("coding")) {
-    return `Excellent! Coding is one of the most powerful shields in the digital age! 💻 
+  if (msg.includes("science") || msg.includes("physics") || msg.includes("chemistry")) {
+    return `Superb choice! Science opens up the secrets of our universe! 🧪 
 
-At Plato's Planet Dubai, we teach Scratch, HTML/CSS, Python, and JavaScript. 
-Here is a swift Python lesson:
-* **Variables**: Think of them as a magical storage box. e.g. \`age = 10\`
-* **Functions**: Actions you can reuse. e.g. \`def greet(): print("Hello Plato!")\`
+From Cartesian sign rules in optics to chemical stoichiometry, we make complex scientific proofs intuitive.
+Here is a quick revision insight:
+* **Electrolysis rule**: At the anode of concentrated NaCl solution, Chlorine gas is discharged.
+* **Optics rule**: Concave mirrors ALWAYS have negative focal lengths, whereas convex always have positive ones.
 
-Try declaring a variable in our practice arena! Your Plato study buddy! 🚀`;
+Let me know if you would like to run a mock diagnostic quiz on this topic right away! Your Plato study buddy! 🚀`;
   }
 
-  if (msg.includes("robot") || msg.includes("automation") || msg.includes("arduino")) {
-    return `Beep boop! 🤖 Robotics is where magic meets metal! 
+  if (msg.includes("english") || msg.includes("speak") || msg.includes("speech") || msg.includes("phonics")) {
+    return `Brilliant choice! Communication is the key to leadership! 🎙️ 
 
-At Plato's Planet, our Astro-Robotics hub guides you on:
-1. **Sensors**: Giving robots eyes and ears (e.g., Ultrasonic distance sensors).
-2. **Microcontrollers**: The robobrain (like Arduino Uno or Raspberry Pi).
-3. **Actuators**: Giving robots muscles to move (Servo motors!).
+At Plato's Planet Dubai, our Phonics and Stage Speaking hub guides you on:
+1. **Articulation**: Pronouncing complex vowel teams and diphthongs.
+2. **Projection**: Projecting voice with diaphragmatic support.
+3. **Confidence**: Standing tall, maintaining eye contact, and commanding the room.
 
-Ask me a challenge or join our weekly session in Al Qusais, Dubai to build a real physical robot! Your Plato study buddy! 🚀`;
+Ask me for an expressive speech topic or join our weekly session in Al Qusais! Your Plato study buddy! 🚀`;
   }
 
   if (msg.includes("cbse") || msg.includes("syllabus") || msg.includes("math")) {
@@ -454,40 +453,40 @@ function getSimulatedQuiz(topic: string, gradeLevel: string = "Grade 10") {
     ];
   }
 
-  if (norm.includes("robot") || norm.includes("robotic")) {
+  if (norm.includes("science") || norm.includes("physics") || norm.includes("chemistry")) {
     return [
       {
-        question: "Which electronic component is known as the 'brain' of an Arduino-based robot?",
+        question: "Which of the following describes the nature of focal length for a concave lens?",
         options: [
-          "Resistor",
-          "Microcontroller (such as ATmega328P)",
-          "Active buzzer",
-          "Lead-acid battery"
+          "Always positive",
+          "Always negative",
+          "Zero",
+          "Depends on the object distance"
         ],
         correctAnswerIndex: 1,
-        explanation: "The Microcontroller coordinates all input from sensors and outputs instructions to motor controllers."
+        explanation: "By Cartesian sign convention, the focal length of a concave lens (and concave mirror) is always negative."
       },
       {
-        question: "Which sensor is generally utilized to let a robot detect and avoid obstacles using sound reflection?",
+        question: "During the electrolysis of concentrated aqueous sodium chloride, what is discharged at the anode?",
         options: [
-          "Ultrasonic Sensor",
-          "LDR Light Sensor",
-          "Thermistor Temperature Sensor",
-          "Piezoelectric Sensor"
+          "Sodium metal",
+          "Oxygen gas",
+          "Hydrogen gas",
+          "Chlorine gas"
         ],
-        correctAnswerIndex: 0,
-        explanation: "An Ultrasonic sensor emits high-frequency sound waves and measures the return duration to determine distance (echo ranging)."
+        correctAnswerIndex: 3,
+        explanation: "Since the solution is concentrated, chloride ions are discharged preferentially over hydroxide ions, yielding chlorine gas."
       },
       {
-        question: "What does are the key terminal pins of a standard SG90 Micro Servo Motor?",
+        question: "Which law states that induced electromagnetic currents always oppose the change producing them?",
         options: [
-          "Clock, Latch, Data",
-          "TX, RX, Ground",
-          "Signal, VCC, GND",
-          "SDA, SCL, Reset"
+          "Faraday's Law",
+          "Lenz's Law",
+          "Ohm's Law",
+          "Coulomb's Law"
         ],
-        correctAnswerIndex: 2,
-        explanation: "A standard analog micro servo operates with three connection pins: Signal (PWM), Positive supply (VCC), and Ground (GND)."
+        correctAnswerIndex: 1,
+        explanation: "Lenz's Law states that the direction of the induced current is always such that it opposes the change in magnetic flux that created it."
       }
     ];
   }
@@ -552,14 +551,6 @@ interface StudyGroupRoom {
 
 let studyGroupsRooms: StudyGroupRoom[] = [
   {
-    id: "group-robo-astro",
-    title: "🤖 Astro-Robotics & Tinkering",
-    courseId: "robo-astro",
-    curriculum: "Coding & Robotics",
-    description: "Arduino hardware, sensor wiring, space rover missions and IoT coding discussions.",
-    memberCount: 42
-  },
-  {
     id: "group-cbse-math-10",
     title: "📐 CBSE G10 Boards Maths",
     courseId: "cbse-math-10",
@@ -574,14 +565,6 @@ let studyGroupsRooms: StudyGroupRoom[] = [
     curriculum: "British",
     description: "Forces, electric fields, waves, nuclear decays and exam command word hints.",
     memberCount: 38
-  },
-  {
-    id: "group-coding-python-games",
-    title: "🐍 Python Dev & AI Hub",
-    courseId: "coding-python-games",
-    curriculum: "Coding & Robotics",
-    description: "Pygame controllers, object structures, class properties, and simple machine learning models.",
-    memberCount: 29
   },
   {
     id: "group-plato-phonics-champions",
@@ -635,12 +618,6 @@ let studyGroupsRooms: StudyGroupRoom[] = [
 
 // Initial pre-populated peer discussions
 let userMessages: Record<string, StudyMessage[]> = {
-  "group-robo-astro": [
-    { id: "ra_1", sender: "Mira Al-Mheiri", avatar: "🥇", text: "Did anyone complete the ultrasonic sensor breadboard wiring? It keeps listing zero distance on the serial monitor.", timestamp: "08:15 AM", school: "GEMS Modern Academy" },
-    { id: "ra_2", sender: "Khaled Al-Marri", avatar: "👾", text: "Yes! Double check if your Trigger pin is on Digital Pin 9 and Echo is on Pin 10. Also make sure Ground is common with Arduino GND pin! 🔌", timestamp: "08:18 AM", school: "Silicon Oasis Hub" },
-    { id: "ra_3", sender: "Arjun Verma", avatar: "✍️", text: "Yes! I spent 30 mins debugging that exact same thing yesterday. The common ground is absolutely essential otherwise the signals float.", timestamp: "08:24 AM", school: "Karama Hub" },
-    { id: "ra_4", sender: "Mira Al-Mheiri", avatar: "🥇", text: "Wow, common ground solved it! Reading values perfectly now. Code-upload complete! Thanks Khaled and Arjun! 🙌", timestamp: "08:31 AM", school: "GEMS Modern Academy" }
-  ],
   "group-cbse-math-10": [
     { id: "cm_1", sender: "Aarav Sharma", avatar: "🥈", text: "The CBSE boards formula sheet on Quadratic Equations in resources is amazing. Do we get direct marks for writing the steps of the Discriminant calculation?", timestamp: "08:02 AM", school: "Delhi Private School" },
     { id: "cm_2", sender: "Arjun Verma", avatar: "✍️", text: "Yes, CBSE has step-marking! Even if your final roots are wrong due to calculation, finding D = b² - 4ac receives half a mark. Write every step!", timestamp: "08:10 AM", school: "Karama Hub" },
@@ -650,10 +627,6 @@ let userMessages: Record<string, StudyMessage[]> = {
     { id: "bp_1", sender: "Sarah Higgins", avatar: "🥉", text: "Does anyone understand the specific difference between 'Define' and 'Describe' command words in Cambridge papers?", timestamp: "07:44 AM", school: "Dubai College" },
     { id: "bp_2", sender: "Ryan Parker", avatar: "🇬🇧", text: "Define means stating the absolute literal definition (usually matching the formula, e.g. pressure is force per unit area). Describe means explaining how a physical process unfolds step by step! 📚", timestamp: "07:55 AM", school: "Jumeirah College" },
     { id: "bp_3", sender: "Sarah Higgins", avatar: "🥉", text: "Thank you, that makes total sense. Time to score an A*! 🌟", timestamp: "08:05 AM", school: "Dubai College" }
-  ],
-  "group-coding-python-games": [
-    { id: "py_1", sender: "Khaled Al-Marri", avatar: "👾", text: "I just built a retro game clone with collision detection in Pygame! Let's schedule a multiplayer run on Saturday.", timestamp: "08:00 AM", school: "Silicon Oasis Hub" },
-    { id: "py_2", sender: "Maria Fedorova", avatar: "🚀", text: "That's super cool, Khaled! Are you handling screen boundaries using standard rect collisions or manually checking x/y coordinates?", timestamp: "08:08 AM", school: "Silicon Oasis Hub" }
   ],
   "group-plato-phonics-champions": [
     { id: "pc_1", sender: "Diya Narayanan", avatar: "🎨", text: "For the stage speaking competition, don't forget to keep your chin up and project your voice to the back of the auditorium! 🎤", timestamp: "Yesterday", school: "Al Qusais Centre" }
@@ -721,12 +694,6 @@ app.post("/api/study-groups/messages/:roomId", (req: any, res: any) => {
   // Trigger a supportive automated reply from a classmate in the room
   setTimeout(() => {
     const peerResponses: Record<string, string[]> = {
-      "group-robo-astro": [
-        "Amazing point! Let's try that on our breadboard in the Friday tinkerer's lab session. 🤖",
-        "Whoa! That is a brilliant solution for the robotic arm servo gear ratio.",
-        "Totally agree. I am writing down this tip for our local Robot Olympiad files!",
-        "Thanks for sharing! Let's build a prototype in the Silicon Oasis campus lab."
-      ],
       "group-cbse-math-10": [
         "Thanks! This is incredibly helpful for the Grade 10 Trigonometry board archive.",
         "Exactly! Let's solve two more board papers tonight to lock in the method.",
@@ -738,11 +705,6 @@ app.post("/api/study-groups/messages/:roomId", (req: any, res: any) => {
         "Spot on! The nuclear decay equations can get tricky but that helps a lot.",
         "Awesome! Let's study Forces chapter together next trial slot.",
         "This makes physics easy! Let's share some energy formulas here too!"
-      ],
-      "group-coding-python-games": [
-        "Excellent Pygame syntax tip! I am adding this class structure to my game loop.",
-        "This is cool. What happens if we add an elastic bounce factor to the game AI?",
-        "Nice code formatting, it works like a charm! +15 XP to you!"
       ],
       "group-plato-phonics-champions": [
         "Fabulous spoken pacing! Let's record our speaking tasks for feedback.",

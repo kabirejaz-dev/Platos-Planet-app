@@ -8,8 +8,8 @@ interface InteractiveQuizProps {
 }
 
 const POPULAR_QUIZ_TOPICS = [
-  { label: "Python Basics", query: "Python Gaming" },
-  { label: "Robotic Sensors", query: "Astro Robotics" },
+  { label: "IGCSE Physics", query: "CIE Physics" },
+  { label: "CBSE Science", query: "CBSE Science" },
   { label: "CBSE Quadratic Forms", query: "CBSE Mathematics" },
   { label: "Dubai Landmarks", query: "Dubai Science" }
 ];
@@ -60,10 +60,10 @@ export default function InteractiveQuiz({ profile, onAwardXp }: InteractiveQuizP
           explanation: "In Python, 'def' stands for define, and is the official keyword used to initialize custom functions."
         },
         {
-          question: "Which sensor on a robot calculates distances by emitting high-frequency echoes?",
-          options: ["Ultrasonic sensor", "LDR photodiode", "Touch switch", "Servo pot"],
+          question: "Which of the following mirror types possesses a negative focal length under Cartesian sign conventions?",
+          options: ["Concave mirror", "Convex mirror", "Plane mirror", "Parabolic convex mirror"],
           correctAnswerIndex: 0,
-          explanation: "Ultrasonic sensors send out ultrasonic sound waves and measure the bounceback duration (exactly like bats do!)."
+          explanation: "Under standard Cartesian sign conventions, concave optical systems (both mirrors and lenses) have a negative focal length."
         },
         {
           question: "What is the highest point on earth relative to sea level, similar to reaching apex scores?",
@@ -170,7 +170,7 @@ export default function InteractiveQuiz({ profile, onAwardXp }: InteractiveQuizP
                 type="text"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                placeholder="e.g. CBSE Geometry, Python Loops, Astrobotics..."
+                placeholder="e.g. CBSE Geometry, IGCSE Physics, Trigonometry..."
                 className="flex-1 bg-slate-950 border border-slate-850 px-3 py-2 text-xs text-slate-200 rounded-lg focus:outline-none focus:border-brand-yellow placeholder-slate-600"
               />
               <button
