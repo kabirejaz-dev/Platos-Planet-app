@@ -62,9 +62,9 @@ export default function MindyChat({ profile, chats, onAddChatMessage, onAwardXp 
         "What does Lenz's Law state about the direction of induced electromagnetic currents in year eleven igcse physics?"
       ],
       "General Support": [
-        "What is the physical school location campus of Plato's Planet in Al Qusais Dubai and Sharjah?",
+        "What are the physical campus locations of Plato's Planet?",
         "How many active pupils are enrolled in the premium CBSE and British secondary educational classes?",
-        "How can parents book free diagnostic online evaluations for junior reading phonics or math board preps?"
+        "How can parents book free diagnostic evaluations for junior reading phonics or math board preps?"
       ]
     };
 

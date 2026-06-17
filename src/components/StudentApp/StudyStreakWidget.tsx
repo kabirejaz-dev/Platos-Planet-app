@@ -1,5 +1,6 @@
 import React from "react";
 import { Flame, Sparkles, AlertTriangle, CheckCircle2, ChevronRight } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface StudyStreakWidgetProps {
   currentStreak: number;
@@ -17,6 +18,8 @@ export default function StudyStreakWidget({
   currentStreak,
   onTriggerNotification
 }: StudyStreakWidgetProps) {
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
   // Configured default week representation
   const weeklyTrack: WeekDay[] = [
     { shortName: "M", fullName: "Monday", completed: true, isToday: false },
@@ -96,7 +99,7 @@ export default function StudyStreakWidget({
               Perfect Streak Score
             </h3>
             <p className="text-[9.5px] text-slate-450 leading-relaxed font-semibold">
-              Sara is in the <strong>Top 5% of Dubai students</strong> this week. Complete tomorrow's Chemistry micro-test to unlock the 7-day shield rewards.
+              Sara is in the <strong>Top 5% of active students</strong> this week. Complete tomorrow's Chemistry micro-test to unlock the 7-day shield rewards.
             </p>
           </div>
         </div>
@@ -104,7 +107,7 @@ export default function StudyStreakWidget({
       
       {/* Bottom navigation link to gamification zone */}
       <div className="pt-3 border-t border-slate-900/80 flex items-center justify-between text-[9px] text-amber-500 font-mono font-extrabold uppercase mt-4">
-        <span>Dubai Marina Milestone</span>
+        <span>{branches[0] || 'Active Campus'} Milestone</span>
         <div className="flex items-center gap-0.5 cursor-pointer hover:text-amber-400 transition-colors">
           <span>Challenges</span>
           <ChevronRight className="w-3.5 h-3.5" />

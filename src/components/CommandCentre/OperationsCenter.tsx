@@ -3,6 +3,7 @@ import {
   Cpu, Users, Shield, Radio, Activity, RefreshCw, 
   MessageSquare, Play, HelpCircle, ToggleLeft, ToggleRight, Wifi 
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface LiveSession {
   id: string;
@@ -16,6 +17,8 @@ interface LiveSession {
 export default function OperationsCenter({ theme, onTriggerNotification }: { theme: "dark" | "light", onTriggerNotification: (title: string, desc: string) => void }) {
   const [liveStreamOn, setLiveStreamOn] = useState(true);
   const [ticker, setTicker] = useState(0);
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
 
   // Live ticking simulation
   useEffect(() => {
@@ -27,10 +30,10 @@ export default function OperationsCenter({ theme, onTriggerNotification }: { the
   }, [liveStreamOn]);
 
   const liveClasses: LiveSession[] = [
-    { id: "L-110", className: "IGCSE Mathematics Mastery (Delta Block)", branch: "Al Qusais Hub", teacher: "Prof. Albert Einstein", studentsCount: 16, utilization: "94%" },
-    { id: "L-112", className: "A-Level Electromagnetism Session 4", branch: "Dubai Marina", teacher: "Dr. Richard Feynman", studentsCount: 12, utilization: "100%" },
-    { id: "L-114", className: "CBSE Biology (Mock Review Alpha)", branch: "Dubai Silicon Oasis", teacher: "Marie Curie", studentsCount: 22, utilization: "91%" },
-    { id: "L-116", className: "Discrete Algorithms Mastery 10A", branch: "JVC Node", teacher: "Alan Turing", studentsCount: 14, utilization: "85%" }
+    { id: "L-110", className: "IGCSE Mathematics Mastery (Delta Block)", branch: branches[0] || "Main Campus", teacher: "Teacher 12", studentsCount: 16, utilization: "94%" },
+    { id: "L-112", className: "A-Level Electromagnetism Session 4", branch: branches[1] || "Branch 1", teacher: "Teacher 1", studentsCount: 12, utilization: "100%" },
+    { id: "L-114", className: "CBSE Biology (Mock Review Alpha)", branch: branches[2] || "Branch 2", teacher: "Teacher 3", studentsCount: 22, utilization: "91%" },
+    { id: "L-116", className: "Discrete Algorithms Mastery 10A", branch: "Online Campus", teacher: "Teacher 2", studentsCount: 14, utilization: "85%" }
   ];
 
   const metrics = [

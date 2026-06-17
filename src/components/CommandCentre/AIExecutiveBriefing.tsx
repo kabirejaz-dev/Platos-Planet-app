@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Sparkles, ShieldCheck, TrendingUp, AlertTriangle, 
   Lightbulb, ArrowUpRight, CheckCircle2, ChevronRight,
   Send, RefreshCw, Layers, Sparkle 
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig, PlatosPlanetConfigType } from "../../platosPlanetConfig";
 
 interface InsightItem {
   id: string;
@@ -25,20 +26,29 @@ export default function AIExecutiveBriefing({ theme, onTriggerNotification }: { 
   const [loading, setLoading] = useState(false);
   const [askQuery, setAskQuery] = useState("");
   const [aiResponse, setAiResponse] = useState<string | null>(null);
+  const [platosConfig, setPlatosConfig] = useState<PlatosPlanetConfigType>(() => getStoredPlatosPlanetConfig());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPlatosConfig(getStoredPlatosPlanetConfig());
+    };
+    window.addEventListener("platos_planet_config_updated", handleUpdate);
+    return () => window.removeEventListener("platos_planet_config_updated", handleUpdate);
+  }, []);
 
   const insights: InsightItem[] = [
-    { id: "i1", category: "Growth", text: "Enrollment increased 18% this month driven by direct-to-WhatsApp targeted campaigns matching Al Qusais demographic parameters.", impactScore: 92, trend: "up" },
-    { id: "i2", category: "Risk", text: "Dubai Marina branch class utilization fell to 78%; scheduling optimization alerts are ready for prompt review.", impactScore: 84, trend: "warning" },
+    { id: "i1", category: "Growth", text: `Enrollment increased 18% this month driven by direct targeted campaigns matching ${platosConfig.officialBranches[0] || 'Main Branch'} regional demographics.`, impactScore: 92, trend: "up" },
+    { id: "i2", category: "Risk", text: `Scheduling optimization alerts are active for all configured branches: ${platosConfig.officialBranches.join(", ")}.`, impactScore: 84, trend: "warning" },
     { id: "i3", category: "Academic", text: "Chemistry mock exam results improved by 12.4% following custom academic pacing interventions deployed in May.", impactScore: 88, trend: "up" },
     { id: "i4", category: "Sales", text: "27 hot leads are flagged as highly likely to convert this week based on trial lesson attendance patterns.", impactScore: 95, trend: "up" },
-    { id: "i5", category: "Finance", text: "AED 142,000 in outstanding fees require urgent direct parent outreach. Automated invoice reminders generated.", impactScore: 79, trend: "warning" }
+    { id: "i5", category: "Finance", text: "Outstanding tuition balances require target parent outreach. Automated invoice reminders generated.", impactScore: 79, trend: "warning" }
   ];
 
   const recommendations: RecommendedAction[] = [
-    { id: "r1", action: "Execute outbound outreach with direct WhatsApp billing templates to Marina & DSO overdue parents.", priority: "Critical", team: "Sales Ops", impact: "+ AED 82K" },
-    { id: "r2", action: "Hire/Deploy a Senior IGCSE Mathematics Teacher to the Al Qusais branch to meet the 14-student waitlist.", priority: "Critical", team: "HR Module", impact: "Fulfill Waitlist" },
+    { id: "r1", action: "Execute outbound outreach with direct billing templates to parent accounts with overdue balances.", priority: "Critical", team: "Sales Ops", impact: "Fulfill KPI" },
+    { id: "r2", action: `Hire/Deploy a Senior IGCSE Mathematics Teacher to the ${platosConfig.officialBranches[0] || 'Main'} branch to meet the current waitlist.`, priority: "Critical", team: "HR Module", impact: "Fulfill Waitlist" },
     { id: "r3", action: "Open a fresh foundation level A-Level Physics evening batch next Sunday (6:00 PM slot empty).", priority: "Opportunity", team: "Coordinator", impact: "+24% Cap" },
-    { id: "r4", action: "Review and re-allocate Al Furjan marketing budget to high-ROI local Google Maps campaigns.", priority: "Medium", team: "Marketing", impact: "Reduce CAC" }
+    { id: "r4", action: "Review and re-allocate active regional marketing budget to high-ROI local Google Maps campaigns.", priority: "Medium", team: "Marketing", impact: "Reduce CAC" }
   ];
 
   const handleAskAI = (e: React.FormEvent) => {
@@ -46,6 +56,9 @@ export default function AIExecutiveBriefing({ theme, onTriggerNotification }: { 
     if (!askQuery.trim()) return;
     setLoading(true);
     setAiResponse(null);
+
+    const branch1 = platosConfig.officialBranches[0] || "Main Campus";
+    const branch2 = platosConfig.officialBranches[1] || "Online Campus";
 
     // Simulate Plato Gen AI pipeline
     setTimeout(() => {
@@ -56,7 +69,7 @@ export default function AIExecutiveBriefing({ theme, onTriggerNotification }: { 
       } else if (queryLower.includes("grade") || queryLower.includes("student")) {
         setAiResponse("A-Level mock exam pass-rates are stable at 91.2%. We flag 14 students at risk in IGCSE Biology due to 80% lower homework compliance scores.");
       } else {
-        setAiResponse("I have audited all 5 active campuses. Recommended focus is the JVC branch where trial conversion latency is slightly lagging the Dubai Marina baseline (24 hours vs 12 hours).");
+        setAiResponse(`I have audited all active campuses. Recommended focus is the ${branch2} branch where trial conversion latency is slightly lagging the ${branch1} baseline (24 hours vs 12 hours).`);
       }
       onTriggerNotification("🧠 Plato AI Answered", "Parsed executive context & compiled smart strategic observations.");
     }, 900);
@@ -91,7 +104,7 @@ export default function AIExecutiveBriefing({ theme, onTriggerNotification }: { 
                 Live GenAI V4
               </span>
             </h2>
-            <p className="text-[10px] text-slate-400 font-medium">Auto-analyzing 12,480 students across Dubai, Al Qusais & Sharjah cohorts</p>
+            <p className="text-[10px] text-slate-400 font-medium">Auto-analyzing active registered cohorts for {platosConfig.officialBranches.join(", ")}</p>
           </div>
         </div>
 
@@ -106,7 +119,7 @@ export default function AIExecutiveBriefing({ theme, onTriggerNotification }: { 
           </button>
           <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-3 py-1.5 rounded-xl text-[10px] font-bold font-mono tracking-wide flex items-center gap-1.5">
             <ShieldCheck className="w-3.5 h-3.5" />
-            KHDA Compliant
+            {platosConfig.approvedClaims.approvals === "KHDA approved" ? "Operations Compliant" : platosConfig.approvedClaims.approvals}
           </div>
         </div>
       </div>

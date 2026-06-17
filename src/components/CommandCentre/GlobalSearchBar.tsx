@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Search, Sparkles, User, FileText, MapPin, Layers, Users, BookOpen, X, ArrowRight } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface SearchResult {
   id: string;
@@ -10,25 +11,28 @@ interface SearchResult {
   status?: string;
 }
 
-const sampleResults: SearchResult[] = [
-  { id: "S1", type: "Student", title: "Fatima Al-Suwaidi", subtitle: "Grade 10 • IGCSE", meta: "Dubai Marina Campus", status: "Active" },
-  { id: "S2", type: "Student", title: "Dev Patel", subtitle: "Grade 11 • CBSE", meta: "Jumeirah Campus", status: "At Risk" },
-  { id: "P1", type: "Parent", title: "Sayed Ahmad", subtitle: "Father of Fatima Ahmad", meta: "+971 50 123 4567", status: "Verified" },
-  { id: "T1", type: "Teacher", title: "Dr. Richard Feynman", subtitle: "Advanced Physics • Teacher ID: PH-90", meta: "Dubai Marina Campus", status: "Top Rated" },
-  { id: "I1", type: "Invoice", title: "INV-2026-8902", subtitle: "Dev Patel Outstanding Fees", meta: "AED 12,400 Due", status: "Unpaid" },
-  { id: "L1", type: "Lead", title: "Aarav Sharma", subtitle: "Mathematics Trial Batch", meta: "Hot Lead • Score: 94%", status: "Trial Scheduled" },
-  { id: "B1", type: "Branch", title: "Dubai Marina Campus", subtitle: "Primary Hub UAE", meta: "2,350 Students enrolled", status: "Healthy" },
-  { id: "B2", type: "Branch", title: "Jumeirah Campus", subtitle: "Secondary Hub UAE", meta: "1,840 Students enrolled", status: "Monitor" },
-  { id: "A1", type: "Batch", title: "IGCSE Math Batch delta", subtitle: "Tuesdays & Thursdays", meta: "Room 102", status: "Full" },
-  { id: "C1", type: "Course", title: "A-Level Electromagnetism Mastery", subtitle: "24 modules", meta: "Physics Curriculum", status: "Syllabus Match" }
-];
-
 interface GlobalSearchBarProps {
   theme: "dark" | "light";
   onSelectResult: (type: string, id: string) => void;
 }
 
 export default function GlobalSearchBar({ theme, onSelectResult }: GlobalSearchBarProps) {
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
+
+  const sampleResults: SearchResult[] = [
+    { id: "S1", type: "Student", title: "Student 10", subtitle: "Grade 10 • IGCSE", meta: branches[0] || "Main Branch", status: "Active" },
+    { id: "S2", type: "Student", title: "Student 4", subtitle: "Grade 11 • CBSE", meta: "Online Campus", status: "At Risk" },
+    { id: "P1", type: "Parent", title: "Parent 1", subtitle: "Parent of Student 10", meta: "+971 50 123 4567", status: "Verified" },
+    { id: "T1", type: "Teacher", title: "Teacher 1", subtitle: "Advanced Physics • Teacher ID: PH-90", meta: branches[0] || "Main Branch", status: "Top Rated" },
+    { id: "I1", type: "Invoice", title: "INV-2026-8902", subtitle: "Student 4 Outstanding Fees", meta: "AED 12,400 Due", status: "Unpaid" },
+    { id: "L1", type: "Lead", title: "Student 6", subtitle: "Mathematics Trial Batch", meta: "Hot Lead • Score: 94%", status: "Trial Scheduled" },
+    { id: "B1", type: "Branch", title: branches[0] || "Main Branch", subtitle: "Primary Hub UAE", meta: "2,350 Students enrolled", status: "Healthy" },
+    { id: "B2", type: "Branch", title: branches[1] || "Online Campus", subtitle: "Secondary Hub UAE", meta: "1,840 Students enrolled", status: "Monitor" },
+    { id: "A1", type: "Batch", title: "IGCSE Math Batch delta", subtitle: "Tuesdays & Thursdays", meta: "Room 102", status: "Full" },
+    { id: "C1", type: "Course", title: "A-Level Electromagnetism Mastery", subtitle: "24 modules", meta: "Physics Curriculum", status: "Syllabus Match" }
+  ];
+
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [filterType, setFilterType] = useState<string>("All");

@@ -3,6 +3,7 @@ import {
   DollarSign, TrendingUp, Landmark, ShieldAlert, Award, FileText,
   Percent, ArrowRightLeft, Sparkles, ChevronRight, BarChart3, Download
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface BranchRanking {
   rank: number;
@@ -15,14 +16,22 @@ interface BranchRanking {
 
 export default function FinanceOverview({ theme, onTriggerNotification }: { theme: "dark" | "light", onTriggerNotification: (title: string, desc: string) => void }) {
   const [activeTab, setActiveTab] = useState<"All" | "Pending">("All");
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
 
-  const branchRankings: BranchRanking[] = [
-    { rank: 1, branch: "Al Qusais Primary Hub", revenue: "AED 3.12M", collectedPct: 94, unpaidAED: "AED 84k", status: "Normal" },
-    { rank: 2, branch: "Dubai Marina Campus", revenue: "AED 1.84M", collectedPct: 89, unpaidAED: "AED 124k", status: "Normal" },
-    { rank: 3, branch: "Dubai Silicon Oasis", revenue: "AED 1.42M", collectedPct: 88, unpaidAED: "AED 92k", status: "Normal" },
-    { rank: 4, branch: "Business Bay GCC Core", revenue: "AED 1.04M", collectedPct: 74, unpaidAED: "AED 114k", status: "Escalation" },
-    { rank: 5, branch: "JVC Campus Node", revenue: "AED 980K", collectedPct: 81, unpaidAED: "AED 72k", status: "Normal" }
-  ];
+  const branchRankings: BranchRanking[] = branches.map((branchName, idx) => ({
+    rank: idx + 1,
+    branch: branchName,
+    revenue: idx === 0 ? "AED 3.12M" : idx === 2 ? "AED 1.04M" : "AED 1.84M",
+    collectedPct: idx === 0 ? 94 : idx === 2 ? 74 : 89,
+    unpaidAED: idx === 0 ? "AED 84k" : idx === 1 ? "AED 124k" : "AED 114k",
+    status: idx === 2 ? "Escalation" : "Normal"
+  }));
+
+  if (branchRankings.length === 0) {
+    branchRankings.push({ rank: 1, branch: "Main Branch", revenue: "AED 3.12M", collectedPct: 94, unpaidAED: "AED 84k", status: "Normal" });
+    branchRankings.push({ rank: 2, branch: "Online Campus", revenue: "AED 1.84M", collectedPct: 89, unpaidAED: "AED 124k", status: "Normal" });
+  }
 
   const handleForecastClick = () => {
     onTriggerNotification(

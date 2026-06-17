@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import OperationsCenter from "./OperationsCenter";
 import { useGlobalAction } from "../GlobalActionContext";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface BranchAdminWorkspaceProps {
   theme: "dark" | "light";
@@ -25,17 +26,19 @@ interface BranchAdminWorkspaceProps {
 
 export default function BranchAdminWorkspace({ theme, onTriggerNotification }: BranchAdminWorkspaceProps) {
   const { openModal } = useGlobalAction();
-  const [selectedBranch, setSelectedBranch] = useState("Dubai Marina Campus");
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
+  const [selectedBranch, setSelectedBranch] = useState(branches[0] || "Main Branch");
   const [allocatedRoomId, setAllocatedRoomId] = useState("Classroom-1");
-  const [allocatedTeacher, setAllocatedTeacher] = useState("Dr. Richard Feynman");
+  const [allocatedTeacher, setAllocatedTeacher] = useState("Teacher 1");
   const [allocatedSubject, setAllocatedSubject] = useState("Physics Electromagnetism");
 
   // Dynamic Room Allocation simulation list
   const [roomAllocations, setRoomAllocations] = useState([
-    { id: "Classroom-1", teacher: "Dr. Richard Feynman", subject: "IGCSE Physics Electro", time: "16:00 - 17:30" },
-    { id: "Classroom-2", teacher: "Prof. Alan Turing", subject: "Advanced Core Calculus", time: "17:30 - 19:00" },
-    { id: "Classroom-3", teacher: "Prof. Marie Curie", subject: "CBSE Inorganic Compounds", time: "16:00 - 17:30" },
-    { id: "Classroom-4", teacher: "Prof. Albert Einstein", subject: "A-Level Relativity", time: "19:00 - 20:30" },
+    { id: "Classroom-1", teacher: "Teacher 1", subject: "IGCSE Physics Electro", time: "16:00 - 17:30" },
+    { id: "Classroom-2", teacher: "Teacher 2", subject: "Advanced Core Calculus", time: "17:30 - 19:00" },
+    { id: "Classroom-3", teacher: "Teacher 3", subject: "CBSE Inorganic Compounds", time: "16:00 - 17:30" },
+    { id: "Classroom-4", teacher: "Teacher 12", subject: "A-Level Relativity", time: "19:00 - 20:30" },
   ]);
 
   const [batchesList, setBatchesList] = useState([
@@ -68,7 +71,7 @@ export default function BranchAdminWorkspace({ theme, onTriggerNotification }: B
 
     onTriggerNotification(
       "🚪 Classroom Reallocated",
-      `Pristine allocation! Room ${allocatedRoomId} allocated to ${allocatedTeacher} for '${allocatedSubject}'.`
+      `Allocation saved! Room ${allocatedRoomId} allocated to ${allocatedTeacher} for '${allocatedSubject}'.`
     );
   };
 
@@ -84,11 +87,11 @@ export default function BranchAdminWorkspace({ theme, onTriggerNotification }: B
           <div className="flex items-center gap-2">
             <Building className="w-5 h-5 text-amber-500" />
             <h2 className="text-xl font-black text-white tracking-tight">
-              Dubai Headquarters Operations
+              Headquarters Operations Control
             </h2>
           </div>
           <p className="text-xs text-slate-400 max-w-lg">
-            Manage Room allocations, timetables schedules, staff payroll metrics, and on-ground student attendance registers for the Marina Campus.
+            Manage Room allocations, timetables schedules, staff payroll metrics, and on-ground student attendance registers for the {selectedBranch}.
           </p>
         </div>
 
@@ -96,12 +99,12 @@ export default function BranchAdminWorkspace({ theme, onTriggerNotification }: B
           <select 
             value={selectedBranch}
             onChange={(e) => setSelectedBranch(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-800 text-xs text-amber-500 font-extrabold p-3 rounded-2xl outline-none"
+            className="w-full bg-slate-950 border border-slate-800 text-xs text-amber-500 font-extrabold p-3 rounded-2xl outline-none cursor-pointer"
           >
-            <option>Dubai Marina Campus</option>
-            <option>Al Qusais Primary Hub</option>
-            <option>Dubai Silicon Oasis</option>
-            <option>Business Bay GCC Core</option>
+            {branches.map(branchName => (
+              <option key={branchName} value={branchName}>{branchName}</option>
+            ))}
+            <option value="Online Campus">Online Campus</option>
           </select>
         </div>
       </div>
@@ -229,10 +232,10 @@ export default function BranchAdminWorkspace({ theme, onTriggerNotification }: B
                   onChange={(e) => setAllocatedTeacher(e.target.value)}
                   className="w-full bg-slate-900 border border-slate-800 text-xs text-slate-205 p-3 rounded-xl font-bold"
                 >
-                  <option value="Dr. Richard Feynman">Dr. Richard Feynman (Physics)</option>
-                  <option value="Prof. Alan Turing">Prof. Alan Turing (Math)</option>
-                  <option value="Prof. Marie Curie">Prof. Marie Curie (Chemistry)</option>
-                  <option value="Prof. Albert Einstein">Prof. Albert Einstein (A-Level)</option>
+                  <option value="Teacher 1">Teacher 1 (Physics)</option>
+                  <option value="Teacher 2">Teacher 2 (Math)</option>
+                  <option value="Teacher 3">Teacher 3 (Chemistry)</option>
+                  <option value="Teacher 12">Teacher 12 (A-Level)</option>
                 </select>
               </div>
 
@@ -299,9 +302,9 @@ export default function BranchAdminWorkspace({ theme, onTriggerNotification }: B
 
             <div className="space-y-2 text-[10.5px]">
               {[
-                { name: "Dr. Richard Feynman", sessions: "14 hours compiled", rate: "AED 350 / HR", check: "Checkin Verified" },
-                { name: "Prof. Marie Curie", sessions: "18 hours compiled", rate: "AED 300 / HR", check: "Checkin Verified" },
-                { name: "Prof. Alan Turing", sessions: "12 hours compiled", rate: "AED 320 / HR", check: "Checkin Verified" }
+                { name: "Teacher 1", sessions: "14 hours compiled", rate: "AED 350 / HR", check: "Checkin Verified" },
+                { name: "Teacher 3", sessions: "18 hours compiled", rate: "AED 300 / HR", check: "Checkin Verified" },
+                { name: "Teacher 2", sessions: "12 hours compiled", rate: "AED 320 / HR", check: "Checkin Verified" }
               ].map((faculty, i) => (
                 <div key={i} className="p-2.5 bg-slate-90) rounded-xl border border-slate-855 bg-slate-900/50 flex flex-col gap-1.5 font-semibold">
                   <div className="flex items-center justify-between">

@@ -21,16 +21,16 @@ export default function TeacherLeaderboard({ theme, onTriggerNotification }: { t
   const [bonusReason, setBonusReason] = useState("Outstanding lesson engagement scores & complete syllabus compliance");
 
   const teachers: TeacherData[] = [
-    { rank: 1, name: "Dr. Richard Feynman", subject: "physics Mastery", students: 184, rating: 4.95, attendance: "99.2%", results: "95% A-Level Alpha", badge: "🏆 Platinum", avatar: "👨‍🔬" },
-    { rank: 2, name: "Prof. Albert Einstein", subject: "Advanced Calculus", students: 165, rating: 4.92, attendance: "98.4%", results: "94.2% Math core", badge: "🥇 Gold", avatar: "👨‍🏫" },
-    { rank: 3, name: "Marie Curie", subject: "Nuclear Chemistry", students: 142, rating: 4.90, attendance: "100%", results: "92.8% Chem Grade", badge: "🥇 Gold", avatar: "👩‍🔬" },
-    { rank: 4, name: "Ada Lovelace", subject: "Discrete Coding", students: 155, rating: 4.88, attendance: "97.8%", results: "91% Tech Master", badge: "🥈 Silver", avatar: "👩‍💻" },
-    { rank: 5, name: "Alan Turing", subject: "Algorithms Spec", students: 130, rating: 4.85, attendance: "96.5%", results: "89% Math Theory", badge: "🥈 Silver", avatar: "👨‍💻" },
-    { rank: 6, name: "Stephen Hawking", subject: "Cosmology Core", students: 110, rating: 4.82, attendance: "98.0%", results: "88% Space Certs", badge: "Bronze", avatar: "👨‍🦼" },
-    { rank: 7, name: "Isaac Newton", subject: "Classical Mechanics", students: 124, rating: 4.79, attendance: "95.2%", results: "86% IGCSE Base", badge: "Bronze", avatar: "👨‍🎨" },
-    { rank: 8, name: "Carl Sagan", subject: "Astronomy Foundation", students: 118, rating: 4.77, attendance: "99.0%", results: "88% Avg Pass", badge: "Bronze", avatar: "👨‍🚀" },
-    { rank: 9, name: "Rosalind Franklin", subject: "molecular Biology", students: 95, rating: 4.75, attendance: "97.4%", results: "85% Bio core", badge: "Bronze", avatar: "👩‍⚕️" },
-    { rank: 10, name: "Charles Darwin", subject: "Evolutionary Biology", students: 88, rating: 4.72, attendance: "96.1%", results: "84% Avg Grade", badge: "Bronze", avatar: "👨‍🌾" }
+    { rank: 1, name: "Dr. Sarah Mansoor", subject: "physics Mastery", students: 184, rating: 4.95, attendance: "99.2%", results: "95% A-Level Alpha", badge: "🏆 Platinum", avatar: "👩‍🔬" },
+    { rank: 2, name: "Prof. Tariq Mahmoud", subject: "Advanced Calculus", students: 165, rating: 4.92, attendance: "98.4%", results: "94.2% Math core", badge: "🥇 Gold", avatar: "👨‍🏫" },
+    { rank: 3, name: "Dr. Elena Rostova", subject: "Nuclear Chemistry", students: 142, rating: 4.90, attendance: "100%", results: "92.8% Chem Grade", badge: "🥇 Gold", avatar: "👩‍🔬" },
+    { rank: 4, name: "Priya Sharma", subject: "Discrete Coding", students: 155, rating: 4.88, attendance: "97.8%", results: "91% Tech Master", badge: "🥈 Silver", avatar: "👩‍💻" },
+    { rank: 5, name: "Prof. Robert Chen", subject: "Algorithms Spec", students: 130, rating: 4.85, attendance: "96.5%", results: "89% Math Theory", badge: "🥈 Silver", avatar: "👨‍💻" },
+    { rank: 6, name: "Yousef Al-Mansoori", subject: "Cosmology Core", students: 110, rating: 4.82, attendance: "98.0%", results: "88% Space Certs", badge: "Bronze", avatar: "👨‍💼" },
+    { rank: 7, name: "James Carter", subject: "Classical Mechanics", students: 124, rating: 4.79, attendance: "95.2%", results: "86% IGCSE Base", badge: "Bronze", avatar: "👨‍🎨" },
+    { rank: 8, name: "Arjun Verma", subject: "Astronomy Foundation", students: 118, rating: 4.77, attendance: "99.0%", results: "88% Avg Pass", badge: "Bronze", avatar: "👨‍🚀" },
+    { rank: 9, name: "Dr. Amara Okano", subject: "molecular Biology", students: 95, rating: 4.75, attendance: "97.4%", results: "85% Bio core", badge: "Bronze", avatar: "👩‍⚕️" },
+    { rank: 10, name: "Claire Beaumont", subject: "Evolutionary Biology", students: 88, rating: 4.72, attendance: "96.1%", results: "84% Avg Grade", badge: "Bronze", avatar: "👩‍🌾" }
   ];
 
   const handleCommend = (teacher: TeacherData) => {

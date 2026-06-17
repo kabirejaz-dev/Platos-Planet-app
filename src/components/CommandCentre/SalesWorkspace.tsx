@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import SalesPipeline from "./SalesPipeline";
 import { useGlobalAction } from "../GlobalActionContext";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface SalesWorkspaceProps {
   theme: "dark" | "light";
@@ -25,6 +26,8 @@ interface SalesWorkspaceProps {
 
 export default function SalesWorkspace({ theme, onTriggerNotification }: SalesWorkspaceProps) {
   const { openModal } = useGlobalAction();
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
   const [selectedLead, setSelectedLead] = useState<any | null>(null);
   const [followUpDone, setFollowUpDone] = useState<string[]>([]);
   const [activeDate, setActiveDate] = useState("Jun 16, 2026");
@@ -40,8 +43,8 @@ export default function SalesWorkspace({ theme, onTriggerNotification }: SalesWo
   const [forecastTimeline, setForecastTimeline] = useState("This Month");
 
   const calendarEvents = [
-    { time: "02:30 PM", client: "Fatima Al-Suwaidi", type: "Admission Counseling", campus: "Dubai Marina" },
-    { time: "04:00 PM", client: "Dr. Sandeep Kumar", type: "Trial Class Checkin", campus: "Al Qusais" },
+    { time: "02:30 PM", client: "Fatima Al-Suwaidi", type: "Admission Counseling", campus: branches[0] || "Main Branch" },
+    { time: "04:00 PM", client: "Dr. Sandeep Kumar", type: "Trial Class Checkin", campus: branches[1] || "Online Campus" },
     { time: "05:30 PM", client: "Michael Sterling", type: "Online Feedback Hub", campus: "Online Portal" }
   ];
 

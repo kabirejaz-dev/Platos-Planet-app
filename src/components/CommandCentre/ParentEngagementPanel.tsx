@@ -14,9 +14,9 @@ export default function ParentEngagementPanel({ theme, onTriggerNotification }: 
   ];
 
   const parentRequests = [
-    { id: "pr1", parent: "Fatma Al-Mheiri", student: "Zayed (Grade 11 CBSE)", type: "Schedule Change", time: "18 mins ago", desc: "Requesting math session shift to evening block due to transport latency.", priority: "High" },
-    { id: "pr2", parent: "Hassan Bin-Saeed", student: "Mariam (Grade 9 IGCSE)", type: "Billing Query", time: "1 hour ago", desc: "Inquiring about automated summer scholarship enrollment benefits.", priority: "Medium" },
-    { id: "pr3", parent: "Aditi Sharma", student: "Rohan (Grade 10 IGCSE)", type: "Progress Report", time: "3 hours ago", desc: "Requesting teacher Dr. Richard Feynman call regarding syllabus mock progress.", priority: "High" }
+    { id: "pr1", parent: "Parent 1", student: "Student 1 (Grade 11 CBSE)", type: "Schedule Change", time: "18 mins ago", desc: "Requesting math session shift to evening block due to transport latency.", priority: "High" },
+    { id: "pr2", parent: "Parent 4", student: "Student 12 (Grade 9 IGCSE)", type: "Billing Query", time: "1 hour ago", desc: "Inquiring about summer scholarship enrollment benefits.", priority: "Medium" },
+    { id: "pr3", parent: "Parent 8", student: "Student 8 (Grade 10 IGCSE)", type: "Progress Report", time: "3 hours ago", desc: "Requesting teacher Teacher 1 call regarding syllabus mock progress.", priority: "High" }
   ];
 
   const handleResolve = (id: string, parentName: string) => {

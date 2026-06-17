@@ -4,6 +4,7 @@ import {
   UserX, Home, DollarSign, Calendar, RefreshCw, Send, ShieldX 
 } from "lucide-react";
 import { useGlobalAction } from "../GlobalActionContext";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface RiskItem {
   id: string;
@@ -17,12 +18,15 @@ interface RiskItem {
 
 export default function AIRiskPanel({ theme, onTriggerNotification }: { theme: "dark" | "light", onTriggerNotification: (title: string, desc: string) => void }) {
   const { openModal } = useGlobalAction();
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
   const [loading, setLoading] = useState(false);
+  
   const [riskList, setRiskList] = useState<RiskItem[]>([
     {
       id: "risk1",
       category: "At Risk Student",
-      subjectName: "Dev Patel (Grade 11 CBSE Jumeirah)",
+      subjectName: "Dev Patel (Grade 11 CBSE)",
       reason: "Homework completion dropped to 48% over last 3 weeks coinciding with 78% biology mock marks decline.",
       severity: "Critical",
       suggestedAction: "Trigger automated parent academic pacing notification",
@@ -31,7 +35,7 @@ export default function AIRiskPanel({ theme, onTriggerNotification }: { theme: "
     {
       id: "risk2",
       category: "At Risk Teacher",
-      subjectName: "Math Instructor T-102 (Al Qusais)",
+      subjectName: `Math Instructor T-102 (${branches[0] || "Main Campus"})`,
       reason: "NPS lesson feedback scores fell below the crucial 4.0 threshold to 3.82. Chemistry pass rates remain robust.",
       severity: "Escalate",
       suggestedAction: "Initiate coordinator classroom appraisal session",
@@ -40,26 +44,26 @@ export default function AIRiskPanel({ theme, onTriggerNotification }: { theme: "
     {
       id: "risk3",
       category: "At Risk Branch",
-      subjectName: "Business Bay GCC Core Branch",
+      subjectName: `${branches[1] || "Branch 1"} Core`,
       reason: "Class utilization metrics sitting at 64% due to lag in converting counseling inquiries to first trials.",
       severity: "Escalate",
-      suggestedAction: "Redirect local organic ad spend from DSO to Business Bay",
+      suggestedAction: `Redirect local organic ad spend to bolster the ${branches[1] || "Branch 1"} active cohorts`,
       details: "Utilization: 64%"
     },
     {
       id: "risk4",
       category: "Fee Collection Risk",
-      subjectName: "Dubai Marina Pending Cohorts",
+      subjectName: `${branches[0] || "Main Campus"} Pending Cohorts`,
       reason: "AED 124,000 in outstanding invoices are flagged overdue past the standard 15-day institutional grace marker.",
       severity: "Critical",
-      suggestedAction: "Execute legal/billing parent outreach WhatsApp templates",
+      suggestedAction: "Execute legal/billing parent outreach communication templates",
       details: "12 invoices unpaid"
     },
     {
       id: "risk5",
       category: "Attendance Risk",
       subjectName: "IGCSE Chemistry Evening Block Delta",
-      reason: "Syllabus attendance averages fell to 78% on Tuesdays due to local public transport construction delays.",
+      reason: "Syllabus attendance averages fell to 78% on Tuesdays due to local transport delays.",
       severity: "Monitor",
       suggestedAction: "Shift block starting slot 30 minutes later to 6:30 PM",
       details: "Tuesday attendance: 78%"

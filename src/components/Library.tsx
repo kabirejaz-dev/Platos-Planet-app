@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   BookOpen, 
   Search, 
@@ -16,6 +16,7 @@ import {
   Calendar
 } from "lucide-react";
 import { StudentProfile } from "../types";
+import { getStoredPlatosPlanetConfig, PlatosPlanetConfigType } from "../platosPlanetConfig";
 
 interface LibraryProps {
   profile: StudentProfile;
@@ -251,6 +252,16 @@ export const LIBRARY_DOCUMENTS: LibDoc[] = [
 ];
 
 export default function Library({ profile, onAwardXp, triggerNotification }: LibraryProps) {
+  const [platosConfig, setPlatosConfig] = useState<PlatosPlanetConfigType>(() => getStoredPlatosPlanetConfig());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPlatosConfig(getStoredPlatosPlanetConfig());
+    };
+    window.addEventListener("platos_planet_config_updated", handleUpdate);
+    return () => window.removeEventListener("platos_planet_config_updated", handleUpdate);
+  }, []);
+
   // Navigation filters
   const [curriculumFilter, setCurriculumFilter] = useState<"ALL" | "CBSE" | "IGCSE">("ALL");
   const [categoryFilter, setCategoryFilter] = useState<"ALL" | "Study Guides" | "Past Papers" | "Worksheets">("ALL");
@@ -341,10 +352,10 @@ export default function Library({ profile, onAwardXp, triggerNotification }: Lib
       <div className="space-y-1">
         <div className="flex items-center gap-1.5">
           <span className="text-[8px] bg-brand-yellow/15 text-brand-yellow border border-brand-yellow/20 px-1.5 py-0.5 rounded font-extrabold uppercase font-mono tracking-widest">
-            Dubai Syllabus Vault
+            Syllabus Vault
           </span>
           <span className="text-[8px] bg-slate-950 text-slate-400 border border-slate-850 px-1.5 py-0.5 rounded font-mono">
-            KHDA Compliant
+            {platosConfig.approvedClaims.approvals === "KHDA approved" ? "Designed for compliance" : platosConfig.approvedClaims.approvals}
           </span>
         </div>
         <h2 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-teal-400 via-brand-yellow to-emerald-400 bg-clip-text text-transparent flex items-center gap-1.5 leading-none">
@@ -527,10 +538,10 @@ export default function Library({ profile, onAwardXp, triggerNotification }: Lib
         <div className="space-y-0.5">
           <h4 className="text-[11px] font-black text-slate-200 flex items-center gap-1 leading-none">
             <Sparkles className="w-3 h-3 text-brand-yellow animate-bounce" />
-            <span>KHDA Exam Prep Target</span>
+            <span>Academic Exam Prep Target</span>
           </h4>
           <p className="text-[9px] text-slate-400">
-            Completed revision guides sync with Mindy AI to automatically unlock localized mock boards.
+            Completed revision guides sync with Mindy AI to automatically unlock active mock boards.
           </p>
         </div>
         <div className="text-right flex-shrink-0">

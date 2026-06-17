@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import DynamicFormRenderer from "./DynamicFormRenderer";
+import { formSchemas } from "./FormSchemaEngine";
 import { 
   X, CheckCircle, AlertCircle, Info, Landmark, Users, 
   BookOpen, Calendar, ShieldAlert, Award, FileText, 
   Send, Sparkles, MessageSquare, PhoneCall, Trash2, 
   Clock, Check, Circle, ExternalLink, Play, Code, CheckSquare, BarChart2
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig, PlatosPlanetConfigType } from "../platosPlanetConfig";
 
 // Types for Context
 export interface GlobalBranch {
@@ -99,6 +102,78 @@ interface GlobalActionContextType {
 
 const GlobalActionContext = createContext<GlobalActionContextType | undefined>(undefined);
 
+function getInitialBranches(config: PlatosPlanetConfigType, demoMode: boolean): GlobalBranch[] {
+  return config.officialBranches.map((branchName, index) => {
+    return {
+      id: `b-${index + 1}`,
+      name: branchName,
+      location: `${config.officialAddress} (${branchName})`,
+      manager: index === 0 ? "Farah Al-Mansoori" : "Noura Al-Shehhi",
+      phone: config.officialPhone,
+      studentsCount: demoMode ? (index === 0 ? 420 : 250) : 0,
+      health: "Healthy",
+      revenue: demoMode ? (index === 0 ? "AED 340,000" : "AED 180,000") : "AED 0"
+    };
+  });
+}
+
+function getInitialTeachers(config: PlatosPlanetConfigType, demoMode: boolean): GlobalTeacher[] {
+  const subjects = config.officialSubjects;
+  const branches = config.officialBranches;
+  const curriculums = config.officialCurriculums;
+  
+  const teacherNames = [
+    "Dr. Al-Mansoori",
+    "Prof. Sarah Sterling",
+    "Mr. Raj Patel",
+    "Ms. Layla Khatib"
+  ];
+
+  if (!demoMode) {
+    return [];
+  }
+
+  return teacherNames.map((name, index) => {
+    return {
+      id: `t-${index + 1}`,
+      name,
+      subject: subjects[index % subjects.length] || "Mathematics",
+      branch: branches[index % branches.length] || "Main Branch",
+      curriculum: curriculums[index % curriculums.length]?.replace("Stream", "")?.replace("National boards", "") || "IGCSE",
+      rating: 4.5 + (index * 0.1)
+    };
+  });
+}
+
+function getInitialLeads(config: PlatosPlanetConfigType, demoMode: boolean): GlobalLead[] {
+  if (!demoMode) return [];
+  return [
+    { id: "lead-1", parent: "Parent 3", student: "Student 7", grade: "Grade 11", curriculum: config.officialCurriculums[0] || "British", score: 96, value: "AED 5,800", source: "Meta Ads", status: "New Inquiry" },
+    { id: "lead-2", parent: "Parent 14", student: "Student 31", grade: "Grade 9", curriculum: config.officialCurriculums[1] || "CBSE", score: 91, value: "AED 3,400", source: "Word of Mouth", status: "Trial Scheduled" },
+    { id: "lead-3", parent: "Parent 15", student: "Student 30", grade: "Grade 12", curriculum: config.officialCurriculums[0] || "British", score: 88, value: "AED 8,620", source: "Google Ads", status: "Follow-Up Pending" },
+    { id: "lead-4", parent: "Parent 16", student: "Student 32", grade: "Grade 10", curriculum: config.officialCurriculums[0] || "British", score: 84, value: "AED 5,800", source: "Website", status: "Counseling Intake" }
+  ];
+}
+
+function getInitialInvoices(config: PlatosPlanetConfigType, demoMode: boolean): GlobalInvoice[] {
+  if (!demoMode) return [];
+  const branches = config.officialBranches;
+  return [
+    { id: "inv-1", student: "Student 2", parent: "Parent 17", amount: "AED 1,840", status: "Paid", dueDate: "Jun 10, 2026", branch: branches[0] || "Main Branch" },
+    { id: "inv-2", student: "Student 7", parent: "Parent 3", amount: "AED 5,800", status: "Pending", dueDate: "Jun 25, 2026", branch: branches[0] || "Main Branch" },
+    { id: "inv-3", student: "Student 31", parent: "Parent 14", amount: "AED 3,400", status: "Overdue", dueDate: "Jun 05, 2026", branch: branches[1] || branches[0] || "Main Branch" },
+    { id: "inv-4", student: "Student 30", parent: "Parent 15", amount: "AED 8,620", status: "Pending", dueDate: "Jun 30, 2026", branch: branches[1] || branches[0] || "Main Branch" }
+  ];
+}
+
+function getInitialAnnouncements(config: PlatosPlanetConfigType, demoMode: boolean): { id: string; text: string; type: string; timestamp: string }[] {
+  const branches = config.officialBranches;
+  return [
+    { id: "ann-1", text: "Urgent: Academic Board specimen revision papers uploaded across active portals.", type: "Alert", timestamp: "1 hour ago" },
+    { id: "ann-2", text: `${branches[0] || 'Main'} center hosting interactive academic coaching workshops on Saturday.`, type: "Info", timestamp: "4 hours ago" }
+  ];
+}
+
 export function GlobalActionProvider({ children }: { children: React.ReactNode }) {
   // Toasts State
   const [toasts, setToasts] = useState<GlobalToast[]>([]);
@@ -137,45 +212,54 @@ export function GlobalActionProvider({ children }: { children: React.ReactNode }
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Shared application states
-  const [branches, setBranches] = useState<GlobalBranch[]>([
-    { id: "b-1", name: "Dubai Marina Campus", location: "UAE Marina Heights", manager: "Farah Al-Mansoori", phone: "+971 4 456 1234", studentsCount: 420, health: "Healthy", revenue: "AED 340,000" },
-    { id: "b-2", name: "Al Qusais Campus", location: "UAE Baghdad St", manager: "Ravi Chandran", phone: "+971 4 256 5678", studentsCount: 310, health: "Healthy", revenue: "AED 210,000" },
-    { id: "b-3", name: "Silicon Oasis Hub", location: "DSO Techno Hub", manager: "Noura Al-Shehhi", phone: "+971 4 501 5555", studentsCount: 220, health: "Monitor", revenue: "AED 180,000" },
-    { id: "b-4", name: "Sharjah Branch", location: "Sharjah Corniche", manager: "Sami El-Amin", phone: "+971 6 566 9900", studentsCount: 150, health: "Needs Attention", revenue: "AED 95,000" }
-  ]);
+  // Load and subscribe to Platos Planet Config
+  const [platosConfig, setPlatosConfig] = useState<PlatosPlanetConfigType>(() => getStoredPlatosPlanetConfig());
+  const [demoMode, setDemoMode] = useState<boolean>(() => {
+    return localStorage.getItem("platos_demo_mode") !== "false";
+  });
 
-  const [teachers, setTeachers] = useState<GlobalTeacher[]>([
-    { id: "t-1", name: "Dr. Al-Mansoori", subject: "Mathematics", branch: "Dubai Marina Campus", curriculum: "IGCSE", rating: 4.9 },
-    { id: "t-2", name: "Prof. Sarah Sterling", subject: "Physics", branch: "Silicon Oasis Hub", curriculum: "A-Level", rating: 4.8 },
-    { id: "t-3", name: "Mr. Raj Patel", subject: "Chemistry", branch: "Al Qusais Campus", curriculum: "CBSE", rating: 4.75 },
-    { id: "t-4", name: "Ms. Layla Khatib", subject: "Computer Science", branch: "Dubai Marina Campus", curriculum: "IGCSE", rating: 4.9 }
-  ]);
+  // Shared application states dynamically initialized
+  const [branches, setBranches] = useState<GlobalBranch[]>(() => 
+    getInitialBranches(getStoredPlatosPlanetConfig(), localStorage.getItem("platos_demo_mode") !== "false")
+  );
 
-  const [leads, setLeads] = useState<GlobalLead[]>([
-    { id: "lead-1", parent: "Fatima Al-Suwaidi", student: "Hamdan Al-Suwaidi", grade: "Grade 11", curriculum: "British", score: 96, value: "AED 5,800", source: "Meta Ads", status: "New Inquiry" },
-    { id: "lead-2", parent: "Dr. Sandeep Kumar", student: "Aarav Kumar", grade: "Grade 9", curriculum: "CBSE", score: 91, value: "AED 3,400", source: "Word of Mouth", status: "Trial Scheduled" },
-    { id: "lead-3", parent: "Michael Sterling", student: "Chloe Sterling", grade: "Grade 12", curriculum: "British", score: 88, value: "AED 8,620", source: "Google Ads", status: "Follow-Up Pending" },
-    { id: "lead-4", parent: "Aisha Al-Haddad", student: "Zayed Al-Haddad", grade: "Grade 10", curriculum: "British", score: 84, value: "AED 5,800", source: "Website", status: "Counseling Intake" }
-  ]);
+  const [teachers, setTeachers] = useState<GlobalTeacher[]>(() => 
+    getInitialTeachers(getStoredPlatosPlanetConfig(), localStorage.getItem("platos_demo_mode") !== "false")
+  );
+
+  const [leads, setLeads] = useState<GlobalLead[]>(() => 
+    getInitialLeads(getStoredPlatosPlanetConfig(), localStorage.getItem("platos_demo_mode") !== "false")
+  );
 
   const [assignments, setAssignments] = useState<GlobalAssignment[]>([
-    { id: "a-1", title: "Kinematics Extended Syllabus Equations", dueDate: "Jun 18, 2026", subject: "Physics", points: 100, submissionsCount: 14 },
+    { id: "a-1", title: "Kinematics Equations Revision Portfolio", dueDate: "Jun 18, 2026", subject: "Physics", points: 100, submissionsCount: 14 },
     { id: "a-2", title: "Quadratic Equations Real-world Modeling", dueDate: "Jun 20, 2026", subject: "Mathematics", points: 50, submissionsCount: 18 },
     { id: "a-3", title: "Aqueous Solution Solubility Product Constants", dueDate: "Jun 22, 2026", subject: "Chemistry", points: 75, submissionsCount: 4 }
   ]);
 
-  const [invoices, setInvoices] = useState<GlobalInvoice[]>([
-    { id: "inv-1", student: "Zayed Al-H Mansoori", parent: "Kabir Al-Mansoori", amount: "AED 1,840", status: "Paid", dueDate: "Jun 10, 2026", branch: "Dubai Marina Campus" },
-    { id: "inv-2", student: "Hamdan Al-Suwaidi", parent: "Fatima Al-Suwaidi", amount: "AED 5,800", status: "Pending", dueDate: "Jun 25, 2026", branch: "Dubai Marina Campus" },
-    { id: "inv-3", student: "Aarav Kumar", parent: "Dr. Sandeep Kumar", amount: "AED 3400", status: "Overdue", dueDate: "Jun 05, 2026", branch: "Al Qusais Campus" },
-    { id: "inv-4", student: "Chloe Sterling", parent: "Michael Sterling", amount: "AED 8,620", status: "Pending", dueDate: "Jun 30, 2026", branch: "Silicon Oasis Hub" }
-  ]);
+  const [invoices, setInvoices] = useState<GlobalInvoice[]>(() => 
+    getInitialInvoices(getStoredPlatosPlanetConfig(), localStorage.getItem("platos_demo_mode") !== "false")
+  );
 
-  const [announcements, setAnnouncements] = useState<{ id: string; text: string; type: string; timestamp: string }[]>([
-    { id: "ann-1", text: "Urgent: CBSE 10th Board Specimen Revision sheets uploaded across all portals.", type: "Alert", timestamp: "1 hour ago" },
-    { id: "ann-2", text: "Dubai Marina offline center hosting live student diagnostic camps on Saturday.", type: "Info", timestamp: "4 hours ago" }
-  ]);
+  const [announcements, setAnnouncements] = useState<{ id: string; text: string; type: string; timestamp: string }[]>(() => 
+    getInitialAnnouncements(getStoredPlatosPlanetConfig(), localStorage.getItem("platos_demo_mode") !== "false")
+  );
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      const updatedConfig = getStoredPlatosPlanetConfig();
+      const updatedDemoMode = localStorage.getItem("platos_demo_mode") !== "false";
+      setPlatosConfig(updatedConfig);
+      setDemoMode(updatedDemoMode);
+      setBranches(getInitialBranches(updatedConfig, updatedDemoMode));
+      setTeachers(getInitialTeachers(updatedConfig, updatedDemoMode));
+      setLeads(getInitialLeads(updatedConfig, updatedDemoMode));
+      setInvoices(getInitialInvoices(updatedConfig, updatedDemoMode));
+      setAnnouncements(getInitialAnnouncements(updatedConfig, updatedDemoMode));
+    };
+    window.addEventListener("platos_planet_config_updated", handleUpdate);
+    return () => window.removeEventListener("platos_planet_config_updated", handleUpdate);
+  }, []);
 
   // Operations for states
   const addBranch = (b: Omit<GlobalBranch, "id" | "studentsCount" | "health" | "revenue">) => {
@@ -299,14 +383,34 @@ export function useGlobalAction() {
 // -------------------------------------------------------------
 function ModalContainer() {
   const { activeModal, modalPayload, closeModal, showToast, addBranch, addTeacher, addLead, addAssignment, addInvoice, updateInvoiceStatus, updateLeadStatus, addAnnouncement, branches, teachers, leads } = useGlobalAction();
+  const platosConfig = getStoredPlatosPlanetConfig();
   
   const [formInput, setFormInput] = useState<any>({});
   const [loading, setLoading] = useState(false);
+
+  // Schema state
+  const [activeSchemaKey, setActiveSchemaKey] = useState<string | null>(null);
+
+  // Match activeModal to schema key
+  const getMatchedSchemaKey = (modal: string) => {
+    if (modal === "SALES_NEW_LEAD" || modal === "studentAdmission") return "studentAdmission";
+    if (modal === "TEACHER_ATTENDANCE" || modal === "teacherAttendance") return "teacherAttendance";
+    if (modal === "TEACHER_CREATE_ASSIGNMENT" || modal === "physicsHomework") return "physicsHomework";
+    if (modal === "chemistryTest") return "chemistryTest";
+    if (modal === "cbseMathExam") return "cbseMathExam";
+    if (modal === "igcsePastPaper" || modal === "STUDENT_MOCK_TEST") return "igcsePastPaper";
+    if (modal === "FINANCE_COLLECT" || modal === "feeCollection") return "feeCollection";
+    if (modal === "PARENT_BOOK_MEETING" || modal === "parentMeeting") return "parentMeeting";
+    return null;
+  };
 
   // Synchronise payload on load
   useEffect(() => {
     setFormInput({});
     setLoading(false);
+    
+    const matched = getMatchedSchemaKey(activeModal || "");
+    setActiveSchemaKey(matched);
   }, [activeModal]);
 
   if (!activeModal) return null;
@@ -321,6 +425,8 @@ function ModalContainer() {
     }, 850);
   };
 
+  const isDynamicForm = activeSchemaKey !== null;
+
   return (
     <div 
       className="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto"
@@ -328,38 +434,112 @@ function ModalContainer() {
       aria-modal="true"
     >
       {/* Container Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-lg w-full text-left space-y-4 shadow-2xl animate-scale-in relative my-8">
+      <div className={`bg-slate-900 border border-slate-805 rounded-3xl p-6 w-full text-left space-y-4 shadow-2xl animate-scale-in relative my-8 transition-all duration-300 ${
+        isDynamicForm ? "max-w-2xl" : "max-w-lg"
+      }`}>
         
         {/* Close Button */}
         <button
           onClick={closeModal}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition"
+          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800 transition cursor-pointer z-10"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" />
         </button>
 
+        {isDynamicForm && (
+          <div className="space-y-5">
+            {/* Interactive Selector Header to quickly cycle all 8 required form schemas */}
+            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-850 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-ping"></span>
+                <span className="text-[10px] text-indigo-400 font-extrabold uppercase tracking-widest font-mono">
+                  Adaptive Form Schema Registry (8 Interlocks)
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {Object.keys(formSchemas).map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setActiveSchemaKey(key)}
+                    className={`px-2.5 py-1 text-[10.5px] font-extrabold rounded-lg border transition duration-150 cursor-pointer ${
+                      activeSchemaKey === key
+                        ? 'bg-indigo-500/15 border-indigo-500 text-indigo-300 shadow'
+                        : 'bg-slate-900 border-slate-850 text-slate-400 hover:text-slate-350'
+                    }`}
+                  >
+                    {key === "studentAdmission" ? "Admission" : key === "teacherAttendance" ? "Attendance" : key === "physicsHomework" ? "Physics HW" : key === "chemistryTest" ? "Chemistry Test" : key === "cbseMathExam" ? "CBSE Math" : key === "igcsePastPaper" ? "IGCSE Mock" : key === "feeCollection" ? "Fees" : "Parent Meeting"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <DynamicFormRenderer
+              schema={formSchemas[activeSchemaKey!]}
+              currentRole={localStorage.getItem("plato_active_role") || "Super Admin"}
+              onSubmitSuccess={(data) => {
+                showToast("✅ System Schema Parsed", `Operational ledger entry added successfully containing specific sub-fields.`, "success");
+                
+                if (activeSchemaKey === "studentAdmission") {
+                  addLead({
+                    parent: data.parentName || "Youssef Al-Kaabi",
+                    student: data.studentName || "Dana Al-Kaabi",
+                    grade: data.gradeLevel || "Grade 10",
+                    curriculum: data.curriculum || "British",
+                    value: `AED ${(data.budget || 5800).toLocaleString()}`,
+                    source: "Organic Inquiry"
+                  });
+                } else if (activeSchemaKey === "physicsHomework" || activeSchemaKey === "chemistryTest" || activeSchemaKey === "cbseMathExam" || activeSchemaKey === "igcsePastPaper") {
+                  addAssignment({
+                    title: data.assignmentTitle || data.testTitle || data.examTitle || data.mockTitle || "Academic Study Sheet",
+                    dueDate: data.dueDate || data.testDate || data.assessmentDate || "Jun 30, 2026",
+                    subject: data.meta_subject || "Physics",
+                    points: Number(data.totalPoints || data.totalMarks || data.cbseMarksField || 40)
+                  });
+                } else if (activeSchemaKey === "feeCollection") {
+                  addInvoice({
+                    student: data.studentName || "Student 1",
+                    parent: "Parent 17",
+                    amount: `AED ${(data.amountDue || 1840).toLocaleString()}`,
+                    dueDate: "Jun 30, 2026",
+                    branch: platosConfig.officialBranches[0] || "Main Branch"
+                  });
+                } else if (activeSchemaKey === "teacherAttendance") {
+                  showToast("👨‍🏫 Register Covered", "Teacher registration logs and class hours entered.", "success");
+                } else if (activeSchemaKey === "parentMeeting") {
+                  showToast("🕒 Meeting Reserved", "Consultation slot added inside active schedules.", "success");
+                }
+                closeModal();
+              }}
+              onCancel={closeModal}
+            />
+          </div>
+        )}
+
+        {!isDynamicForm && (
+          <>
         {/* --- SUPER ADMIN MODALS --- */}
         {activeModal === "SUPER_ADMIN_CREATE_BRANCH" && (
           <form onSubmit={(e) => handleMockSubmit(e, "Branch Registered Successfully", () => {
             addBranch({
-              name: formInput.name || "Sharjah Ghafia Campus",
-              location: formInput.location || "UAE Ghafia District",
+              name: formInput.name || `${platosConfig.officialBranches[0] || 'Main Branch'} Annex`,
+              location: formInput.location || platosConfig.officialAddress || "Official Address",
               manager: formInput.manager || "Amina Al-Haji"
             });
           })} className="space-y-4">
             <h3 className="text-lg font-black text-white flex items-center gap-1.5 pt-2">
-              <Landmark className="w-5 h-5 text-indigo-400" /> Register Dubai/UAE Branch
+              <Landmark className="w-5 h-5 text-indigo-400" /> Register Branch
             </h3>
-            <p className="text-xs text-slate-400">Establish a new high-fidelity tutoring branch in the database registry.</p>
+            <p className="text-xs text-slate-400">Establish a new tutoring branch in the database registry.</p>
             <div className="space-y-3 font-sans">
               <div>
                 <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1">Branch Name</label>
-                <input required type="text" placeholder="e.g. Dubai Marina Heights Campus" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500" value={formInput.name || ""} onChange={(e) => setFormInput({...formInput, name: e.target.value})} />
+                <input required type="text" placeholder={`e.g. ${platosConfig.officialBranches[0] || 'Main'} Branch Annex`} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500" value={formInput.name || ""} onChange={(e) => setFormInput({...formInput, name: e.target.value})} />
               </div>
               <div>
                 <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1">Physical Location Address</label>
-                <input required type="text" placeholder="e.g. Suite 404, Dubai Marina Tower" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500" value={formInput.location || ""} onChange={(e) => setFormInput({...formInput, location: e.target.value})} />
+                <input required type="text" placeholder={`e.g. Suite 404, near ${platosConfig.officialAddress || 'Main Campus'}`} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-indigo-500" value={formInput.location || ""} onChange={(e) => setFormInput({...formInput, location: e.target.value})} />
               </div>
               <div>
                 <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1">Campus General Director</label>
@@ -376,9 +556,9 @@ function ModalContainer() {
           <form onSubmit={(e) => handleMockSubmit(e, "Teacher Onboarded Successfully", () => {
             addTeacher({
               name: formInput.name || "Dr. Fatma S.",
-              subject: formInput.subject || "Mathematics",
-              branch: formInput.branch || "Dubai Marina Campus",
-              curriculum: formInput.curriculum || "IGCSE"
+              subject: formInput.subject || platosConfig.officialSubjects[0] || "Mathematics",
+              branch: formInput.branch || platosConfig.officialBranches[0] || "Main Branch",
+              curriculum: formInput.curriculum || platosConfig.officialCurriculums[0] || "IGCSE"
             });
           })} className="space-y-4">
             <h3 className="text-lg font-black text-white flex items-center gap-1.5 pt-2">
@@ -402,17 +582,17 @@ function ModalContainer() {
                 </div>
                 <div>
                   <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1">Curriculum Core</label>
-                  <select required className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white" value={formInput.curriculum || "IGCSE"} onChange={(e) => setFormInput({...formInput, curriculum: e.target.value})}>
-                    <option value="IGCSE">IGCSE (British)</option>
-                    <option value="A-Level">A-Level (British)</option>
-                    <option value="CBSE">CBSE (Indian)</option>
-                    <option value="Creative Arts">Creative Arts</option>
+                  <select required className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white" value={formInput.curriculum || platosConfig.officialCurriculums[0] || ""} onChange={(e) => setFormInput({...formInput, curriculum: e.target.value})}>
+                    {platosConfig.officialCurriculums.map(curr => (
+                      <option key={curr} value={curr}>{curr}</option>
+                    ))}
+                    <option value="Creative Arts">Creative Arts and Enrichment</option>
                   </select>
                 </div>
               </div>
               <div>
                 <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1">Allocated Campus Branch</label>
-                <select required className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white" value={formInput.branch || "Dubai Marina Campus"} onChange={(e) => setFormInput({...formInput, branch: e.target.value})}>
+                <select required className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white" value={formInput.branch || platosConfig.officialBranches[0] || "Main Branch"} onChange={(e) => setFormInput({...formInput, branch: e.target.value})}>
                   {branches.map(b => (
                     <option key={b.id} value={b.name}>{b.name}</option>
                   ))}
@@ -658,7 +838,7 @@ function ModalContainer() {
                 <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1 font-sans">Target Broadcast Audience Segment</label>
                 <select className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white">
                   <option>Grade 9-12 IGCSE Incomplete Leads</option>
-                  <option>CBSE Sharjah & Qusais New inquiries</option>
+                  <option>Active Regional Campuses New Inquiries</option>
                   <option>All Inactive Parent database records</option>
                 </select>
               </div>
@@ -703,7 +883,7 @@ function ModalContainer() {
         {/* --- TEACHER WORKSPACE MODALS --- */}
         {activeModal === "TEACHER_ATTENDANCE" && (
           <form onSubmit={(e) => handleMockSubmit(e, "Attendance Saved", () => {
-            showToast("📝 Logged Attendance", "Attendance checklist saved for Al Qusais Physics Lab session.", "success");
+            showToast("📝 Logged Attendance", `Attendance checklist saved for ${platosConfig.officialBranches[0] || 'Main Branch'} educational labs.`, "success");
           })} className="space-y-4">
             <h3 className="text-lg font-black text-white flex items-center gap-1.5 pt-2">
               <CheckSquare className="w-5 h-5 text-indigo-400" /> Lesson Attendance Checklist
@@ -781,13 +961,13 @@ function ModalContainer() {
               parent: formInput.parent || "Ahmed Al-Shehhi",
               amount: formInput.amount || "AED 1,200",
               dueDate: "Jun 30, 2026",
-              branch: "Silicon Oasis Hub"
+              branch: platosConfig.officialBranches[0] || "Main Branch"
             });
           })} className="space-y-4 font-sans">
             <h3 className="text-lg font-black text-rose-450 flex items-center gap-1.5 pt-2">
               <Landmark className="w-5 h-5" /> Execute Payment collection
             </h3>
-            <p className="text-xs text-slate-400">Receive cash, credit, or online fee deposits. Direct integration with Emirates NBD banking nodes.</p>
+            <p className="text-xs text-slate-400">Receive cash, credit, or online fee deposits. Direct integration with banking POS terminals.</p>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -807,15 +987,15 @@ function ModalContainer() {
                 <div>
                   <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1">Collection Channel</label>
                   <select className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white">
-                    <option>Emirates NBD Credit Card</option>
+                    <option>Official Credit Card POS</option>
                     <option>Direct Bank Wire / IBAN</option>
-                    <option>Dubai Marina Physical Cash desk</option>
+                    <option>Physical Campus Cash desk</option>
                   </select>
                 </div>
               </div>
             </div>
-            <button type="submit" disabled={loading} className="w-full py-2.5 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl font-bold cursor-pointer flex justify-center">
-              {loading ? "Reconciling bank accounts..." : "Authorize Emirates NBD POS Terminal"}
+            <button type="submit" disabled={loading} className="w-full py-2.5 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition cursor-pointer flex items-center justify-center">
+              {loading ? "Reconciling bank accounts..." : "Authorize POS Terminal Integration"}
             </button>
           </form>
         )}
@@ -823,19 +1003,19 @@ function ModalContainer() {
         {/* --- PARENT MODAL STACK --- */}
         {activeModal === "PARENT_BOOK_MEETING" && (
           <form onSubmit={(e) => handleMockSubmit(e, "Meeting Confirmed", () => {
-            showToast("📆 Slot Confirmed", `Pristine parent meeting booked with Dubai Board Director on Friday!`, "success");
+            showToast("📆 Slot Confirmed", `Parent meeting booked with Faculty Director on Friday!`, "success");
           })} className="space-y-4">
             <h3 className="text-lg font-black text-white flex items-center gap-1.5 pt-2">
-              <Calendar className="w-5 h-5 text-indigo-400" /> Book UAE Director feedback Room
+              <Calendar className="w-5 h-5 text-indigo-400" /> Book Director Feedback Room
             </h3>
             <p className="text-xs text-slate-400">Request priority conference room slots regarding term results with regional mentors.</p>
             <div className="space-y-3 font-sans">
               <div>
                 <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1">Assigned Branch Faculty</label>
                 <select className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white">
-                  <option>Dr. Al-Mansoori (Mathematics Lead - Marina)</option>
+                  <option>Dr. Al-Mansoori (Mathematics Lead - {platosConfig.officialBranches[0] || 'Main Branch'})</option>
                   <option>Sarah Sterling (Advanced Physics Lead)</option>
-                  <option>Noura Al-Shehhi (Silicon Oasis Regional Director)</option>
+                  <option>Noura Al-Shehhi (Regional Faculty Director)</option>
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -1012,8 +1192,8 @@ function ModalContainer() {
             <p className="text-xs text-slate-400">Review, grade, and feedback on recently completed student exam simulations.</p>
             <div className="space-y-2 max-h-62 overflow-y-auto pr-1">
               {[
-                { name: "Dev Patel", subject: "Biology Cell Respiration", paper: "Weekly Mock Paper 3" },
-                { name: "Chloe Sterling", subject: "IGCSE Mathematics Trig", paper: "Geometry Quiz" }
+                { name: "Student 8", subject: "Biology Cell Respiration", paper: "Weekly Mock Paper 3" },
+                { name: "Student 30", subject: "IGCSE Mathematics Trig", paper: "Geometry Quiz" }
               ].map((student, i) => (
                 <div key={i} className="p-3 bg-slate-950 border border-slate-850 rounded-xl text-xs space-y-2">
                   <div className="flex justify-between">
@@ -1159,11 +1339,11 @@ function ModalContainer() {
             <h3 className="text-lg font-black text-indigo-400 flex items-center gap-1.5 pt-2 leading-none">
               💬 Direct Messenger Chat Room
             </h3>
-            <p className="text-xs text-slate-450 text-left font-sans">Connect securely with Dr. Richard Feynman & mentors in Dubai Marina Campus.</p>
+            <p className="text-xs text-slate-450 text-left font-sans font-normal">Connect securely with Teacher 1 & mentors in {platosConfig.officialBranches[0] || 'Main Branch'}.</p>
             <div className="h-44 bg-slate-950 p-3 rounded-2xl border border-slate-850 overflow-y-auto space-y-2.5 text-xs text-left">
               <div className="p-2 bg-slate-900 rounded-xl max-w-[240px]">
-                <p className="text-[9.5px] text-indigo-400 font-bold leading-none mb-0.5">Dr. Feynman</p>
-                <p className="text-[11px] text-white">Assalamu Alaikum! Zayd made a brilliant contribution during our cell biology laboratory project yesterday. Highly attentive!</p>
+                <p className="text-[9.5px] text-indigo-400 font-bold leading-none mb-0.5">Teacher 1</p>
+                <p className="text-[11px] text-white">Assalamu Alaikum! Student 1 made a brilliant contribution during our cell biology laboratory project yesterday. Highly attentive!</p>
               </div>
             </div>
             <div className="flex gap-1">
@@ -1176,9 +1356,9 @@ function ModalContainer() {
         {activeModal === "PARENT_VIEW_REPORT" && (
           <div className="space-y-4 font-sans">
             <h3 className="text-lg font-black text-white flex items-center gap-1.5 pt-2 leading-none">
-              📋 KHDA Certified Term Progress Report
+              📋 Term Progress Portfolio Report
             </h3>
-            <p className="text-xs text-slate-450">Download or preview high-resolution regional gradecards for Zayd Al-Mansoori.</p>
+            <p className="text-xs text-slate-450">Download or preview high-resolution gradecards for Student 1.</p>
             <div className="bg-slate-950 p-4 rounded-xl border border-slate-850 text-xs text-slate-350 space-y-2.5 text-left font-sans">
               <div className="flex justify-between items-center"><span className="text-slate-500 font-medium">Mathematics Extended:</span> <strong className="text-white font-bold font-mono">A* (96/100)</strong></div>
               <div className="flex justify-between items-center"><span className="text-slate-500 font-medium">Physics Co-ordinated:</span> <strong className="text-white font-bold font-mono">A (89/100)</strong></div>
@@ -1285,9 +1465,9 @@ function ModalContainer() {
               <div>
                 <label className="text-[10px] uppercase font-mono tracking-wider text-slate-500 font-extrabold block mb-1 font-sans">Educator</label>
                 <select className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white font-sans">
-                  <option>Dr. Richard Feynman (Physics Lead)</option>
-                  <option>Prof. Alan Turing (Mathematics Senior Mentor)</option>
-                  <option>Prof. Marie Curie (Inorganic Chemistry Expert)</option>
+                  <option>Teacher 1 (Physics Lead)</option>
+                  <option>Teacher 2 (Mathematics Senior Mentor)</option>
+                  <option>Teacher 3 (Inorganic Chemistry Expert)</option>
                 </select>
               </div>
               <div>
@@ -1391,8 +1571,8 @@ function ModalContainer() {
             <p className="text-xs text-slate-450 font-sans">Moderate assessment papers prepared by branch tutors before exam release.</p>
             <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
               {[
-                { title: "Burj Toppers CBSE Physics Mock Variant 4.pdf", author: "Dr. Feynman" },
-                { title: "Geometry Calculus Mid-term diagnostic.pdf", author: "Prof. Alan Turing" }
+                { title: "Burj Toppers CBSE Physics Mock Variant 4.pdf", author: "Teacher 1" },
+                { title: "Geometry Calculus Mid-term diagnostic.pdf", author: "Teacher 2" }
               ].map((sheet, i) => (
                 <div key={i} className="p-3 bg-slate-950 border border-slate-850 rounded-xl flex items-center justify-between text-xs font-sans">
                   <div>
@@ -1488,6 +1668,8 @@ function ModalContainer() {
               </button>
             </div>
           </div>
+        )}
+          </>
         )}
 
       </div>

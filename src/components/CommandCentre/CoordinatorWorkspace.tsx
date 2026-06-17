@@ -16,6 +16,7 @@ import {
   ClipboardList
 } from "lucide-react";
 import { useGlobalAction } from "../GlobalActionContext";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface CoordinatorWorkspaceProps {
   theme: "dark" | "light";
@@ -24,12 +25,15 @@ interface CoordinatorWorkspaceProps {
 
 export default function CoordinatorWorkspace({ theme, onTriggerNotification }: CoordinatorWorkspaceProps) {
   const { openModal } = useGlobalAction();
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
+
   // Moderate checks list
   const [checklist, setChecklist] = useState([
-    { id: "mod-1", task: "Audit Chemistry Organic syllabus logs", completed: false, branch: "Business Bay" },
-    { id: "mod-2", task: "Review Dr. Feynman's electromagnetism past mock schemes", completed: true, branch: "Dubai Marina" },
-    { id: "mod-3", task: "Moderate Alan Turing's advanced trigonometry matrices", completed: false, branch: "Al Qusais" },
-    { id: "mod-4", task: "Syllabus validation sign-off (CBSE Board preparation)", completed: false, branch: "Silicon Oasis" },
+    { id: "mod-1", task: "Audit Chemistry Organic syllabus logs", completed: false, branch: branches[0] || "Main Branch" },
+    { id: "mod-2", task: "Review Teacher 1's electromagnetism past mock schemes", completed: true, branch: branches[1] || "Branch 1" },
+    { id: "mod-3", task: "Moderate Teacher 2's advanced trigonometry matrices", completed: false, branch: branches[2] || "Branch 2" },
+    { id: "mod-4", task: "Syllabus validation sign-off (CBSE Board preparation)", completed: false, branch: "Online Campus" },
   ]);
 
   const [activeCurriculum, setActiveCurriculum] = useState<"IGCSE" | "A-Level" | "CBSE">("IGCSE");
@@ -267,7 +271,7 @@ export default function CoordinatorWorkspace({ theme, onTriggerNotification }: C
               COORDINATION MEMORANDUMS
             </h5>
             <div className="p-2.5 bg-indigo-500/5 rounded-xl border border-indigo-500/10 text-[9.5px] text-slate-450 leading-relaxed font-semibold">
-              ⚠️ **KHDA Audit Alert**: Note that Syllabus verification logs and lesson plans parameters are audited this week. Ensure all instructors complete today's registers.
+              ⚠️ **Academic Compliance Audit Alert**: Note that syllabus verification logs and lesson plans parameters are being verified this week. Ensure all instructors complete today's registers.
             </div>
           </div>
 

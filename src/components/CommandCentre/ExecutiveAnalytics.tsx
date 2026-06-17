@@ -7,6 +7,7 @@ import {
   TrendingUp, Calendar, Filter, Sparkles, 
   ArrowUpRight, Download, RefreshCw, Bookmark 
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 // Mock Analytical Data arrays for Plato's Region
 const revenueData = [
@@ -40,13 +41,15 @@ const admissionData = [
 ];
 
 const curriculumDistribution = [
-  { name: "IGCSE Pro", value: 4520, color: "#f59e0b" },    // Amber
-  { name: "A-Level Elite", value: 3180, color: "#3b82f6" }, // Blue
-  { name: "CBSE Master", value: 2940, color: "#10b981" },   // Emerald
-  { name: "Foundations", value: 1840, color: "#8b5cf6" }     // Violet
+  { name: "IGCSE Pro", value: 4520, color: "#00F2FE" },    // Neon Cyan
+  { name: "A-Level Elite", value: 3180, color: "#9D4EDE" }, // Neo Purple
+  { name: "CBSE Master", value: 2940, color: "#05FFC5" },   // Neon Mint
+  { name: "Foundations", value: 1840, color: "#FF5E62" }     // Hot Coral
 ];
 
 export default function ExecutiveAnalytics({ theme, onTriggerNotification }: { theme: "dark" | "light", onTriggerNotification: (title: string, desc: string) => void }) {
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branchesButtons = ["All UAE", ...platosConfig.officialBranches];
   const [selectedRegion, setSelectedRegion] = useState("All UAE");
   const [timePeriod, setTimePeriod] = useState("Last 12 Months");
 
@@ -80,7 +83,7 @@ export default function ExecutiveAnalytics({ theme, onTriggerNotification }: { t
 
         <div className="flex items-center gap-2.5">
           <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-            {["All UAE", "Dubai Marina", "Sharjah Cores", "Al Qusais"].map((reg) => (
+            {branchesButtons.map((reg) => (
               <button
                 key={reg}
                 onClick={() => handleRegionChange(reg)}
@@ -126,8 +129,8 @@ export default function ExecutiveAnalytics({ theme, onTriggerNotification }: { t
               <LineChart data={revenueData} margin={{ top: 10, right: 15, left: 10, bottom: 5 }}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#00F2FE" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#00F2FE" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.3} />
@@ -147,7 +150,7 @@ export default function ExecutiveAnalytics({ theme, onTriggerNotification }: { t
                   name="Realized Revenue (AED)" 
                   type="monotone" 
                   dataKey="revenue" 
-                  stroke="#f59e0b" 
+                  stroke="#00F2FE" 
                   strokeWidth={3} 
                   activeDot={{ r: 8 }} 
                   dot={{ r: 4, strokeWidth: 1 }}
@@ -156,7 +159,7 @@ export default function ExecutiveAnalytics({ theme, onTriggerNotification }: { t
                   name="Predictive Forecast (AED)" 
                   type="monotone" 
                   dataKey="expected" 
-                  stroke="#3b82f6" 
+                  stroke="#9D4EDE" 
                   strokeWidth={2} 
                   strokeDasharray="5 5" 
                   dot={false}
@@ -260,8 +263,8 @@ export default function ExecutiveAnalytics({ theme, onTriggerNotification }: { t
               <Tooltip 
                 contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #1e293b", borderRadius: "12px" }}
               />
-              <Bar yAxisId="left" dataKey="admissions" fill="#f59e0b" radius={[4, 4, 0, 0]} name="Admissions Intake" />
-              <Bar yAxisId="right" dataKey="activeStudents" fill="#3b82f6" opacity={0.35} radius={[4, 4, 0, 0]} name="Cumulative roster" />
+              <Bar yAxisId="left" dataKey="admissions" fill="#05FFC5" radius={[4, 4, 0, 0]} name="Admissions Intake" />
+              <Bar yAxisId="right" dataKey="activeStudents" fill="#0066FF" opacity={0.35} radius={[4, 4, 0, 0]} name="Cumulative roster" />
             </BarChart>
           </ResponsiveContainer>
         </div>

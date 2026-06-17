@@ -1,5 +1,6 @@
 import React from "react";
 import { Trophy, Globe2, Sparkles, ShieldAlert, Award } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 export interface Competitor {
   rank: number;
@@ -19,12 +20,15 @@ export default function LeaderboardWidget({
   currentXp,
   onTriggerNotification
 }: LeaderboardWidgetProps) {
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
+
   const competitors: Competitor[] = [
-    { rank: 1, name: "Fatima Al-Suwaidi", campus: "JVC Campus", xp: 1450, specialty: "CIE Mastermind 👑" },
-    { rank: 2, name: "Zayd Al-Mansoori", campus: "Dubai Marina", xp: currentXp, specialty: "Burj Peak Climber 🏅", isCurrentUser: true },
-    { rank: 3, name: "Sara Khan", campus: "Dubai Marina", xp: 850, specialty: "Scholar Shield 🎓" },
-    { rank: 4, name: "Kabir Ejaz", campus: "Al Furjan", xp: 810, specialty: "Physics Pro ⚡" },
-    { rank: 5, name: "Youssef Mahmoud", campus: "Silicon Oasis", xp: 720, specialty: "Formula Wizard 📐" }
+    { rank: 1, name: "Student 10", campus: "Online Campus", xp: 1450, specialty: "CIE Mastermind 👑" },
+    { rank: 2, name: "Student 1", campus: branches[0] || "Main Campus", xp: currentXp, specialty: "Peak Climber 🏅", isCurrentUser: true },
+    { rank: 3, name: "Student 3", campus: branches[0] || "Main Campus", xp: 850, specialty: "Scholar Shield 🎓" },
+    { rank: 4, name: "Student 15", campus: branches[1] || "Supporting Campus", xp: 810, specialty: "Physics Pro ⚡" },
+    { rank: 5, name: "Student 9", campus: branches[2] || branches[0] || "Secondary Campus", xp: 720, specialty: "Formula Wizard 📐" }
   ];
 
   // Auto-sort based on updated user XP
@@ -38,7 +42,7 @@ export default function LeaderboardWidget({
 
   const handleInteract = (name: string, isCurrentUser?: boolean) => {
     if (isCurrentUser) {
-      onTriggerNotification?.("🎨 Your Leaderboard Stature", "You are holding the #2 spot across all Dubai Plato branches. Secure +80 XP to target Fatima!");
+      onTriggerNotification?.("🎨 Your Leaderboard Stature", "You are holding the #2 spot across all Dubai Plato branches. Secure +80 XP to target the rank #1!");
     } else {
       onTriggerNotification?.(
         "⚡ Peer Competition Active",

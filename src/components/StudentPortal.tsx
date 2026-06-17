@@ -37,6 +37,7 @@ import {
   Info
 } from "lucide-react";
 import { StudentProfile, CurriculumType } from "../types";
+import { getStoredPlatosPlanetConfig } from "../platosPlanetConfig";
 
 interface StudentPortalProps {
   currentProfile: StudentProfile;
@@ -95,6 +96,7 @@ export default function StudentPortal({
   soundEnabled,
   triggerNotification
 }: StudentPortalProps) {
+  const platosConfig = getStoredPlatosPlanetConfig();
 
   // Primary Role Switches: Student Workspace vs Parent Dashboard
   const [activeRole, setActiveRole] = useState<"student" | "parent">("student");
@@ -112,8 +114,8 @@ export default function StudentPortal({
   };
 
   // State values customized based on user's literal instructions
-  const studentName = "Sara";
-  const parentName = "Mr. Kabir";
+  const studentName = "Student 3";
+  const parentName = "Parent 1";
   const location = "Dubai, UAE";
   const academicYear = "2026–27";
 
@@ -139,7 +141,7 @@ export default function StudentPortal({
       weakChapter: "Trigonometric Identities & Calculus proofs",
       nextAction: "Complete IGCSE Paper 4 Trigonometry Worksheet",
       predictedGrade: "A* (98%)",
-      teacherComment: "Sara demonstrates exceptionally solid command of equation proof frameworks but needs slightly more promptness during dry-runs."
+      teacherComment: "Student 3 demonstrates exceptionally solid command of equation proof frameworks but needs slightly more promptness during dry-runs."
     },
     {
       name: "Physics",
@@ -169,7 +171,7 @@ export default function StudentPortal({
       weakChapter: "Genetic Crosses & Paper 6 Practical Methods",
       nextAction: "Verify cell division diagrams with study buddies",
       predictedGrade: "A* (96%)",
-      teacherComment: "Sara commands biological processes with ease and writes precise examiner-friendly answers."
+      teacherComment: "Student 3 commands biological processes with ease and writes precise examiner-friendly answers."
     },
     {
       name: "English",
@@ -205,7 +207,7 @@ export default function StudentPortal({
     { name: "Jupiter", milestone: "Advanced Wave Optics", xpRequired: 450, status: "locked", reward: "+100 XP Bonus", desc: "Locked. Requires mastering electrostatics and physical chemistry concepts." },
     { name: "Saturn", milestone: "Thermal Physics & Integration", xpRequired: 600, status: "locked", reward: "UAE Space Booster pack", desc: "Locked. Deep dive into thermal mechanics and integral calculus methods." },
     { name: "Neptune", milestone: "Genetics and Probability", xpRequired: 750, status: "locked", reward: "Infinite Wisdom insignia", desc: "Locked. Focuses on Mendel's laws and complex statistical sets." },
-    { name: "Pluto", milestone: "Booster Pre-Board Mock Series", xpRequired: 900, status: "locked", reward: "Grand Master Certificate", desc: "Locked. Comprehensive exam simulation mimicking final KHDA / CBSE papers." }
+    { name: "Pluto", milestone: "Booster Pre-Board Mock Series", xpRequired: 900, status: "locked", reward: "Grand Master Certificate", desc: "Locked. Comprehensive exam simulation mimicking final GCSE / CBSE papers." }
   ];
 
   // ACTION CARDS LIST
@@ -233,15 +235,15 @@ export default function StudentPortal({
     {
       id: "feed-1",
       date: "June 14, 2026",
-      teacher: "Dr. Al-Mansoori",
+      teacher: "Teacher 2",
       subject: "Mathematics",
-      feedback: "Sara did extremely well in the mock calculus proofs. She has a very bright analytical mind.",
+      feedback: "Student 1 did extremely well in the mock calculus proofs. She has a very bright analytical mind.",
       recommendedAction: "Focus on speed drills for trigonometry variant proof structures to ensure maximum marks."
     },
     {
       id: "feed-2",
       date: "June 11, 2026",
-      teacher: "Mrs. Harrison",
+      teacher: "Teacher 5",
       subject: "Physics",
       feedback: "Understands electrostatic field structures, though induction equations need minor study attention.",
       recommendedAction: "Watch the recommended 15-minute electromagnetism active video in Plato's student lounge."
@@ -249,7 +251,7 @@ export default function StudentPortal({
     {
       id: "feed-3",
       date: "June 08, 2026",
-      teacher: "Dr. Bhatia",
+      teacher: "Teacher 10",
       subject: "Chemistry",
       feedback: "Excellent recall of organic structures. Ready for CBSE NCERT-based Board challenges.",
       recommendedAction: "Practice drawing high-yield ester bond formations once more on a physical whiteboard draft."
@@ -275,12 +277,12 @@ export default function StudentPortal({
   const [activeModal, setActiveModal] = useState<"ai-coach" | "book-meeting" | "pay-fees" | "upload-doubt" | "report-card" | null>(null);
 
   // REUSABLE INPUT STATES for modals
-  const [selectedTeacher, setSelectedTeacher] = useState<string>("Dr. Al-Mansoori (Mathematics)");
+  const [selectedTeacher, setSelectedTeacher] = useState<string>("Teacher 2 (Mathematics)");
   const [meetingDate, setMeetingDate] = useState<string>("2026-06-20");
   const [meetingTime, setMeetingTime] = useState<string>("16:00");
   const [meetingNote, setMeetingNote] = useState<string>("");
 
-  const [cardHolder, setCardHolder] = useState<string>("Kabir Al-Mansoori");
+  const [cardHolder, setCardHolder] = useState<string>("Parent 1");
   const [cardNumber, setCardNumber] = useState<string>("4000 1234 5678 9010");
   const [isPayingProcess, setIsPayingProcess] = useState<boolean>(false);
 
@@ -314,7 +316,7 @@ export default function StudentPortal({
     addToast("🎁 Reward Claimed!", `You unlocked the ${planet.reward} milestone reward and earned 100 XP!`, "success");
     setStudentXP(prev => prev + 100);
     onAwardXp(100);
-    localNotify("🏆 XP Awarded", `Added +100 XP to Sara's profile for reaching station ${planet.name}!`);
+    localNotify("🏆 XP Awarded", `Added +100 XP to ${studentName}'s profile for reaching station ${planet.name}!`);
     setActivePlanetRewardClaim(null);
   };
 
@@ -375,7 +377,7 @@ export default function StudentPortal({
         ]
       });
       addToast("🧠 AI Doubt Resolved", "Earned +30 XP! Step-by-step solution compiled.", "success");
-      localNotify("🎯 Level Progress Boosted", "Sara solved her homework doubt using Plato's AI Solver and unlocked +30 XP!");
+      localNotify("🎯 Level Progress Boosted", `${studentName} solved her homework doubt using Plato's AI Solver and unlocked +30 XP!`);
     }, 2000);
   };
 
@@ -405,10 +407,10 @@ export default function StudentPortal({
   // MEETING SUBMIT
   const handleConfirmMeeting = () => {
     addToast("📅 Counselor Booking Submitted", `Meeting scheduled with ${selectedTeacher} on ${meetingDate} at ${meetingTime}. Check WhatsApp or email for confirmations.`, "success");
-    localNotify("📅 Parent Consultation Scheduled", `Parent-Teacher feedback slot reserved for June 20 at Silicon Oasis Dubai outlet.`);
+    localNotify("📅 Parent Consultation Scheduled", `Parent-Teacher feedback slot reserved for June 20 at ${platosConfig.officialBranches[0] || 'Main Branch'} campus.`);
     
     // update parent notifications
-    setNotifications(prev => prev.map(n => n.type === "meeting" ? { ...n, title: `Meeting Confirmed: ${selectedTeacher}`, desc: `Scheduled: ${meetingDate} at ${meetingTime} - GCC Dubai Standard Time.`, severity: "info" } : n));
+    setNotifications(prev => prev.map(n => n.type === "meeting" ? { ...n, title: `Meeting Confirmed: ${selectedTeacher}`, desc: `Scheduled: ${meetingDate} at ${meetingTime} - GCC Standard Time.`, severity: "info" } : n));
     setActiveModal(null);
   };
 
@@ -419,7 +421,7 @@ export default function StudentPortal({
       setIsPayingProcess(false);
       setBillingList(prev => prev.map(b => b.status === "Unpaid" ? { ...b, status: "Paid", datePaid: new Date().toLocaleDateString() } : b));
       addToast("💳 Fee Paid Successfully", "AED 1,575 transaction cleared via secured Stripe checkout. Receipt issued.", "success");
-      localNotify("🧾 Dubai Hub Fees Cleared", "Kabir Al-Mansoori processed standard CBSE/IGCSE Term Tuition fee + UAE VAT. Ledger updated.");
+      localNotify(`🧾 ${platosConfig.officialBranches[0] || 'Main Campus'} Fees Cleared`, "Parent 1 processed standard GCSE/IGCSE/CBSE Term Tuition fee + local VAT. Ledger updated.");
       setNotifications(prev => prev.filter(n => n.type !== "fee"));
       setActiveModal(null);
     }, 2000);
@@ -435,8 +437,8 @@ export default function StudentPortal({
 INVOICE REFERENCE: ${invoiceId}
 DATE: June 16, 2026
 ACADEMIC YEAR: ${academicYear}
-BRANCH LOCATION: Al Qusais, Dubai
-STUDENT REFERENCE: ${studentName} (Sara)
+BRANCH LOCATION: ${platosConfig.officialBranches[0] || 'Main Campus'}
+STUDENT REFERENCE: ${studentName}
 PARENT GUARDIAN: ${parentName}
 
 BILLING SUMMARY:
@@ -527,7 +529,7 @@ Providing elite CBSE & IGCSE booster scores!
               }`}
             >
               <UserCheck className="w-3.5 h-3.5" />
-              <span>Student (Sara)</span>
+              <span>Student (${studentName})</span>
             </button>
             <button
               onClick={() => {
@@ -769,7 +771,7 @@ Providing elite CBSE & IGCSE booster scores!
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-black uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
                     <Clock3 className="w-4 h-4 text-rose-500" />
-                    <span>Sara's Today Action Tasks</span>
+                    <span>{studentName}'s Today Action Tasks</span>
                   </h3>
                   <span className="text-[10px] text-slate-500">6 high priority revisions listed</span>
                 </div>
@@ -1055,7 +1057,7 @@ Providing elite CBSE & IGCSE booster scores!
                 </div>
 
                 <div className="space-y-1.5">
-                  <h4 className="text-xs font-black text-slate-200">Recommended Next Steps for Sara</h4>
+                  <h4 className="text-xs font-black text-slate-200">Recommended Next Steps for {studentName}</h4>
                   <p className="text-[10px] text-slate-400 leading-normal">
                     Based on mock paper variant errors, we advise targeting:
                   </p>
@@ -1075,7 +1077,7 @@ Providing elite CBSE & IGCSE booster scores!
                   onClick={() => {
                     addToast("🤖 Plato Coach Loaded", "Opening standard Plato Chat Mentor drawer!");
                     setAiCoachHistory([
-                      { sender: "ai", text: `Assalamu Alaikum! I am Plato's AI Tutor. I see that Sara is currently working through British IGCSE and NCERT boards in ${location}. Tell me what chapter you want help with!` }
+                      { sender: "ai", text: `Assalamu Alaikum! I am Plato's AI Tutor. I see that ${studentName} is currently working through British IGCSE and NCERT boards in ${location}. Tell me what chapter you want help with!` }
                     ]);
                     setActiveModal("ai-coach");
                   }}
@@ -1155,7 +1157,7 @@ Providing elite CBSE & IGCSE booster scores!
                           setStudentXP(prev => prev + eq.xpValue);
                           onAwardXp(eq.xpValue);
                           addToast("🎯 Specimen Sheet Opened", `Loading BoardSpecimen: ${eq.title}. Earned +${eq.xpValue} XP!`, "success");
-                          localNotify("📊 Board Mock Activated", `Sara initialized past paper workspace: ${eq.title}`);
+                          localNotify("📊 Board Mock Activated", `${studentName} initialized past paper workspace: ${eq.title}`);
                         }}
                         className="p-1 px-3.5 bg-slate-900 border border-slate-800 hover:border-brand-yellow/30 text-white rounded-lg text-[10px] font-bold transition-all cursor-pointer"
                       >
@@ -1172,7 +1174,7 @@ Providing elite CBSE & IGCSE booster scores!
             <div>
               <h3 className="text-sm font-black uppercase text-slate-200 tracking-wider flex items-center gap-1.5">
                 <TrendingUp className="w-5 h-5 text-indigo-450" />
-                <span>Sara's Subject Mastery & Feedback</span>
+                <span>{studentName}'s Subject Mastery & Feedback</span>
               </h3>
               <p className="text-[11px] text-slate-450">
                 Live board-aligned grade tracking. Expand to read core teacher notes and specialized Dubai counselor advice.
@@ -1266,7 +1268,7 @@ Providing elite CBSE & IGCSE booster scores!
                     Parent Workspace: <span className="text-brand-yellow">{parentName}</span>
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Real-time academic outcomes tracking for: <strong className="text-emerald-400">Sara</strong> • Grade 10 • Location: Dubai Campus
+                    Real-time academic outcomes tracking for: <strong className="text-emerald-400">{studentName}</strong> • Grade 10 • Location: Dubai Campus
                   </p>
                 </div>
 
@@ -1277,7 +1279,7 @@ Providing elite CBSE & IGCSE booster scores!
                     <span>Plato AI Hub Parent Briefing note</span>
                   </div>
                   <p className="text-[10.5px] text-slate-300 leading-relaxed font-sans">
-                    "Sara is showing exceptional resilience in Mathematics proofs and Physics. Chemistry Organic Synthesis requires a 20-minute active recall booster this weekend to raise the confidence index to Gold Level."
+                    "{studentName} is showing exceptional resilience in Mathematics proofs and Physics. Chemistry Organic Synthesis requires a 20-minute active recall booster this weekend to raise the confidence index to Gold Level."
                   </p>
                 </div>
               </div>
@@ -1377,7 +1379,7 @@ Providing elite CBSE & IGCSE booster scores!
                 <span className="text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded text-[10px]">84% Done</span>
               </div>
               <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-                Sara completed 14 core mathematics and chemistry modules this month. Specimen mock indices are strong.
+                {studentName} completed 14 core mathematics and chemistry modules this month. Specimen mock indices are strong.
               </p>
               <button 
                 onClick={() => addToast("📥 Report Generation", "Academic tracking worksheet compiled.")}
@@ -1409,7 +1411,7 @@ Providing elite CBSE & IGCSE booster scores!
                 <span className="text-[#F59E0B] bg-[#F59E0B]/10 px-1.5 py-0.2 rounded text-[10px]">Assigned</span>
               </div>
               <p className="text-[10px] text-slate-400 leading-relaxed font-sans">
-                Receive specialized advice on board strategies from our resident KHDA-approved academic counselors.
+                Receive specialized advice on board strategies from our resident certified academic advisers.
               </p>
               <button 
                 onClick={() => setActiveModal("book-meeting")}
@@ -1461,7 +1463,7 @@ Providing elite CBSE & IGCSE booster scores!
                         <span className="text-[10px] font-mono text-slate-400 font-semibold bg-slate-900 px-2 py-1 rounded">Score: {subj.lastTestScore}%</span>
                         <button 
                           onClick={() => {
-                            addToast("📝 Revision Dispatched", `Sent ${subj.nextAction} SMS to Sara.`);
+                            addToast("📝 Revision Dispatched", `Sent ${subj.nextAction} SMS to ${studentName}.`);
                           }}
                           className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded text-[9px] font-bold text-white uppercase"
                         >
@@ -1547,7 +1549,7 @@ Providing elite CBSE & IGCSE booster scores!
 
                   <button 
                     onClick={() => {
-                      localNotify("📲 WhatsApp Dispatch", "Direct chat trigger initialized with Professor Al-Mansoori.");
+                      localNotify("📲 WhatsApp Dispatch", "Direct chat trigger initialized with Teacher 2.");
                       addToast("💬 Encrypted SMS", "Connecting safely to educator secure line standard WhatsApp.");
                     }}
                     className="w-full p-2.5 bg-slate-950 hover:bg-slate-850 border border-slate-850 text-[#10B981] font-bold text-[9.5px] uppercase tracking-widest rounded-xl duration-150 flex items-center justify-center gap-1"
@@ -1561,7 +1563,7 @@ Providing elite CBSE & IGCSE booster scores!
               <div className="bg-slate-900 border border-slate-800 rounded-3xl p-4.5 space-y-4 shadow-xl">
                 <div>
                   <h4 className="text-[10px] font-mono font-bold text-slate-450 uppercase block">FEE TRANSACTION SYSTEM</h4>
-                  <span className="text-[8.5px] text-slate-500 font-sans block">Al Qusais Campus registration</span>
+                  <span className="text-[8.5px] text-slate-500 font-sans block">{platosConfig.officialBranches[0] || 'Main Campus'} registration</span>
                 </div>
 
                 <div className="space-y-3 text-[10px]">
@@ -1635,10 +1637,10 @@ Providing elite CBSE & IGCSE booster scores!
                   onChange={(e) => setSelectedTeacher(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-850 rounded-xl text-xs text-slate-200 p-2.5 focus:border-brand-yellow font-sans text-left"
                 >
-                  <option value="Dr. Al-Mansoori (Mathematics)">Dr. Al-Mansoori (Mathematics Variant Paper 4)</option>
-                  <option value="Mrs. Harrison (Physics)">Mrs. Harrison (Physics Grade 10 Specimen)</option>
-                  <option value="Dr. Bhatia (Chemistry)">Dr. Bhatia (Chemistry Organic NCERT)</option>
-                  <option value="Professor Emily (English Language)">Professor Emily (English descriptive critical)</option>
+                  <option value="Teacher 2 (Mathematics)">Teacher 2 (Mathematics Variant Paper 4)</option>
+                  <option value="Teacher 5 (Physics)">Teacher 5 (Physics Grade 10 Specimen)</option>
+                  <option value="Teacher 10 (Chemistry)">Teacher 10 (Chemistry Organic NCERT)</option>
+                  <option value="Teacher 11 (English Language)">Teacher 11 (English descriptive critical)</option>
                 </select>
               </div>
 
@@ -1705,7 +1707,7 @@ Providing elite CBSE & IGCSE booster scores!
             <div className="space-y-3.5">
               <div className="p-3 bg-slate-950 border border-slate-850 rounded-2xl text-[10px] text-slate-400 space-y-1">
                 <span className="font-bold text-slate-200 block uppercase font-mono text-[8.5px]">BILLING SUMMARY:</span>
-                <div>Enrolled Child: <strong className="text-white">Sara (Grade 10)</strong></div>
+                <div>Enrolled Child: <strong className="text-white">{studentName} (Grade 10)</strong></div>
                 <div>Standard Monthly Tuition: <strong className="text-white">AED 1,500.00</strong></div>
                 <div>Standard UAE VAT (5.00%): <strong className="text-white">AED 75.00</strong></div>
                 <div className="text-brand-yellow font-black border-t border-slate-900 pt-2 mt-2">
@@ -1807,7 +1809,7 @@ Providing elite CBSE & IGCSE booster scores!
                       : "bg-slate-900 text-slate-300 border border-slate-850 mr-auto"
                   }`}
                 >
-                  <strong>{m.sender === "user" ? "Sara" : "Plato Coach"}:</strong>
+                  <strong>{m.sender === "user" ? studentName : "Plato Coach"}:</strong>
                   <p className="mt-1 font-sans">{m.text}</p>
                 </div>
               ))}

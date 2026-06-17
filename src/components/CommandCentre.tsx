@@ -20,13 +20,17 @@ import AIRiskPanel from "./CommandCentre/AIRiskPanel";
 import OperationsCenter from "./CommandCentre/OperationsCenter";
 import ActivityFeed from "./CommandCentre/ActivityFeed";
 import GlobalSearchBar from "./CommandCentre/GlobalSearchBar";
+import OfficialDataSettings from "./CommandCentre/OfficialDataSettings";
 
-// Import modular workspaces
-import SalesWorkspace from "./CommandCentre/SalesWorkspace";
-import TeacherWorkspace from "./CommandCentre/TeacherWorkspace";
-import BranchAdminWorkspace from "./CommandCentre/BranchAdminWorkspace";
-import CoordinatorWorkspace from "./CommandCentre/CoordinatorWorkspace";
-import FinanceWorkspace from "./CommandCentre/FinanceWorkspace";
+// Import separate page components
+import ExecutiveAdminPage from "./CommandCentre/ExecutiveAdminPage";
+import BranchManagerPage from "./CommandCentre/BranchManagerPage";
+import AdmissionsVPPage from "./CommandCentre/AdmissionsVPPage";
+import EducatorProPage from "./CommandCentre/EducatorProPage";
+import AcademicCoordinatorPage from "./CommandCentre/AcademicCoordinatorPage";
+import FinanceCFOPage from "./CommandCentre/FinanceCFOPage";
+import StudentHubPage from "./CommandCentre/StudentHubPage";
+import ParentPortalPage from "./CommandCentre/ParentPortalPage";
 
 export type RoleType = 
   | "Super Admin" 
@@ -37,6 +41,28 @@ export type RoleType =
   | "Parent" 
   | "Academic Coordinator"
   | "Finance Manager";
+
+const appToCommandRoleMap: Record<string, string> = {
+  "Super Admin": "Executive Admin",
+  "Branch Admin": "Branch Manager",
+  "Sales": "Admissions VP",
+  "Teacher": "Educator Pro",
+  "Academic Coordinator": "Academic Coord",
+  "Finance Manager": "Finance CFO",
+  "Student": "Student Hub",
+  "Parent": "Parent Portal"
+};
+
+const commandToAppRoleMap: Record<string, "Super Admin" | "Branch Admin" | "Sales" | "Teacher" | "Academic Coordinator" | "Finance Manager" | "Student" | "Parent"> = {
+  "Executive Admin": "Super Admin",
+  "Branch Manager": "Branch Admin",
+  "Admissions VP": "Sales",
+  "Educator Pro": "Teacher",
+  "Academic Coord": "Academic Coordinator",
+  "Finance CFO": "Finance Manager",
+  "Student Hub": "Student",
+  "Parent Portal": "Parent"
+};
 
 interface CommandCentreProps {
   currentRole: RoleType;
@@ -51,6 +77,27 @@ export default function CommandCentre({
   theme,
   onTriggerNotification
 }: CommandCentreProps) {
+  // 1. One Source of Truth for Role-based Navigation mapping to App-level role
+  const [activeRole, setActiveRole] = useState(() => appToCommandRoleMap[currentRole] || "Executive Admin");
+
+  React.useEffect(() => {
+    const mapped = appToCommandRoleMap[currentRole];
+    if (mapped && mapped !== activeRole) {
+      setActiveRole(mapped);
+    }
+  }, [currentRole]);
+
+  const handleRoleChange = (newRole: string) => {
+    setActiveRole(newRole);
+    const mappedAppRole = commandToAppRoleMap[newRole];
+    if (mappedAppRole && onRoleChange) {
+      // Keep user in the widescreen CommandCentre mockup for active auditing
+      if (!["Student", "Parent"].includes(mappedAppRole)) {
+        onRoleChange(mappedAppRole);
+      }
+    }
+  };
+
   // Action states
   const [activeActionModal, setActiveActionModal] = useState<string | null>(null);
   const [actionInput, setActionInput] = useState("");
@@ -121,9 +168,9 @@ export default function CommandCentre({
           <div className="hidden sm:block text-left">
             <h2 className="text-xs font-black tracking-widest text-slate-200 uppercase leading-none flex items-center gap-1">
               Plato's Planet
-              <span className="bg-amber-500/10 text-amber-500 px-1 rounded-[4px] text-[8px] font-mono tracking-normal font-black">GCC V3</span>
+              <span className="bg-amber-500/10 text-amber-500 px-1 rounded-[4px] text-[8px] font-mono tracking-normal font-black animate-pulse">GCC V3</span>
             </h2>
-            <span className="text-[9px] text-slate-450 font-bold uppercase tracking-wider block mt-1 leading-none">
+            <span className="text-[9px] text-slate-450 font-bold uppercase tracking-wider block mt-1 leading-none select-none">
               Learn. Explore. Achieve.
             </span>
           </div>
@@ -139,15 +186,15 @@ export default function CommandCentre({
 
         {/* Status Indicators & Profile */}
         <div className="flex items-center gap-4 shrink-0">
-          <div className="hidden lg:flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-800">
+          <div className="hidden lg:flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1 rounded-xl border border-slate-805">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
-            <span className="text-[10px] font-mono font-extrabold text-emerald-400">ACTIVE MULTI-CORE</span>
+            <span className="text-[10px] font-mono font-extrabold text-emerald-400 select-none">ACTIVE MULTI-CORE</span>
           </div>
           
           <div className="flex items-center gap-2">
             <div className="text-right hidden sm:block">
-              <p className="text-[10px] uppercase font-mono font-bold text-amber-500">Sayed Ahmad</p>
-              <p className="text-[8.5px] font-bold text-slate-500 uppercase leading-none">Super Admin</p>
+              <p className="text-[10px] uppercase font-mono font-bold text-amber-500">Administrator 1</p>
+              <p className="text-[8.5px] font-bold text-slate-500 uppercase leading-none mt-0.5">SaaS Administrator</p>
             </div>
             <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-sm font-bold font-mono">
               👑
@@ -157,110 +204,90 @@ export default function CommandCentre({
       </header>
 
       {/* 2. DYNAMIC WORKSPACE BODY CONTAINER */}
-      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto w-full space-y-8 relative">
+      <main className="flex-1 px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto w-full space-y-6 relative">
         
-        {/* Generative watermark decor */}
-        <div className="absolute top-24 left-1/2 -translate-x-1/2 text-slate-900/5 dark:text-white/[0.01] pointer-events-none text-9xl font-black uppercase tracking-widest select-none leading-none text-center">
-          PLATONIAN COMMAND CONTROL
-        </div>
-
         {/* Standard warning notice if not Super Admin to prompt the user */}
-        {currentRole !== "Super Admin" && (
-          <div className="p-4 bg-amber-500/10 border border-amber-500/30 text-amber-500 rounded-2xl text-left flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-xs font-black">Workspace Simulation Active: {currentRole}</p>
-              <p className="text-[11px] font-medium text-slate-350 leading-relaxed mt-0.5">
-                You are currently viewing simulated role subsets. To preview the ultimate, fully-loaded headquarters control room, toggle back to <strong className="text-amber-400">Super Admin</strong> inside the Role Switcher segmented control.
-              </p>
-            </div>
+        <div className="p-4 bg-amber-500/5 border border-amber-500/25 text-amber-500 rounded-2xl text-left flex items-start gap-3 shadow-lg">
+          <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5 text-amber-400 animate-pulse" />
+          <div className="flex-1">
+            <p className="text-xs font-black uppercase tracking-wider font-mono">
+              Current Role Debugger: <span className="text-white bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 rounded-md text-[10.5px]">Current Role: {activeRole}</span>
+            </p>
+            <p className="text-[10.5px] font-semibold text-slate-400 mt-1 leading-snug">
+              Dubai Jumeirah Campus centralized server active. Access operational portals seamlessly by clicking role subsets inside the Switcher row.
+            </p>
           </div>
-        )}
+        </div>
 
         {/* A. Executive Header (Dynamic Welcome, Quick Actions, Role Switcher) */}
         <ExecutiveHeader 
-          currentRole={currentRole}
-          onRoleChange={onRoleChange}
+          activeRole={activeRole}
+          setActiveRole={handleRoleChange}
           theme={theme}
           onTriggerNotification={onTriggerNotification}
           onTriggerActionModal={handleTriggerActionModal}
         />
 
-        {/* Render customized dynamic layout tailored precisely for each role */}
-        {currentRole === "Super Admin" && (
-          <>
-            {/* B. Generative AI Executive Briefing Panel */}
-            <AIExecutiveBriefing 
-              theme={theme}
-              onTriggerNotification={onTriggerNotification}
+        {/* Render separate page components depending on activeRole */}
+        <div className="space-y-2 mt-4" id="main-content-display-port">
+          
+          {activeRole === "Executive Admin" && (
+            <ExecutiveAdminPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
             />
+          )}
 
-            {/* C. Primary Metrics grid (Total values) */}
-            <KPIGrid 
-              theme={theme}
-              onTriggerNotification={onTriggerNotification}
+          {activeRole === "Branch Manager" && (
+            <BranchManagerPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
             />
+          )}
 
-            {/* D. Executive Charting Section (Line, Bar, Donut graphs) */}
-            <ExecutiveAnalytics 
-              theme={theme}
-              onTriggerNotification={onTriggerNotification}
+          {activeRole === "Admissions VP" && (
+            <AdmissionsVPPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
             />
+          )}
 
-            {/* E. Multi-Branch Command Table */}
-            <BranchHealthTable 
-              theme={theme}
-              onTriggerNotification={onTriggerNotification}
+          {activeRole === "Educator Pro" && (
+            <EducatorProPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
             />
+          )}
 
-            {/* K. AI Real-Time Risk Detection logs */}
-            <AIRiskPanel 
-              theme={theme}
-              onTriggerNotification={onTriggerNotification}
+          {activeRole === "Academic Coord" && (
+            <AcademicCoordinatorPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
             />
+          )}
 
-            {/* M. Live Notification logs and system feed */}
-            <ActivityFeed 
-              theme={theme}
-              onTriggerNotification={onTriggerNotification}
+          {activeRole === "Finance CFO" && (
+            <FinanceCFOPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
             />
-          </>
-        )}
+          )}
 
-        {currentRole === "Sales" && (
-          <SalesWorkspace 
-            theme={theme}
-            onTriggerNotification={onTriggerNotification}
-          />
-        )}
+          {activeRole === "Student Hub" && (
+            <StudentHubPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
+            />
+          )}
 
-        {currentRole === "Teacher" && (
-          <TeacherWorkspace 
-            theme={theme}
-            onTriggerNotification={onTriggerNotification}
-          />
-        )}
+          {activeRole === "Parent Portal" && (
+            <ParentPortalPage 
+              theme={theme} 
+              onTriggerNotification={onTriggerNotification} 
+            />
+          )}
 
-        {currentRole === "Branch Admin" && (
-          <BranchAdminWorkspace 
-            theme={theme}
-            onTriggerNotification={onTriggerNotification}
-          />
-        )}
-
-        {currentRole === "Academic Coordinator" && (
-          <CoordinatorWorkspace 
-            theme={theme}
-            onTriggerNotification={onTriggerNotification}
-          />
-        )}
-
-        {currentRole === "Finance Manager" && (
-          <FinanceWorkspace 
-            theme={theme}
-            onTriggerNotification={onTriggerNotification}
-          />
-        )}
+        </div>
 
       </main>
 
@@ -272,36 +299,30 @@ export default function CommandCentre({
               <Sparkles className="w-5 h-5 animate-pulse" />
               <p className="text-xs font-black uppercase font-mono tracking-wider">Authorize Action Payload</p>
             </div>
-            
-            <div className="space-y-1">
-              <h3 className="text-base font-black text-white">Execute: {activeActionModal.toUpperCase()} Workspace</h3>
-              <p className="text-xs text-slate-400">
-                You are executing administrative payloads directly into Plato's Planet database cores. Please type the instruction payload:
-              </p>
-            </div>
-
-            <form onSubmit={executeModalAction} className="space-y-3">
-              <input
-                type="text"
+            <p className="text-xs text-slate-400">
+              Discharging manual overrides inside {activeActionModal} modules. Type query specifications to commit.
+            </p>
+            <form onSubmit={executeModalAction} className="space-y-4">
+              <input 
+                type="text" 
                 value={actionInput}
                 onChange={(e) => setActionInput(e.target.value)}
-                placeholder="Type e.g. 'Register Zayed Al-Mansoori, Dubai Marina Campus, grade 10 IGCSE' ..."
-                className="w-full bg-slate-950 border border-slate-800 text-xs text-white p-3 rounded-2xl focus:outline-none focus:border-amber-500 placeholder-slate-600 font-bold"
-                required
+                placeholder="E.g. Broadcast to all families regarding upcoming National Day Holiday"
+                className="w-full p-3 bg-slate-950 border border-slate-800 text-xs text-white rounded-xl focus:outline-none focus:border-amber-500"
               />
-              <div className="flex justify-end gap-2 text-xs font-bold">
-                <button
-                  type="button"
+              <div className="flex justify-end gap-2 text-xs">
+                <button 
+                  type="button" 
                   onClick={() => setActiveActionModal(null)}
-                  className="px-4 py-2 hover:bg-slate-800 text-slate-400 rounded-xl transition-all cursor-pointer"
+                  className="px-4 py-2 hover:bg-slate-800 text-slate-350 font-bold rounded-xl"
                 >
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl transition-all cursor-pointer"
+                <button 
+                  type="submit" 
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black uppercase rounded-xl transition"
                 >
-                  Commit Payload
+                  Deploy Command
                 </button>
               </div>
             </form>

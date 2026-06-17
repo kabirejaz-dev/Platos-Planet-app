@@ -53,19 +53,19 @@ export default function SystemSpecs() {
   const [newLeadSource, setNewLeadSource] = useState<string>("Google Search");
 
   const [classproBatches, setClassproBatches] = useState<Array<{ id: string; name: string; capacity: number; enrolled: number; instructor: string; timing: string }>>([
-    { id: "batch-1", name: "Physics Board Booster CBSE 12A", capacity: 20, enrolled: 14, instructor: "Dr. Satish Kumar", timing: "Mon/Wed 05:00 PM" },
-    { id: "batch-2", name: "Extended Math IGCSE Premium X", capacity: 15, enrolled: 12, instructor: "Prof. Alistair Vance", timing: "Tue/Thu 04:30 PM" },
-    { id: "batch-3", name: "Biology Foundation Camp 10B", capacity: 25, enrolled: 19, instructor: "Dr. Farah Jamil", timing: "Fri 04:00 PM" }
+    { id: "batch-1", name: "Physics Board Booster CBSE 12A", capacity: 20, enrolled: 14, instructor: "Teacher 6", timing: "Mon/Wed 05:00 PM" },
+    { id: "batch-2", name: "Extended Math IGCSE Premium X", capacity: 15, enrolled: 12, instructor: "Teacher 7", timing: "Tue/Thu 04:30 PM" },
+    { id: "batch-3", name: "Biology Foundation Camp 10B", capacity: 25, enrolled: 19, instructor: "Teacher 8", timing: "Fri 04:00 PM" }
   ]);
   const [newBatchName, setNewBatchName] = useState<string>("");
   const [newBatchCap, setNewBatchCap] = useState<number>(20);
-  const [newBatchInstr, setNewBatchInstr] = useState<string>("Dr. Satish Kumar");
+  const [newBatchInstr, setNewBatchInstr] = useState<string>("Teacher 6");
   const [newBatchTime, setNewBatchTime] = useState<string>("Mon/Wed 06:00 PM");
 
   const [classproFeeInvoices, setClassproFeeInvoices] = useState<Array<{ id: string; studentName: string; baseFee: number; taxVat: number; totalFee: number; status: "Paid" | "Outstanding" }>>([
-    { id: "inv-1", studentName: "Rohan Bhatia", baseFee: 1500, taxVat: 75, totalFee: 1575, status: "Paid" },
-    { id: "inv-2", studentName: "Zayd Al-Mansoori", baseFee: 2200, taxVat: 110, totalFee: 2310, status: "Outstanding" },
-    { id: "inv-3", studentName: "Averroes S.", baseFee: 1800, taxVat: 90, totalFee: 1890, status: "Outstanding" }
+    { id: "inv-1", studentName: "Student 24", baseFee: 1500, taxVat: 75, totalFee: 1575, status: "Paid" },
+    { id: "inv-2", studentName: "Student 1", baseFee: 2200, taxVat: 110, totalFee: 2310, status: "Outstanding" },
+    { id: "inv-3", studentName: "Student 25", baseFee: 1800, taxVat: 90, totalFee: 1890, status: "Outstanding" }
   ]);
   const [newInvoiceStudent, setNewInvoiceStudent] = useState<string>("");
   const [newInvoiceBase, setNewInvoiceBase] = useState<number>(1000);
@@ -257,7 +257,7 @@ export default function SystemSpecs() {
                     <strong className="text-slate-200 font-semibold text-xs">As a Super Admin...</strong>
                   </div>
                   <p className="text-xs text-slate-400 leading-relaxed italic">
-                    "I want to track revenue, outstanding arrears, branch-wise staff performance, conversion ratios, and onboarding metrics across multiple campuses such as Al Qusais, Silicon Oasis, and Sharjah through a centralized telemetry console so we can maintain operational profitability."
+                    "I want to track revenue, outstanding arrears, branch-wise staff performance, conversion ratios, and onboarding metrics across our official operating branches through a centralized telemetry console so we can maintain operational profitability."
                   </p>
                 </div>
 
@@ -267,7 +267,7 @@ export default function SystemSpecs() {
                     <strong className="text-slate-200 font-semibold text-xs">As a Sales Agent...</strong>
                   </div>
                   <p className="text-xs text-slate-400 leading-relaxed italic">
-                    "I want a quick CRM Kanban pipeline showing leads progressing from Initial Inquiry → Warm Follow-up → Free Trial Class → Deposit Paid → KHDA Registration, so that we minimize leakages in the customer acquisition funnel."
+                    "I want a quick CRM Kanban pipeline showing leads progressing from Initial Inquiry → Warm Follow-up → Free Trial Class → Deposit Paid → Official Registration, so that we minimize leakages in the customer acquisition funnel."
                   </p>
                 </div>
 
@@ -506,7 +506,7 @@ export default function SystemSpecs() {
               </div>
 
               <p className="text-xs text-slate-400 leading-relaxed">
-                Rendered container topology. Designed for 100,000+ concurrent students across 5 locations with high availability and Docker container clustering.
+                Rendered container topology. Designed to scale seamlessly for growing K-12 tuition centres with robust multi-branch high availability.
               </p>
 
               {/* ASCII/Visual Layout box of servers */}
@@ -641,15 +641,15 @@ export default function SystemSpecs() {
                     </div>
                     <div className="flex justify-between border-b border-slate-900 py-1">
                       <span className="text-slate-500">2. Free Trial Booking</span>
-                      <span className="bg-slate-955 text-brand-yellow font-mono text-[9px] px-1.5 rounded">Al Qusais campus</span>
+                      <span className="bg-slate-955 text-brand-yellow font-mono text-[9px] px-1.5 rounded">Main Branch</span>
                     </div>
                     <div className="flex justify-between border-b border-slate-900 py-1">
                       <span className="text-slate-500">3. Deposit Settle</span>
                       <span className="bg-emerald-950 text-emerald-400 font-mono text-[9px] px-1.5 rounded">Paid via link</span>
                     </div>
                     <div className="flex justify-between py-1">
-                      <span className="text-slate-500">4. KHDA Portal Sync</span>
-                      <span className="bg-blue-950 text-blue-400 font-mono text-[9px] px-1.5 rounded">Registered UAE database</span>
+                      <span className="text-slate-500">4. Compliance Portal Sync</span>
+                      <span className="bg-blue-950 text-blue-400 font-mono text-[9px] px-1.5 rounded">Registered system database</span>
                     </div>
                   </div>
                 </div>
@@ -768,7 +768,7 @@ export default function SystemSpecs() {
                 <div>
                   <span className="text-[10px] text-emerald-400 font-mono uppercase tracking-wider block">Chapter 11 • Interactive Admin Live Sandpit</span>
                   <h3 className="text-xl font-bold text-white tracking-tight flex items-center gap-1.5">
-                    Classpro Live CRM &amp; Management Console
+                    Coaching CRM &amp; Management Console (Inspired by ClassPro)
                   </h3>
                 </div>
                 <div className="bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full text-emerald-400 text-xs font-mono">
@@ -776,12 +776,20 @@ export default function SystemSpecs() {
                 </div>
               </div>
 
+              {/* Legal disclaimer banner regarding inspiration, not affiliation */}
+              <div className="p-3.5 bg-slate-950 border border-indigo-500/30 rounded-2xl flex items-start gap-2.5">
+                <span className="text-sm">⚖️</span>
+                <p className="text-[11px] text-indigo-300 leading-normal">
+                  <strong>Disclaimer:</strong> Platform features are inspired by common education management workflows. Plato’s Planet is not affiliated with, sponsored by, or partner of third-party brands such as ClassPro, Allen, Aakash, Byju’s, or Physics Wallah.
+                </p>
+              </div>
+
               {/* CRM Lead Pipeline Manager */}
               <div className="bg-slate-900/40 border border-slate-900 rounded-xl p-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-                    Classpro High-Fidelity Lead CRM Registry
+                    High-Fidelity Lead CRM Registry
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono">{classproLeads.length} active leads</span>
                 </div>
@@ -932,7 +940,7 @@ export default function SystemSpecs() {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse"></span>
-                    Allen &amp; Physics Wallah-Compatible Batch Provisioning
+                    Advanced Class-Batch Provisioning Engine
                   </span>
                   <span className="text-[10px] text-slate-500 font-mono">{classproBatches.length} Active Batches</span>
                 </div>
@@ -1066,7 +1074,7 @@ export default function SystemSpecs() {
                       <label className="text-[10px] text-slate-400 block">Student Registered Name</label>
                       <input 
                         type="text" 
-                        placeholder="e.g. Zayd Al-Mansoori" 
+                        placeholder="e.g. Student 1" 
                         value={newInvoiceStudent}
                         onChange={(e) => setNewInvoiceStudent(e.target.value)}
                         className="w-full bg-slate-900 border border-slate-800 rounded px-2.5 py-1 text-slate-200 text-xs focus:outline-none"
@@ -1158,9 +1166,9 @@ export default function SystemSpecs() {
                   </span>
                   <button 
                     onClick={() => {
-                      const names = ["Rohan Bhatia", "Zayd Al-Mansoori", "Sarah Hussain", "Aisha Al-Mansoori", "Vihaan Nair"];
+                      const names = ["Student 24", "Student 1", "Student 27", "Student 28", "Student 26"];
                       const randomName = names[Math.floor(Math.random() * names.length)];
-                      const hubs = ["Dubai Al Qusais Hub", "Abu Dhabi Branch A", "Sharjah Rolla Gate"];
+                      const hubs = ["Main Branch Hub", "Online Campus Hub", "Alpha Campus Hub"];
                       const currentHub = hubs[Math.floor(Math.random() * hubs.length)];
                       const timeString = new Date().toLocaleTimeString();
 
@@ -1203,9 +1211,9 @@ const postgresDDL = `
 CREATE TABLE branches (
   id VARCHAR(64) PRIMARY KEY,
   name VARCHAR(128) NOT NULL,
-  location VARCHAR(256) NOT NULL, -- e.g. "Al Qusais, Dubai, UAE"
+  location VARCHAR(256) NOT NULL, -- e.g. "Main Branch, Dubai, UAE"
   phone VARCHAR(32),
-  license_number VARCHAR(128),     -- KHDA UAE official license
+  license_number VARCHAR(128),     -- UAE local operating license
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -1299,15 +1307,15 @@ const apiSampleJson = `{
   "data": {
     "lead": {
       "id": "lead-381x-9",
-      "studentName": "Zayd Al-Mansoori",
-      "parentName": "Al-Mansoori Family",
+      "studentName": "Student 1",
+      "parentName": "Parent 1",
       "curriculum": "British",
       "targetGrade": "Grade 10",
       "assignedBranch": {
-        "id": "branch-al-qusais",
+        "id": "branch-main",
         "name": "Plato's Planet Hub Dubai",
         "phone": "+971 4 263 6253",
-        "address": "Al Qusais Building, Ground Floor, Dubai"
+        "address": "Official Operating Address, Dubai"
       },
       "pipelineStatus": "Trial Scheduled",
       "stripeDraftInvoiceId": "inv_1Nz789L34"

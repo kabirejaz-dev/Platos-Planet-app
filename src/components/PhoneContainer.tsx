@@ -12,6 +12,7 @@ import {
   MapPin,
   MapPinHouse
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig, PlatosPlanetConfigType } from "../platosPlanetConfig";
 
 interface PhoneContainerProps {
   children: React.ReactNode;
@@ -21,6 +22,15 @@ interface PhoneContainerProps {
 }
 
 export default function PhoneContainer({ children, title = "Plato's Planet Hub", sideComponent, isWidescreen = false }: PhoneContainerProps) {
+  const [platosConfig, setPlatosConfig] = useState<PlatosPlanetConfigType>(() => getStoredPlatosPlanetConfig());
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setPlatosConfig(getStoredPlatosPlanetConfig());
+    };
+    window.addEventListener("platos_planet_config_updated", handleUpdate);
+    return () => window.removeEventListener("platos_planet_config_updated", handleUpdate);
+  }, []);
   const [useDeviceFrame, setUseDeviceFrame] = useState(true);
   const [deviceType, setDeviceType] = useState<"android" | "ios">("ios");
   const [timeStr, setTimeStr] = useState("12:00");
@@ -206,7 +216,7 @@ export default function PhoneContainer({ children, title = "Plato's Planet Hub",
                     <div className="w-full bg-brand-blue-dark px-4 py-1 flex items-center justify-between text-[9px] text-brand-yellow/95 border-b border-brand-blue/30">
                       <span className="flex items-center gap-1 font-mono tracking-wider font-bold">
                         <MapPin className="w-2.5 h-2.5 text-brand-red animate-pulse" />
-                        DUBAI & SHARJAH, UAE (CAMPUSES: AL QUSAIS | SHARJAH)
+                        OFFICIAL PLATO CAMPUSES: {[...platosConfig.officialBranches].map(b => b.toUpperCase()).join(" | ")}
                       </span>
                       <span className="bg-brand-red text-white px-1.5 py-0.5 rounded-sm font-extrabold tracking-tight">K-12 REGISTERED</span>
                     </div>
@@ -245,9 +255,11 @@ export default function PhoneContainer({ children, title = "Plato's Planet Hub",
                 <div className="w-full bg-brand-blue-dark px-4 py-1.5 flex items-center justify-between text-[11px] text-slate-350 border-b border-brand-blue/30">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-brand-red animate-pulse" />
-                    Plato's Planet Dubai & Sharjah (Branches: Al Qusais | Sharjah)
+                    {platosConfig.officialCompanyName} ({platosConfig.officialBranches.join(" | ")})
                   </span>
-                  <span className="text-brand-yellow font-bold tracking-wider font-mono">Licensed KHDA UAE</span>
+                  <span className="text-brand-yellow font-bold tracking-wider font-mono text-[9px] uppercase">
+                    {platosConfig.approvedClaims.approvals}
+                  </span>
                 </div>
                 <div className="flex-1 flex flex-col overflow-y-auto bg-slate-950">
                   {children}

@@ -52,7 +52,14 @@ function AppContent() {
   const [selectedCourseForEnroll, setSelectedCourseForEnroll] = useState<Course | null>(null);
   
   // High fidelity role configuration selector - defaulting to Super Admin as shown in the picture
-  const [currentRole, setCurrentRole] = useState<RoleType>("Super Admin");
+  const [currentRole, setCurrentRole] = useState<RoleType>(() => {
+    try {
+      const stored = localStorage.getItem("plato_active_role");
+      return (stored as RoleType) || "Super Admin";
+    } catch {
+      return "Super Admin";
+    }
+  });
   
   // Audio guidance system state
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -93,7 +100,7 @@ function AppContent() {
 
   // Dynamic user profile structure
   const [profile, setProfile] = useState<StudentProfile>({
-    name: "Zayd Al-Mansoori",
+    name: "Student 1",
     grade: "10 (Secondary)",
     curriculum: "British",
     streak: 6,
@@ -229,19 +236,16 @@ function AppContent() {
 
   const handleRoleChange = (role: RoleType) => {
     setCurrentRole(role);
+    try {
+      localStorage.setItem("plato_active_role", role);
+    } catch {}
     triggerLocalNotification(
       `🔑 Role Switched: ${role}`,
       `Loaded workspace layout and tools calibrated for ${role}.`
     );
   };
 
-  const isAdminRole = 
-    currentRole === "Super Admin" || 
-    currentRole === "Branch Admin" || 
-    currentRole === "Sales" || 
-    currentRole === "Teacher" || 
-    currentRole === "Academic Coordinator" ||
-    currentRole === "Finance Manager";
+  const isAdminRole = !["Student", "Parent"].includes(currentRole);
 
   const handleAddChatMessage = (newMsg: ChatMessage) => {
     setChats(prev => [...prev, newMsg]);
@@ -257,7 +261,7 @@ function AppContent() {
           onTriggerNotification={triggerLocalNotification}
         />
       ) : (
-        <div className={`w-full min-h-full flex flex-col relative transition-all duration-300 ${theme === "light" ? "day-mode bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100"}`}>
+        <div className={`w-full h-full flex flex-col overflow-hidden relative transition-all duration-300 ${theme === "light" ? "day-mode bg-slate-50 text-slate-900" : "bg-slate-950 text-slate-100"}`}>
         {/* App brand strip */}
         <div className="w-full bg-brand-blue-dark px-4 py-3 flex items-center justify-between border-b border-brand-blue/30 sticky top-0 z-40">
           <div className="flex items-center gap-1.5">
@@ -344,7 +348,7 @@ function AppContent() {
       )}
 
       {/* Active Tab rendering router */}
-      <div className="flex-1 pb-16">
+      <div className="flex-1 overflow-y-auto pb-16">
         {activeTab === "dashboard" && (
           currentRole === "Parent" ? (
             <ParentDashboard 

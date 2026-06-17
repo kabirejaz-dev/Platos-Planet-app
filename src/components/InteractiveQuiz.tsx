@@ -214,7 +214,7 @@ export default function InteractiveQuiz({ profile, onAwardXp }: InteractiveQuizP
           <div className="space-y-1">
             <span className="text-xs font-bold text-slate-200 block">Sourcing Planetary Intelligence</span>
             <p className="text-[10px] text-slate-500 max-w-[200px] leading-relaxed">
-              Generating challenging MCQ test suite matched precisely with KHDA training parameters...
+              Generating challenging MCQ test suite matched precisely with official curriculum specifications...
             </p>
           </div>
         </div>

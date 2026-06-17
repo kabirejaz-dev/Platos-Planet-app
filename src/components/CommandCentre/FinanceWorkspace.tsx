@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import FinanceOverview from "./FinanceOverview";
 import { useGlobalAction } from "../GlobalActionContext";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface FinanceWorkspaceProps {
   theme: "dark" | "light";
@@ -25,12 +26,15 @@ interface FinanceWorkspaceProps {
 
 export default function FinanceWorkspace({ theme, onTriggerNotification }: FinanceWorkspaceProps) {
   const { openModal } = useGlobalAction();
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
+
   // Outstanding parent billing lists
   const [deficitsList, setDeficitsList] = useState([
-    { id: "def-1", parent: "Fatima Al-Suwaidi", student: "Hamdan Al-Suwaidi", balance: "AED 8,400", delay: "22 days overdue", branch: "Al Qusais" },
-    { id: "def-2", parent: "Michael Sterling", student: "Chloe Sterling", balance: "AED 12,400", delay: "16 days overdue", branch: "Dubai Marina" },
-    { id: "def-3", parent: "Rajesh Chawla", student: "Mohammad Chawla", balance: "AED 5,200", delay: "11 days overdue", branch: "Business Bay" },
-    { id: "def-4", parent: "Amina Al-Mansoor", student: "Zayed Al-Mansoor", balance: "AED 3,100", delay: "5 days overdue", branch: "Silicon Oasis" },
+    { id: "def-1", parent: "Fatima Al-Suwaidi", student: "Hamdan Al-Suwaidi", balance: "AED 8,400", delay: "22 days overdue", branch: branches[0] || "Main Campus" },
+    { id: "def-2", parent: "Michael Sterling", student: "Chloe Sterling", balance: "AED 12,400", delay: "16 days overdue", branch: branches[1] || "Branch 1" },
+    { id: "def-3", parent: "Rajesh Chawla", student: "Mohammad Chawla", balance: "AED 5,200", delay: "11 days overdue", branch: branches[2] || "Branch 2" },
+    { id: "def-4", parent: "Amina Al-Mansoor", student: "Zayed Al-Mansoor", balance: "AED 3,100", delay: "5 days overdue", branch: "Online Campus" },
   ]);
 
   const [marketingSpendFactor, setMarketingSpendFactor] = useState(4000); // Slider factor

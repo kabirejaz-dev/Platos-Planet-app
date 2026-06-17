@@ -20,6 +20,7 @@ import {
   Video
 } from "lucide-react";
 import { useGlobalAction } from "./GlobalActionContext";
+import { getStoredPlatosPlanetConfig } from "../platosPlanetConfig";
 
 interface ParentDashboardProps {
   profile: StudentProfile;
@@ -33,6 +34,8 @@ export default function ParentDashboard({
   onTriggerNotification
 }: ParentDashboardProps) {
   const { openModal } = useGlobalAction();
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
   // Tabs within Parent dashboard: "overview" | "subjects" | "actions" | "copilot"
   const [parentTab, setParentTab] = useState<"overview" | "subjects" | "actions" | "copilot">("overview");
 
@@ -46,7 +49,7 @@ export default function ParentDashboard({
   const [chatMessages, setChatMessages] = useState<Array<{ sender: "user" | "ai"; text: string }>>([
     {
       sender: "ai",
-      text: `Hello! I am Plato parent advisor. I have analyzed Zayd's performance profile in British IGCSE. Ask me anything about his exam readiness, weak chapters, revision load, or attendance.`
+      text: `Hello! I am Plato parent advisor. I have analyzed Student 1's performance profile in British IGCSE. Ask me anything about their exam readiness, weak chapters, revision load, or attendance.`
     }
   ]);
 
@@ -63,9 +66,9 @@ export default function ParentDashboard({
     let aiResponse = "";
 
     if (type === "status") {
-      aiResponse = `📊 **Child Success Status**: Zayd's academic health is currently **GOOD (82% Exam Ready)**.\n\nHe has maintained a stellar **6-Day Study Streak** and registered excellent attendance (**94.5%** across tutoring logs). Physics is his strongest subject (Grade A, 88% mastery), while Chemistry is his primary development area (Grade B, weak on Organic Chemistry).`;
+      aiResponse = `📊 **Child Success Status**: Student 1's academic health is currently **GOOD (82% Exam Ready)**.\n\nHe has maintained a stellar **6-Day Study Streak** and registered excellent attendance (**94.5%** across tutoring logs). Physics is his strongest subject (Grade A, 88% mastery), while Chemistry is his primary development area (Grade B, weak on Organic Chemistry).`;
     } else if (type === "improve") {
-      aiResponse = `🎯 **Actionable Improvement Plan**:\n\n1. **Chemistry Organic compounds**: Have him solve the specialized *Organic Chemistry Practice Sheet* on Plato's Revision Vault.\n2. **Physics Electromagnetism**: Re-watch Dr. Richard Feynman's live lecture replay in the Media Hub.\n3. **Weekly Practice**: Complete Wednesday's diagnostic mock paper. An incremental score improvement of **+6%** is projected if completed this week!`;
+      aiResponse = `🎯 **Actionable Improvement Plan**:\n\n1. **Chemistry Organic compounds**: Have him solve the specialized *Organic Chemistry Practice Sheet* on Plato's Revision Vault.\n2. **Physics Electromagnetism**: Re-watch Teacher 1's live lecture replay in the Media Hub.\n3. **Weekly Practice**: Complete Wednesday's diagnostic mock paper. An incremental score improvement of **+6%** is projected if completed this week!`;
     } else {
       aiResponse = `📅 **Exam Readiness Projection**:\n\n* **Current Readiness**: 82%\n* **Projected Grade by June 2026**: physics (A), Mathematics (A*), Chemistry (B).\n* **Calculated Workload**: Recommended 45 minutes of daily focused revision on Plato's app to ensure readiness increases to **89%** prior to board exam simulations next month. At-risk score indicator is **LOW**.`;
     }
@@ -86,7 +89,7 @@ export default function ParentDashboard({
     setInputText("");
 
     setTimeout(() => {
-      const respText = `📝 Thanks for asking! I've logged Zayd's continuous study performance tracking. He recently achieved high marks on his past paper trials (+150 XP achieved today). I highly recommend having him attend the upcoming Live Chemistry Class. Would you like me to schedule a 1-on-1 PTM Counseling Session with his Academic Coach?`;
+      const respText = `📝 Thanks for asking! I've logged Student 1's continuous study performance tracking. He recently achieved high marks on his past paper trials (+150 XP achieved today). I highly recommend having him attend the upcoming Live Chemistry Class. Would you like me to schedule a 1-on-1 PTM Counseling Session with his Academic Coach?`;
       setChatMessages(prev => [...prev, { sender: "ai", text: respText }]);
     }, 600);
   };
@@ -112,7 +115,7 @@ export default function ParentDashboard({
               PARENT SUCCESS CONSOLE
             </span>
             <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-1.5">
-              <span>Hi, Mr. Al-Mansoori</span> <span className="text-xl">👋</span>
+              <span>Hi, Parent 1</span> <span className="text-xl">👋</span>
             </h2>
             <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
               Track your child <strong className="text-slate-100">{profile.name}</strong>'s school performance, syllabus coverages, and boarding exam readiness in real-time.
@@ -201,117 +204,161 @@ export default function ParentDashboard({
 
       {/* 3. Render Dashboard depending on view */}
 
-      {/* VIEW A: SUMMARY SNAPSHOT */}
+      {/* VIEW A: SUMMARY SNAPSHOT (WEALTHFRONT FOR EDUCATION IMPLEMENTATION) */}
       {parentTab === "overview" && (
         <div className="space-y-6 animate-fade-in">
           
-          {/* Key Indicators Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1 text-left">
-              <p className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-widest leading-none">
-                ATTENDANCE INDEX
-              </p>
-              <h4 className="text-lg font-bold text-white tracking-tight">94.5%</h4>
-              <p className="text-[9.5px] text-emerald-400 font-bold">Excellent Coverage</p>
-            </div>
+          {/* Wealthfront Style: Academic Capital Allocation Header Portfolio */}
+          <div className="p-6 rounded-3xl bg-slate-900 border border-slate-800 text-left relative overflow-hidden shadow-2xl">
+            <div className="absolute right-0 top-0 w-80 h-80 bg-gradient-to-bl from-electric-blue/10 via-neon-cyan/5 to-transparent blur-3xl pointer-events-none" />
+            <div className="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+              
+              {/* Left Column: Investment (Academic) Health */}
+              <div className="space-y-2.5 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-neon-mint ring-4 ring-neon-mint/20 animate-pulse" />
+                  <span className="text-[9px] font-mono font-black text-neon-mint uppercase tracking-widest">
+                    ACTIVE PORTFOLIO APPRAISAL STATE
+                  </span>
+                </div>
+                <h3 className="text-3xl font-display font-black text-white tracking-tight leading-none">
+                  Student 1's Academic Index Score: <span className="text-neon-cyan font-mono font-black">87%</span>
+                </h3>
+                <div className="flex items-center gap-2.5 text-[11px] text-slate-350">
+                  <span className="text-neon-mint font-bold flex items-center gap-1">
+                    <TrendingUp className="w-3.5 h-3.5" /> +3.4% projected growth
+                  </span>
+                  <span>•</span>
+                  <span>Compared to Cambridge standard peer velocity</span>
+                </div>
+              </div>
 
-            <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1 text-left">
-              <p className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-widest leading-none">
-                HOMEWORK STATUS
-              </p>
-              <h4 className="text-lg font-bold text-white tracking-tight">21 / 22 Done</h4>
-              <p className="text-[9.5px] text-slate-400 font-semibold">95.4% Rate</p>
-            </div>
+              {/* Right Column: Key Wealthfront Portfolio Parameters */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-850 text-center leading-none flex flex-col justify-between">
+                  <span className="text-[7.5px] text-slate-500 font-extrabold uppercase tracking-widest block mb-2 leading-none">ATTENDANCE TREND</span>
+                  <div className="space-y-1">
+                    <span className="text-lg font-black text-white block">94.5%</span>
+                    <span className="text-[8px] text-neon-mint font-semibold block leading-none">🚀 96% Projected</span>
+                  </div>
+                </div>
 
-            <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1 text-left">
-              <p className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-widest leading-none">
-                OUTSTANDING TUITION
-              </p>
-              <h4 className="text-lg font-bold text-white tracking-tight">
-                {unpaidFees > 0 ? "AED 1,450" : "AED 0.00"}
-              </h4>
-              <p className={`text-[9.5px] font-bold ${unpaidFees > 0 ? "text-rose-450" : "text-emerald-450"}`}>
-                {unpaidFees > 0 ? "Term 2 Billing Due" : "Fully Cleared ✨"}
-              </p>
-            </div>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-850 text-center leading-none flex flex-col justify-between">
+                  <span className="text-[7.5px] text-slate-500 font-extrabold uppercase tracking-widest block mb-2 leading-none">RISK ASSESSMENT</span>
+                  <div className="space-y-1">
+                    <span className="text-lg font-black text-neon-cyan block">MINIMAL 🛡️</span>
+                    <span className="text-[8px] text-neon-cyan/70 font-semibold block leading-none">Safe Orbit</span>
+                  </div>
+                </div>
 
-            <div className="p-4 bg-slate-900/60 border border-slate-850 rounded-2xl space-y-1 text-left">
-              <p className="text-[8px] font-mono font-black text-slate-500 uppercase tracking-widest leading-none">
-                CURRENT STREAK
-              </p>
-              <h4 className="text-lg font-bold text-indigo-400 flex items-center gap-1">
-                🔥 {profile.streak} Days
-              </h4>
-              <p className="text-[9.5px] text-amber-500 font-bold uppercase tracking-wider">Top 5% of Dubai</p>
+                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-850 text-center leading-none flex flex-col justify-between col-span-2 sm:col-span-1">
+                  <span className="text-[7.5px] text-slate-500 font-extrabold uppercase tracking-widest block mb-2 leading-none">STUDY STREAK</span>
+                  <div className="space-y-1">
+                    <span className="text-lg font-black text-hot-coral block">14 Days</span>
+                    <span className="text-[8px] text-hot-coral/70 font-semibold block leading-none">Dubai Top 5%</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
+          {/* Academic Asset Allocation & Predictive Grade Benchmarks */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            {/* Left: Feedback timeline (Syllabus Coverage & PTM Comments) */}
-            <div className="lg:col-span-7 bg-slate-950 border border-slate-850 p-5 rounded-2xl text-left space-y-4">
-              <div className="flex items-center justify-between pb-2 border-b border-white/[0.04]">
+            {/* Left: Interactive Asset Class Breakdown (IGCSE Subjects & Predicted Performance) */}
+            <div className="lg:col-span-7 bg-slate-950 border border-slate-850 p-6 rounded-3xl text-left space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-white/[0.04]">
                 <div>
-                  <h3 className="text-xs font-black text-white uppercase tracking-wider">
-                    Teacher Feedback & Updates
+                  <h3 className="text-xs font-black text-white uppercase tracking-wider font-mono text-neon-cyan">
+                    📊 ACADEMIC ASSET ALLOCATION
                   </h3>
-                  <p className="text-[9px] text-slate-500 mt-0.5">Syllabus progression reports with actual coaching feedback points</p>
+                  <p className="text-[10px] text-slate-450 mt-1">Real-time mastery index & June 2026 Board predicted grades</p>
                 </div>
-                <BookOpen className="w-4 h-4 text-indigo-500" />
+                <ArrowUpRight className="w-4 h-4 text-neon-cyan" />
               </div>
 
-              <div className="space-y-4">
+              {/* Subject Asset table modeled after wealth allocation charts */}
+              <div className="space-y-5">
                 {[
                   {
-                    subject: "Physics IGCSE",
-                    instructor: "Dr. Richard Feynman",
-                    badgeColor: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-                    comment: "Zayd has achieved 88% mastery. His active recall in electromagnetism remains solid. Weakness is purely thermal equations.",
-                    progress: 88,
-                    rec: "Keep solving Variant past paper 2 over the coming week."
+                    subject: "Physics (Extended IGCSE)",
+                    instructor: "Teacher 1",
+                    mastery: 88,
+                    grade: "A",
+                    improvement: "+2.4%",
+                    color: "bg-electric-blue",
+                    textColor: "text-neon-cyan",
+                    textGlow: "shadow-[0_0_8px_rgba(0,102,255,0.4)]"
                   },
                   {
-                    subject: "Chemistry IGCSE",
-                    instructor: "Prof. Marie Curie",
-                    badgeColor: "bg-indigo-500/10 text-indigo-400 border-indigo-550",
-                    comment: "Strong in inorganic analysis. He fell slightly behind in organic chemical compounds but the app chatbot practice is correcting this.",
-                    progress: 74,
-                    rec: "Attempt 'Chemistry Organic 101' flashcards on revision menu."
+                    subject: "Chemistry (Extended IGCSE)",
+                    instructor: "Teacher 3",
+                    mastery: 74,
+                    grade: "B",
+                    improvement: "+4.1%",
+                    color: "bg-neo-purple",
+                    textColor: "text-purple-400",
+                    textGlow: "shadow-[0_0_8px_rgba(157,78,221,0.4)]"
                   },
                   {
-                    subject: "Mathematics",
-                    instructor: "Prof. Alan Turing",
-                    badgeColor: "bg-emerald-500/10 text-emerald-450 border-emerald-500/25",
-                    comment: "Incredible trigonometry work! He regularly completes challenges with pristine working. High marks expected.",
-                    progress: 95,
-                    rec: "Cleared for advanced simulated mockup series next week."
+                    subject: "Advanced Mathematics",
+                    instructor: "Teacher 2",
+                    mastery: 95,
+                    grade: "A*",
+                    improvement: "+1.0%",
+                    color: "bg-neon-cyan",
+                    textColor: "text-neon-cyan",
+                    textGlow: "shadow-[0_0_10px_rgba(0,242,254,0.5)]"
                   }
                 ].map((fb, idx) => (
-                  <div key={idx} className="p-3 bg-slate-900/60 border border-slate-855 rounded-xl space-y-3">
-                    <div className="flex items-center justify-between">
+                  <div key={idx} className="space-y-2">
+                    <div className="flex items-center justify-between text-[11px]">
                       <div>
-                        <h4 className="text-[11px] font-black text-slate-200">{fb.subject}</h4>
-                        <span className="text-[8px] text-slate-500 block">Instructor: {fb.instructor}</span>
+                        <strong className="text-slate-100">{fb.subject}</strong>
+                        <span className="text-[9px] text-slate-500 block">Instructor: {fb.instructor}</span>
                       </div>
-                      <span className={`px-2 py-0.5 text-[8.5px] font-mono rounded-md border ${fb.badgeColor}`}>
-                        {fb.progress}% Mastery
-                      </span>
+                      <div className="text-right">
+                        <span className="font-mono font-black text-white bg-slate-900 border border-slate-800 px-2 py-0.5 rounded-lg text-xs">
+                          Class Grade: {fb.grade}
+                        </span>
+                        <span className="text-[9px] text-neon-mint font-black block mt-1">{fb.improvement} Improvement</span>
+                      </div>
                     </div>
 
-                    <p className="text-[10px] text-slate-350 leading-relaxed">
-                      " {fb.comment} "
-                    </p>
-
-                    <div className="pt-2 border-t border-slate-900/80 flex items-center justify-between text-[9px] text-slate-450">
-                      <span><strong>Next Action:</strong> {fb.rec}</span>
+                    {/* Horizontal asset bar */}
+                    <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-white/[0.02]">
+                      <div 
+                        className={`h-full rounded-full ${fb.color} ${fb.textGlow} transition-all duration-500`}
+                        style={{ width: `${fb.mastery}%` }}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between text-[8.5px] font-mono text-slate-500 pt-0.5">
+                      <span>CURRENT MASTERY: {fb.mastery}%</span>
+                      <span className="text-neon-cyan">TARGET: A* (92%)</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Right: Quick actions panel (Billing and meeting booking) */}
+            {/* Right Side Column containing Alerts, PTM Video Conferences, and quick actions */}
             <div className="lg:col-span-5 space-y-4">
+              
+              {/* Intelligent Risk & Academic Alert system */}
+              <div className="p-5 rounded-3xl bg-slate-900/65 border border-slate-800 text-left space-y-3 relative overflow-hidden">
+                <div className="absolute right-0 top-0 w-24 h-24 bg-neon-cyan/5 blur-xl rounded-full" />
+                <div className="flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-neon-mint shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-mono font-black text-white uppercase tracking-wider leading-none">PORTFOLIO SECURITY HEALTH</h4>
+                    <p className="text-[10px] text-slate-400 font-semibold leading-relaxed">
+                      Student 1's risk model is logged as <strong className="text-neon-mint">EXCEPTIONAL</strong>. High homework completion scores and regular revision sessions suggest a safe path towards Grade A/A* without risk of learning loss.
+                    </p>
+                  </div>
+                </div>
+              </div>
               
               {/* Payment Alert Box */}
               {unpaidFees > 0 ? (
@@ -353,7 +400,7 @@ export default function ParentDashboard({
                   </p>
                   <h4 className="text-xs font-black text-slate-200">PTM Parent-Teacher Meetings</h4>
                   <p className="text-[10px] text-slate-450 leading-relaxed font-semibold">
-                    Arrange a live digital video conference with Coordinator Fatima or Zayd's primary lecturers.
+                    Arrange a live digital video conference with the coordinator or Student 1's primary lecturers.
                   </p>
                 </div>
 
@@ -404,7 +451,7 @@ export default function ParentDashboard({
         <div className="space-y-6 animate-fade-in text-left">
           <div className="space-y-1">
             <h3 className="text-sm font-black text-white uppercase tracking-wider">
-              Dubai Marina Campus Syllabus Analytics
+              {branches[0] || 'Main Branch'} Syllabus Analytics
             </h3>
             <p className="text-[11.5px] text-slate-450 leading-relaxed font-semibold">
               Deep dive diagnostic metrics logged across secondary grade learning paths. Track predicted vs target score metrics in real-time.

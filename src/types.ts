@@ -47,6 +47,6 @@ export interface LeadQuery {
   email: string;
   courseId: string;
   curriculum: CurriculumType;
-  preferredCampus: "Al Qusais" | "Silicon Oasis" | "Online Hub" | "Sharjah Campus";
+  preferredCampus: string;
   message: string;
 }

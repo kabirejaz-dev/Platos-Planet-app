@@ -18,6 +18,7 @@ import {
   School,
   AlertCircle
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../platosPlanetConfig";
 import { motion, AnimatePresence } from "motion/react";
 
 interface StudyGroupsProps {
@@ -52,6 +53,8 @@ export default function StudyGroups({
   triggerNotification,
   onAwardXp 
 }: StudyGroupsProps) {
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
   const [rooms, setRooms] = useState<Room[]>([]);
   const [activeRoomId, setActiveRoomId] = useState<string>("group-cbse-math-10");
   const [messages, setMessages] = useState<ServerMessage[]>([]);
@@ -236,44 +239,44 @@ export default function StudyGroups({
   const getPeersForRoom = (roomId: string) => {
     const peersLists: Record<string, {name: string, school: string, suffix: string}[]> = {
       "group-robo-astro": [
-        { name: "Mira Al-Mheiri", school: "GEMS Modern Academy", suffix: "🥇 790 XP" },
-        { name: "Khaled Al-Marri", school: "Silicon Oasis Hub", suffix: "👾 580 XP" },
-        { name: "Maria Fedorova", school: "Silicon Oasis Hub", suffix: "🚀 360 XP" }
+        { name: "Student 16", school: "GEMS Modern Academy", suffix: "🥇 790 XP" },
+        { name: "Student 17", school: branches[0] || "Main Campus", suffix: "👾 580 XP" },
+        { name: "Student 18", school: branches[0] || "Main Campus", suffix: "🚀 360 XP" }
       ],
       "group-cbse-math-10": [
-        { name: "Aarav Sharma", school: "Delhi Private School", suffix: "🥈 720 XP" },
-        { name: "Arjun Verma", school: "Sharjah Campus", suffix: "✍️ 430 XP" },
-        { name: "Diya Narayanan", school: "Al Qusais Centre", suffix: "🎨 490 XP" }
+        { name: "Student 6", school: "Delhi Private School", suffix: "🥈 720 XP" },
+        { name: "Student 19", school: branches[1] || "Supporting Campus", suffix: "✍️ 430 XP" },
+        { name: "Student 20", school: "Online Campus", suffix: "🎨 490 XP" }
       ],
       "group-british-igcse-physics": [
-        { name: "Sarah Higgins", school: "Dubai College", suffix: "🥉 640 XP" },
-        { name: "Ryan Parker", school: "Jumeirah College", suffix: "🇬🇧 510 XP" }
+        { name: "Student 21", school: "Dubai College", suffix: "🥉 640 XP" },
+        { name: "Student 22", school: "Jumeirah College", suffix: "🇬🇧 510 XP" }
       ],
       "group-coding-python-games": [
-        { name: "Khaled Al-Marri", school: "Silicon Oasis Hub", suffix: "👾 580 XP" },
-        { name: "Maria Fedorova", school: "Silicon Oasis Hub", suffix: "🚀 360 XP" }
+        { name: "Student 17", school: branches[0] || "Main Campus", suffix: "👾 580 XP" },
+        { name: "Student 18", school: branches[0] || "Main Campus", suffix: "🚀 360 XP" }
       ],
       "group-british-igcse-math": [
-        { name: "Sarah Higgins", school: "Dubai College", suffix: "🥉 640 XP" },
-        { name: "Ryan Parker", school: "Jumeirah College", suffix: "🇬🇧 510 XP" }
+        { name: "Student 21", school: "Dubai College", suffix: "🥉 640 XP" },
+        { name: "Student 22", school: "Jumeirah College", suffix: "🇬🇧 510 XP" }
       ],
       "group-british-igcse-chemistry": [
-        { name: "Sarah Higgins", school: "Dubai College", suffix: "🥉 640 XP" },
-        { name: "Ryan Parker", school: "Jumeirah College", suffix: "🇬🇧 510 XP" }
+        { name: "Student 21", school: "Dubai College", suffix: "🥉 640 XP" },
+        { name: "Student 22", school: "Jumeirah College", suffix: "🇬🇧 510 XP" }
       ],
       "group-cbse-science-10": [
-        { name: "Aarav Sharma", school: "Delhi Private School", suffix: "🥈 720 XP" },
-        { name: "Diya Narayanan", school: "Al Qusais Centre", suffix: "🎨 490 XP" },
-        { name: "Arjun Verma", school: "Sharjah Campus", suffix: "✍️ 430 XP" }
+        { name: "Student 6", school: "Delhi Private School", suffix: "🥈 720 XP" },
+        { name: "Student 20", school: "Online Campus", suffix: "🎨 490 XP" },
+        { name: "Student 19", school: branches[1] || "Supporting Campus", suffix: "✍️ 430 XP" }
       ],
       "group-cbse-math-12": [
-        { name: "Aarav Sharma", school: "Delhi Private School", suffix: "🥈 720 XP" },
-        { name: "Arjun Verma", school: "Sharjah Campus", suffix: "✍️ 430 XP" }
+        { name: "Student 6", school: "Delhi Private School", suffix: "🥈 720 XP" },
+        { name: "Student 19", school: branches[1] || "Supporting Campus", suffix: "✍️ 430 XP" }
       ]
     };
     return peersLists[roomId] || [
-      { name: "Zainab Rashid", school: "Online Hub", suffix: "🌌 220 XP" },
-      { name: "Mira Al-Mheiri", school: "GEMS Modern", suffix: "🥇 790 XP" }
+      { name: "Student 23", school: "Online Hub", suffix: "🌌 220 XP" },
+      { name: "Student 16", school: "GEMS Modern", suffix: "🥇 790 XP" }
     ];
   };
 

@@ -3,6 +3,7 @@ import {
   Bell, CheckCircle2, UserPlus, DollarSign, 
   HelpCircle, AlertTriangle, Calendar, RefreshCw 
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface ActivityItem {
   id: string;
@@ -15,12 +16,15 @@ interface ActivityItem {
 }
 
 export default function ActivityFeed({ theme, onTriggerNotification }: { theme: "dark" | "light", onTriggerNotification: (title: string, desc: string) => void }) {
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const branches = platosConfig.officialBranches;
+
   const [activities, setActivities] = useState<ActivityItem[]>([
-    { id: "act1", type: "Enrollment", title: "New student enrolled", desc: "Zayed Al-Mansoori has completed registration for the IGCSE Chemistry Master batch.", timestamp: "2 mins ago", branch: "Dubai Marina", isRead: false },
-    { id: "act2", type: "Payment", title: "Fee payment received", desc: "AED 12,400 successfully collected via Apple Pay for JVC batch tuition fees.", timestamp: "12 mins ago", branch: "JVC Node", isRead: false },
-    { id: "act3", type: "Faculty Alert", title: "Teacher absent substitute designated", desc: "Dr. Richard Feynman substitute approved for Algebra Block B Tuesdays.", timestamp: "45 mins ago", branch: "Al Qusais", isRead: true },
-    { id: "act4", type: "PTM Request", title: "Parent meeting requested", desc: "Father of Aarav Sharma requested an evening Zoom sync regarding biology mock exam grades.", timestamp: "1 hour ago", branch: "Sharjah", isRead: false },
-    { id: "act5", type: "CRM Inbound", title: "New high-ROI WhatsApp lead created", desc: "Inbound campaign target score: 94%. Assigned instantly to local sales coordinators.", timestamp: "2 hours ago", branch: "Business Bay", isRead: true }
+    { id: "act1", type: "Enrollment", title: "New student enrolled", desc: "Student 1 has completed registration for the IGCSE Chemistry Master batch.", timestamp: "2 mins ago", branch: branches[0] || "Main Branch", isRead: false },
+    { id: "act2", type: "Payment", title: "Fee payment received", desc: "AED 12,400 successfully collected via Apple Pay for batch tuition fees.", timestamp: "12 mins ago", branch: "Online Campus", isRead: false },
+    { id: "act3", type: "Faculty Alert", title: "Teacher absent substitute designated", desc: "Teacher 1 substitute approved for Algebra Block B Tuesdays.", timestamp: "45 mins ago", branch: branches[0] || "Main Branch", isRead: true },
+    { id: "act4", type: "PTM Request", title: "Parent meeting requested", desc: "Parent of Student 6 requested an evening Zoom sync regarding biology mock exam grades.", timestamp: "1 hour ago", branch: branches[1] || "Online Campus", isRead: false },
+    { id: "act5", type: "CRM Inbound", title: "New high-ROI WhatsApp lead created", desc: "Inbound campaign target score: 94%. Assigned instantly to local sales coordinators.", timestamp: "2 hours ago", branch: "Online Campus", isRead: true }
   ]);
 
   const handleMarkAsRead = (id: string, title: string) => {

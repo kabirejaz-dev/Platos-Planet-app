@@ -45,7 +45,7 @@ const DEMO_LESSONS: DemoLesson[] = [
     subject: "Mathematics",
     curriculum: "CBSE",
     grade: "Grade 10",
-    instructor: "Dr. Satish Kumar (PhD, IIT Alumni)",
+    instructor: "Teacher 6 (PhD, IIT Alumni)",
     duration: "10 mins interactive",
     xpReward: 60,
     badgeId: "badge-quiz",
@@ -58,7 +58,7 @@ const DEMO_LESSONS: DemoLesson[] = [
     subject: "Physics",
     curriculum: "IGCSE",
     grade: "Grade 11",
-    instructor: "Prof. Alistair Vance (Cambridge certified)",
+    instructor: "Teacher 7 (Cambridge certified)",
     duration: "12 mins interactive",
     xpReward: 70,
     badgeId: "badge-quiz",
@@ -71,7 +71,7 @@ const DEMO_LESSONS: DemoLesson[] = [
     subject: "Mathematics",
     curriculum: "CBSE",
     grade: "Grade 12",
-    instructor: "Mrs. Meenu Raj (M.Sc. Head of Maths)",
+    instructor: "Teacher 9 (M.Sc. Head of Maths)",
     duration: "15 mins interactive",
     xpReward: 80,
     badgeId: "badge-quiz",
@@ -84,7 +84,7 @@ const DEMO_LESSONS: DemoLesson[] = [
     subject: "Chemistry",
     curriculum: "IGCSE",
     grade: "Grade 10",
-    instructor: "Dr. Farah Jamil (Senior Chemistry Lead)",
+    instructor: "Teacher 8 (Senior Chemistry Lead)",
     duration: "8 mins interactive",
     xpReward: 50,
     badgeId: "badge-quiz",
@@ -935,7 +935,7 @@ export default function DemoClasses({ onAwardXp, onBookSelectedCourse }: DemoCla
           </div>
 
           <p className="text-[10px] text-slate-500 text-center">
-            Lessons reflect physical training syllabus licensed under KHDA Dubai coordinates.
+            Lessons reflect curated course syllabi designed to align with authorized educational boards.
           </p>
         </div>
       )}

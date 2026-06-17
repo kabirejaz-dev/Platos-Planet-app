@@ -1,13 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;750;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-brand-blue: #024089;
-  --color-brand-blue-dark: #01295c;
-  --color-brand-blue-light: #1671e6;
-  --color-brand-red: #e11a22;
-  --color-brand-red-hover: #c41219;
-  --color-brand-yellow: #fdb813;
-  --color-brand-gold: #ffc20e;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom Fluorescent Theme Colors for Plato 2026 */
+  --color-electric-blue: #4D7CFF;
+  --color-neo-purple: #7B61FF;
+  --color-neon-cyan: #00F0FF;
+  --color-neon-mint: #00FFA3;
+  --color-electric-lime: #C6FF00;
+  --color-hot-coral: #FF6B7A;
+  
+  --color-brand-blue: #4D7CFF;
+  --color-brand-blue-dark: #0A0E1A;
+  --color-brand-blue-light: #00F0FF;
+  --color-brand-red: #FF6B7A;
+  --color-brand-red-hover: #e55a68;
+  --color-brand-yellow: #C6FF00;
+  --color-brand-gold: #00FFA3;
 }
 
 @utility perspective-1000 {
@@ -23,12 +36,78 @@
   transform: rotateY(180deg);
 }
 
+/* Glassmorphism, card lifts, neon gradients and custom scrollbars for 2026 feel */
+@utility glass-dark {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@utility glass-light {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@utility neon-shadow-blue {
+  box-shadow: 0 0 20px rgba(77, 124, 255, 0.25);
+}
+
+@utility neon-shadow-purple {
+  box-shadow: 0 0 20px rgba(123, 97, 255, 0.25);
+}
+
+@utility neon-shadow-cyan {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+}
+
+@utility neon-shadow-mint {
+  box-shadow: 0 0 20px rgba(0, 255, 163, 0.3);
+}
+
+/* Animations declarations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@utility animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: #0A0E1A;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 /* ==========================================================================
    DAY MODE & MORNING STUDY OPTIMIZATION THEME OVERRIDES
    ========================================================================== */
 .day-mode {
   color-scheme: light;
-  background-color: #f1f5f9 !important;
+  background-color: #F8FAFC !important;
 }
 
 /* Day Mode Container Backgrounds - Light Slate for background wash */
@@ -38,7 +117,7 @@
 .day-mode .bg-slate-950\/40,
 .day-mode .bg-slate-950\/60,
 .day-mode #app-full-expanded {
-  background-color: #f1f5f9 !important;
+  background-color: #F8FAFC !important;
   background-image: none !important;
 }
 
@@ -52,7 +131,8 @@
 .day-mode .bg-gradient-to-tr {
   background-color: #ffffff !important;
   background-image: none !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02) !important;
+  border-color: rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Ensure selected tab and list indicators look warm and crisp in Light Mode */
@@ -63,7 +143,7 @@
 .day-mode .border-white\/\[0\.02\],
 .day-mode .border-white\/\[0\.03\],
 .day-mode .border-slate-850\/50 {
-  border-color: #cbd5e1 !important;
+  border-color: #e2e8f0 !important;
 }
 
 /* Day Mode High Contrast Slate Typography */
@@ -72,7 +152,7 @@
 .day-mode .text-slate-300,
 .day-mode .text-slate-305,
 .day-mode .text-slate-50,
-.day-mode .text-[#FFF],
+.day-mode .text-white,
 .day-mode h1,
 .day-mode h2,
 .day-mode h3,
@@ -87,31 +167,12 @@
 .day-mode .text-slate-405,
 .day-mode .text-slate-450,
 .day-mode .text-slate-455 {
-  color: #334155 !important; /* Steel gray */
+  color: #475569 !important; /* Steel gray */
 }
 
 .day-mode .text-slate-500,
 .day-mode .text-slate-600 {
   color: #64748b !important; /* Soft slate gray */
-}
-
-/* Maintain crisp white text inside colored action buttons and badges */
-.day-mode .bg-brand-blue .text-slate-100,
-.day-mode .bg-brand-blue-dark .text-slate-100,
-.day-mode .bg-brand-blue .text-white,
-.day-mode .bg-brand-red .text-white,
-.day-mode .bg-brand-red .text-slate-100,
-.day-mode .bg-emerald-500 .text-white,
-.day-mode .bg-emerald-600 .text-white,
-.day-mode button.bg-brand-red .text-slate-100,
-.day-mode button.bg-brand-blue .text-slate-100,
-.day-mode button.bg-brand-blue-dark .text-slate-100,
-.day-mode [class*="bg-brand-"] .text-white,
-.day-mode [class*="bg-brand-"] .text-slate-100,
-.day-mode [class*="bg-emerald-"] .text-white,
-.day-mode [class*="bg-slate-900"] .text-brand-yellow {
-  /* Retain high-contrast white text for solid badges */
-  color: inherit; 
 }
 
 /* Overrides for dynamic interactive Form fields and Input areas */
@@ -135,20 +196,11 @@
 }
 
 /* Ambient glow & indicators tweaks */
-.day-mode .bg-brand-red\/10 {
-  background-color: rgba(225, 26, 34, 0.08) !important;
-}
-.day-mode .text-brand-red {
-  color: #e11a22 !important;
-}
-.day-mode .text-brand-blue {
-  color: #024089 !important;
-}
 .day-mode .text-brand-yellow {
-  color: #d97706 !important; /* Slightly darker amber for light-mode visibility */
+  color: #b5cc00 !important;
 }
 .day-mode .text-emerald-400 {
-  color: #059669 !important; /* Darker emerald for daytime reading */
+  color: #0d9488 !important; /* Darker teal/emerald for daytime reading */
 }
 
 /* Interactive custom card transitions */

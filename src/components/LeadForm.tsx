@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Course, LeadQuery } from "../types";
 import { PLATO_COURSES } from "../data";
+import { getStoredPlatosPlanetConfig } from "../platosPlanetConfig";
 import { 
   Building, 
   User, 
@@ -22,6 +23,7 @@ interface LeadFormProps {
 }
 
 export default function LeadForm({ initialCourse, onEnrollSuccess }: LeadFormProps) {
+  const platosConfig = getStoredPlatosPlanetConfig();
   const [formData, setFormData] = useState<LeadQuery>({
     studentName: "",
     parentName: "",
@@ -29,7 +31,7 @@ export default function LeadForm({ initialCourse, onEnrollSuccess }: LeadFormPro
     email: "",
     courseId: initialCourse?.id || PLATO_COURSES[0].id,
     curriculum: initialCourse?.curriculum || PLATO_COURSES[0].curriculum,
-    preferredCampus: "Al Qusais",
+    preferredCampus: platosConfig.officialBranches[0] || "Main Branch",
     message: ""
   });
 
@@ -219,9 +221,9 @@ export default function LeadForm({ initialCourse, onEnrollSuccess }: LeadFormPro
                 onChange={handleInputChange}
                 className="w-full bg-slate-900 border border-slate-800 px-3 py-2 rounded-lg text-slate-250 focus:outline-none focus:border-brand-yellow cursor-pointer"
               >
-                <option value="Al Qusais">Al Qusais Hub (Centrally opposite Metro Station)</option>
-                <option value="Silicon Oasis">Dubai Silicon Oasis Hub</option>
-                <option value="Sharjah Campus">Sharjah Branch (Exclusive STEM & Language Hub)</option>
+                {platosConfig.officialBranches.map((branchName) => (
+                  <option key={branchName} value={branchName}>{branchName}</option>
+                ))}
                 <option value="Online Hub">Plato Digital Virtual Classroom</option>
               </select>
             </div>
@@ -290,7 +292,7 @@ export default function LeadForm({ initialCourse, onEnrollSuccess }: LeadFormPro
         </div>
       )}
 
-      {/* Immediate Dubai Call Center Hotlines Bar */}
+      {/* Immediate Call Center Hotlines Bar */}
       <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-900 flex justify-between items-center text-[11px]">
         <div className="space-y-0.5">
           <span className="text-slate-450 block font-light">Quick Hotline dial:</span>
@@ -300,7 +302,7 @@ export default function LeadForm({ initialCourse, onEnrollSuccess }: LeadFormPro
           href="tel:+971509643133"
           className="px-3 py-1.5 bg-brand-blue-dark hover:bg-brand-blue border border-brand-blue/40 text-brand-yellow font-bold rounded-lg cursor-pointer transition-colors"
         >
-          Call Al Qusais
+          Call {platosConfig.officialBranches[0] || 'Main Branch'}
         </a>
       </div>
     </div>

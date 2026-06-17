@@ -7,7 +7,7 @@ export interface Lead {
   curriculum: "IGCSE" | "A-Level" | "CBSE";
   grade: string;
   source: "Google Ads" | "Meta Ads" | "TikTok" | "Website" | "Walk-In" | "Referral" | "School Visit";
-  branch: "Al Furjan" | "Dubai Marina" | "JVC" | "Business Bay" | "Silicon Oasis";
+  branch: string;
   score: number; // 0-100
   probability: number; // percentage
   expectedRevenue: number;
@@ -23,7 +23,7 @@ export interface TrialClass {
   parentName: string;
   curriculum: "IGCSE" | "A-Level" | "CBSE";
   grade: string;
-  branch: "Al Furjan" | "Dubai Marina" | "JVC" | "Business Bay" | "Silicon Oasis";
+  branch: string;
   subject: string;
   datetime: string;
   status: "Upcoming" | "Attended" | "Missed" | "Converted";
@@ -46,7 +46,7 @@ export interface CalendarEvent {
   studentName: string;
   parentName: string;
   datetime: string;
-  branch: "Al Furjan" | "Dubai Marina" | "JVC" | "Business Bay" | "Silicon Oasis";
+  branch: string;
 }
 
 export interface ActivityLog {

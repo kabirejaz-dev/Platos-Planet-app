@@ -3,6 +3,7 @@ import {
   Sparkles, ShieldCheck, Filter, ArrowUpRight, 
   Target, TrendingUp, Users, Calendar, PhoneCall, RefreshCw, Send 
 } from "lucide-react";
+import { getStoredPlatosPlanetConfig } from "../../platosPlanetConfig";
 
 interface FunnelStep {
   stage: string;
@@ -16,10 +17,12 @@ interface FunnelStep {
 export default function SalesPipeline({ theme, onTriggerNotification }: { theme: "dark" | "light", onTriggerNotification: (title: string, desc: string) => void }) {
   const [activeStage, setActiveStage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const platosConfig = getStoredPlatosPlanetConfig();
+  const firstBranch = platosConfig.officialBranches[0] || "Main Campus";
 
   const stats = [
     { label: "Active Pipeline Leads", value: "3,892", trend: "+12.4% MoM climb", count: "350 incoming today" },
-    { label: "Active Trials Booked", value: "482", trend: "31% Conversion Target", count: "42 active Al Qusais slots" },
+    { label: "Active Trials Booked", value: "482", trend: "31% Conversion Target", count: `42 active ${firstBranch} slots` },
     { label: "Scholarship Grants Approved", value: "AED 340K", trend: "Fully budgeted", count: "24 premium registrations" },
     { label: "Follow-Ups Backlog Due", value: "119 Due", trend: "Critical priority", count: "Average response: 12m" }
   ];

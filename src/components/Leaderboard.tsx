@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { StudentProfile } from "../types";
 import { Trophy, Sparkles, RefreshCw, Search, School, Award, Medal, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { getStoredPlatosPlanetConfig } from "../platosPlanetConfig";
 
 interface LeaderboardProps {
   currentProfile: StudentProfile;
@@ -18,6 +19,7 @@ interface LeaderboardUser {
 }
 
 export default function Leaderboard({ currentProfile }: LeaderboardProps) {
+  const platosConfig = getStoredPlatosPlanetConfig();
   const [dbStudents, setDbStudents] = useState<LeaderboardUser[]>([]);
   const [filterCurriculum, setFilterCurriculum] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -44,15 +46,15 @@ export default function Leaderboard({ currentProfile }: LeaderboardProps) {
       setErrorStatus("Using offline school cache.");
       // Soft local fallback if endpoint is somehow blocked
       const fallback = [
-        { id: "leader_1", name: "Mira Al-Mheiri", school: "GEMS Modern Academy", curriculum: "CBSE", xp: 790, avatar: "🥇", badge: "Math Prodigy" },
-        { id: "leader_2", name: "Aarav Sharma", school: "Delhi Private School", curriculum: "CBSE", xp: 720, avatar: "🥈", badge: "Science Topper" },
-        { id: "leader_3", name: "Sarah Higgins", school: "Dubai College", curriculum: "British", xp: 640, avatar: "🥉", badge: "A* Physics" },
-        { id: "leader_4", name: "Khaled Al-Marri", school: "Silicon Oasis Hub", curriculum: "British", xp: 580, avatar: "👾", badge: "Chemistry Wiz" },
-        { id: "leader_5", name: "Ryan Parker", school: "Jumeirah College", curriculum: "British", xp: 510, avatar: "🇬🇧", badge: "IGCSE Champ" },
-        { id: "leader_6", name: "Diya Narayanan", school: "Al Qusais Centre", curriculum: "Creative Arts & Test Prep", xp: 490, avatar: "🎨", badge: "Public Speaking" },
-        { id: "leader_7", name: "Arjun Verma", school: "Sharjah Campus", curriculum: "CBSE", xp: 430, avatar: "✍️", badge: "Speed Maths" },
-        { id: "leader_8", name: "Maria Fedorova", school: "Silicon Oasis Hub", curriculum: "Creative Arts & Test Prep", xp: 360, avatar: "🚀", badge: "Oratory Star" },
-        { id: "leader_9", name: "Zainab Rashid", school: "Online Hub", curriculum: "British", xp: 220, avatar: "🌌", badge: "Astro Scholar" }
+        { id: "leader_1", name: "Student 16", school: "GEMS Modern Academy", curriculum: "CBSE", xp: 790, avatar: "🥇", badge: "Math Prodigy" },
+        { id: "leader_2", name: "Student 6", school: "Delhi Private School", curriculum: "CBSE", xp: 720, avatar: "🥈", badge: "Science Topper" },
+        { id: "leader_3", name: "Student 21", school: "Dubai College", curriculum: "British", xp: 640, avatar: "🥉", badge: "A* Physics" },
+        { id: "leader_4", name: "Student 17", school: platosConfig.officialBranches[0] || "Main Campus", curriculum: "British", xp: 580, avatar: "👾", badge: "Chemistry Wiz" },
+        { id: "leader_5", name: "Student 22", school: "Jumeirah College", curriculum: "British", xp: 510, avatar: "🇬🇧", badge: "IGCSE Champ" },
+        { id: "leader_6", name: "Student 20", school: platosConfig.officialBranches[1] || platosConfig.officialBranches[0] || "Main Campus", curriculum: "Creative Arts & Test Prep", xp: 490, avatar: "🎨", badge: "Public Speaking" },
+        { id: "leader_7", name: "Student 19", school: "Our Own High School", curriculum: "CBSE", xp: 430, avatar: "✍️", badge: "Speed Maths" },
+        { id: "leader_8", name: "Student 18", school: platosConfig.officialBranches[2] || platosConfig.officialBranches[0] || "Main Campus", curriculum: "Creative Arts & Test Prep", xp: 360, avatar: "🚀", badge: "Oratory Star" },
+        { id: "leader_9", name: "Student 23", school: "Online Hub", curriculum: "British", xp: 220, avatar: "🌌", badge: "Astro Scholar" }
       ];
       setDbStudents(fallback);
       setLastRefreshed(new Date().toLocaleTimeString());

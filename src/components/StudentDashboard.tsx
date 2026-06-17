@@ -116,78 +116,110 @@ export default function StudentDashboard({
   };
 
   return (
-    <div id="student-executive-dashboard-root" className="px-4 py-6 space-y-6 max-w-7xl mx-auto pb-28 text-left font-sans select-none">
+    <div id="student-executive-dashboard-root" className="px-4 py-6 space-y-6 max-w-7xl mx-auto pb-28 text-left font-sans select-none animate-fade-in">
       
-      {/* Dynamic Hero Success Header Block */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-slate-900 border border-slate-805 shadow-xl overflow-hidden group">
-        {/* Abstract glowing vector background */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-b from-amber-500/10 via-amber-500/5 to-transparent blur-3xl rounded-full pointer-events-none group-hover:from-amber-500/15 transition-all" />
-        <div className="absolute bottom-0 left-0 w-44 h-44 bg-indigo-500/5 blur-2xl rounded-full pointer-events-none" />
-
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2 max-w-xl">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">👋</span>
-              <h2 className="text-xl font-black text-white tracking-tight">
-                Welcome back, {profile.name || "Sara"}
-              </h2>
+      {/* 2026 NEON LEARNING OS: HERO OPERATING SYSTEM FRAME */}
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-electric-blue via-neo-purple to-neon-cyan text-white shadow-2xl border border-white/10 overflow-hidden group neon-shadow-blue">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/10 via-transparent to-black/20 mix-blend-overlay pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 blur-3xl rounded-full pointer-events-none group-hover:bg-white/10 transition-all duration-700" />
+        
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-4 max-w-2xl">
+            <div className="flex items-center gap-2.5">
+              <span className="text-3xl animate-bounce">👋</span>
+              <div>
+                <span className="text-[9px] font-mono font-black text-neon-cyan uppercase tracking-[0.25em] block">STUDENT ACADEMIC OS</span>
+                <h2 className="text-2xl font-display font-black text-white tracking-tight mt-0.5">
+                  Hi {profile.name || "Sara"}
+                </h2>
+              </div>
             </div>
             
-            <p className="text-[13px] text-amber-500 font-extrabold leading-normal">
-              🏆 You are {readinessScore}% exam-ready.
-            </p>
-            <p className="text-xs text-slate-400 leading-relaxed font-semibold">
-              Complete <span className="text-white underline underline-offset-4 decoration-amber-500/50">Physics Variant 2</span> and <span className="text-white underline underline-offset-4 decoration-amber-500/50">Chemistry Organic Practice</span> today to reach target <span className="text-amber-500 font-extrabold">85% readiness mark!</span>
-            </p>
+            {/* Daily Core Missions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-black/25 backdrop-blur-md p-4 rounded-2xl border border-white/10 shadow-lg">
+              <div>
+                <span className="text-[8.5px] font-mono text-neon-mint font-black tracking-widest uppercase block mb-1">
+                  🎯 TODAY'S CORE MISSION
+                </span>
+                <p className="text-sm font-semibold text-white leading-relaxed">
+                  Continue Physics Revision & Solve Organic Chemistry
+                </p>
+              </div>
+              <div className="border-t sm:border-t-0 sm:border-l border-white/10 pt-3 sm:pt-0 sm:pl-4 flex flex-col justify-center">
+                <span className="text-[8.5px] font-mono text-neon-cyan font-black tracking-widest uppercase block mb-1">
+                  📈 EXPECTED CORE IMPACT
+                </span>
+                <span className="text-xs font-black text-neon-mint flex items-center gap-1.5 font-mono">
+                  +2% Exam Readiness • Claim +30 XP
+                </span>
+              </div>
+            </div>
 
-            {/* Quick interactive actions inside Hero block */}
-            <div className="flex flex-wrap gap-2.5 pt-3.5">
+            {/* Action buttons inside Hero block */}
+            <div className="flex flex-wrap gap-2.5 pt-1.5">
               <button
                 onClick={handleStudyCheckIn}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10.5px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-amber-500/15"
+                className="px-4 py-2 bg-gradient-to-r from-neon-cyan to-neon-mint text-slate-900 text-[10.5px] font-black uppercase tracking-wider rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1.5 shadow-lg shadow-neon-mint/20 animate-pulse"
               >
-                <Flame className="w-4 h-4 fill-current animate-bounce" />
+                <Flame className="w-4 h-4 fill-current" />
                 <span>Elevate Streak (+30 XP)</span>
               </button>
 
               <button
                 onClick={() => handleManualAwardXp(15)}
-                className="px-4 py-2 bg-slate-950 border border-slate-850 hover:border-slate-800 text-slate-300 text-[10.5px] font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1"
+                className="px-4 py-2 bg-black/40 hover:bg-black/65 border border-white/10 text-white text-[10.5px] font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center gap-1"
               >
-                <Sparkle className="w-3.5 h-3.5 text-amber-500" />
+                <Sparkle className="w-3.5 h-3.5 text-neon-cyan" />
                 <span>Claim daily rewards</span>
               </button>
             </div>
           </div>
 
-          {/* Quick metric stats bubble board */}
-          <div className="flex flex-wrap items-center gap-4 bg-slate-950/80 p-4 border border-slate-850 rounded-2xl w-full md:w-auto self-stretch md:self-auto justify-around">
-            <div className="text-center px-4 leading-none">
-              <span className="text-2xl font-black font-mono text-amber-500 block">{readinessScore}%</span>
-              <span className="text-[7.5px] text-slate-500 font-black uppercase tracking-widest mt-1.5 block">READINESS</span>
+          {/* Performance statistics inspired by Apple Fitness and Wealthfront */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-2 gap-3 shrink-0">
+            <div className="bg-black/30 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 flex flex-col justify-between shadow-md">
+              <span className="text-[9px] font-mono text-white/70 font-bold uppercase tracking-widest block mb-1">READINESS</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black font-mono text-neon-mint">{readinessScore}%</span>
+                <span className="text-[10px] text-neon-mint/70">Score</span>
+              </div>
             </div>
-            <div className="w-px bg-slate-850 h-8 hidden sm:block" />
-            <div className="text-center px-4 leading-none">
-              <span className="text-2xl font-black font-mono text-indigo-400 block">{studyStreak} Days</span>
-              <span className="text-[7.5px] text-slate-500 font-black uppercase tracking-widest mt-1.5 block">STREAK</span>
+
+            <div className="bg-black/30 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 flex flex-col justify-between shadow-md">
+              <span className="text-[9px] font-mono text-white/70 font-bold uppercase tracking-widest block mb-1">STREAK</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black font-mono text-hot-coral">{studyStreak} Days</span>
+                <span className="text-[10px] text-hot-coral/70">Streak</span>
+              </div>
             </div>
-            <div className="w-px bg-slate-850 h-8 hidden sm:block" />
-            <div className="text-center px-4 leading-none">
-              <span className="text-2xl font-black font-mono text-white block">{xpPoints} XP</span>
-              <span className="text-[7.5px] text-slate-500 font-black uppercase tracking-widest mt-1.5 block">PLANETS XP</span>
+
+            <div className="bg-black/30 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 flex flex-col justify-between shadow-md">
+              <span className="text-[9px] font-mono text-white/70 font-bold uppercase tracking-widest block mb-1">PREDICTED GRADE</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black font-mono text-neon-cyan">A*</span>
+                <span className="text-[9px] font-mono text-neon-cyan/70 font-black">TARGET</span>
+              </div>
+            </div>
+
+            <div className="bg-black/30 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 flex flex-col justify-between shadow-md">
+              <span className="text-[9px] font-mono text-white/70 font-bold uppercase tracking-widest block mb-1">PLANETARY XP</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-2xl font-black font-mono text-white">{xpPoints} XP</span>
+                <span className="text-[10px] text-white/70">Earned</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Student Fast Operations Ribbon */}
-      <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex flex-wrap items-center gap-3">
+      {/* Student Fast Operations Ribbon - Neon Actions toolbelt */}
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-3xl flex flex-wrap items-center gap-3 shadow-md">
         <span className="text-[10px] font-bold text-slate-400 tracking-wider uppercase font-mono mr-2">
           Daily Orbit Actions:
         </span>
         <button
           onClick={() => openModal("STUDENT_START_STUDYING")}
-          className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 animate-pulse"
+          className="px-3.5 py-1.5 bg-electric-blue hover:bg-electric-blue/90 text-white rounded-xl text-xs font-black transition cursor-pointer flex items-center gap-1.5 shadow-md shadow-electric-blue/15"
           aria-label="Start Study Session"
         >
           <span>🚀 Start Session</span>
@@ -197,7 +229,7 @@ export default function StudentDashboard({
           className="px-3.5 py-1.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-200 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5"
           aria-label="Ask Plato AI"
         >
-          <span>🧠 Ask Plato AI</span>
+          <span className="text-neon-cyan">🧠 Ask Plato AI</span>
         </button>
         <button
           onClick={() => openModal("STUDENT_UPLOAD_DOUBT")}
@@ -226,17 +258,17 @@ export default function StudentDashboard({
       <div className="flex items-center gap-1.5 overflow-x-auto py-1 pr-4 no-scrollbar scroll-smooth">
         {(
           [
-            { id: "all", label: "🪐 Complete Command Center" },
-            { id: "journey", label: "🌌 Star Odyssey Path" },
-            { id: "academics", label: "⚙️ Exam Command HQ" },
-            { id: "coach", label: "🧠 Plato Coach & doubts" },
-            { id: "revision", label: "📚 Revision PDF Vault" },
+            { id: "all", label: "🪐 Command Center" },
+            { id: "journey", label: "🌌 Star Odyssey" },
+            { id: "academics", label: "⚙️ Exam HQ" },
+            { id: "coach", label: "🧠 Coach & Doubts" },
+            { id: "revision", label: "📚 Revision PDF" },
             { id: "wellbeing", label: "🌱 Mind Wellbeing" },
-            { id: "schedule", label: "📅 Syllabus Scheduler" },
+            { id: "schedule", label: "📅 Scheduler" },
             { id: "library", label: "📚 Vault Library" },
-            { id: "leaderboard", label: "🏆 Burj Toppers" },
-            { id: "groups", label: "👥 Study Circles" },
-            { id: "democlasses", label: "🎓 Specimen Lessons" }
+            { id: "leaderboard", label: "🏆 Toppers" },
+            { id: "groups", label: "👥 Circles" },
+            { id: "democlasses", label: "🎓 Specimen" }
           ]
         ).map((pill) => (
           <button
@@ -250,8 +282,8 @@ export default function StudentDashboard({
             }}
             className={`px-4 py-2 whitespace-nowrap text-[10px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
               activeSegment === pill.id
-                ? "bg-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/10"
-                : "bg-slate-900 text-slate-450 hover:text-slate-200 border border-slate-805"
+                ? "bg-gradient-to-r from-electric-blue to-neo-purple text-white font-black shadow-lg shadow-electric-blue/20 animate-pulse"
+                : "bg-slate-900 text-slate-400 hover:text-slate-100 border border-slate-800"
             }`}
           >
             {pill.label}
